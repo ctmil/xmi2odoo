@@ -23,3 +23,42 @@
 import sys, os
 import argparse
 
+def convert(func, infile, logfile, target):
+    """
+    Convert XMI file to a set of OpenERP modules.
+    """
+    import pdb; pdb.set_trace()
+    pass
+
+def main():
+    """
+    Main function. Parse arguments and execute conversion.
+    """
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('infile', nargs='?',
+                        type=argparse.FileType('r'),
+                        default=sys.stdin,
+                        help='XMI input file')
+    parser.add_argument('logfile', nargs='?',
+                        type=argparse.FileType('w'),
+                        default=sys.stdout,
+                        help='Log processing')
+    parser.add_argument('target', metavar='target', type=str, nargs='?', help='Target directory of openerp modules')
+
+    parser.set_defaults(func=convert,
+                        target=os.getcwd())
+
+    args = parser.parse_args()
+
+    try:
+        args.func(**args.__dict__)
+    except Exception, m:
+        print   "ERROR:", m.message
+        return -1
+    return 0
+
+if __name__ == '__main__':
+        main()
+
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

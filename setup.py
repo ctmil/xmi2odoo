@@ -28,9 +28,9 @@ setup(name='xmi2oerp',
       author='Cristian S. Rocha',
       author_email='cristian.rocha@moldeointeractive.com.ar',
       url='http://www.moldeointeractive.com.ar/',
-      scripts=['scripts/xmi2oerp'],
       packages=['xmi2oerp'],
-      test_suite='tests',
+      scripts=['xmi2oerp/bin/xmi2oerp'],
+      test_suite='xmi2oerp.test',
       install_requires=[],
       dependency_links=[]
    )
