@@ -1,0 +1,18 @@
+<CPackage(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010A4', name:'myaddon')>
+  <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010A5', name:'person')>
+    <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010A6', name:'name', size=None)>
+      <CDataType(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:0000000000000B9C', name:'Char')>
+  <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010B1', name:'email')>
+    <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010B7', name:'name', size=None)>
+      <CDataType(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:0000000000000B9C', name:'Char')>
+  <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D8', name:'document')>
+    <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D9', name:'number', size=None)>
+      <CDataType(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:0000000000000B97', name:'Integer')>
+    <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010E7', name:'tipo', size=None)>
+      <CEnumeration(xmi_id:'17', name:'tipo_documento', items:['dni', 'cuit', 'passport'])>
+  <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010F7', name:'emaillist')>
+    <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010F8', name:'name', size=None)>
+      <CDataType(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:0000000000000B9C', name:'Char')>
+  <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:0000000000001115', name:'estudios')>
+    <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:0000000000001116', name:'name', size=None)>
+      <CDataType(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:0000000000000B9C', name:'Char')>
