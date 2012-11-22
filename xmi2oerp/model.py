@@ -27,20 +27,22 @@ from sqlalchemy.orm import sessionmaker
 import pkg_resources, os, sys
 import uml
 
-class XMIParser:
-    """Engine parser to XMI file (http://www.omg.org/technology/documents/modeling_spec_catalog.htm)
+class Model:
+    """UML Model.
+    
+    Engine parser read XMI files (http://www.omg.org/technology/documents/modeling_spec_catalog.htm)
 
     Read a simple XMI file and compare the result with the expected output stored in .out file.
 
-    >>> xmiObj = XMIParser()
-    >>> xmiObj.parse("xmi2oerp/test/data/test_001.xmi")
+    >>> model = Model()
+    >>> model.load("xmi2oerp/test/data/test_001.xmi")
     >>> out = open("xmi2oerp/test/data/test_001.out").read()
-    >>> str(repr(xmiObj)) == out.strip()
+    >>> str(repr(model)) == out.strip()
     True
 
     Iterate for all entities xmi_ids
 
-    >>> for xmi_id in xmiObj:
+    >>> for xmi_id in model:
     ...     print xmi_id
     127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000866
     -84-17--56-5-43645a83:11466542d86:-8000:000000000000087C
@@ -52,8 +54,8 @@ class XMIParser:
 
     Iterate for all entities
 
-    >>> for xmi_id in xmiObj:
-    ...     print xmiObj[xmi_id]
+    >>> for xmi_id in model:
+    ...     print model[xmi_id]
     <CPackage(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000866', name:'Testing 1')>
     <CDataType(xmi_id:'-84-17--56-5-43645a83:11466542d86:-8000:000000000000087C', name:'Integer')>
     <CDataType(xmi_id:'-84-17--56-5-43645a83:11466542d86:-8000:000000000000087D', name:'UnlimitedInteger')>
@@ -64,16 +66,16 @@ class XMIParser:
 
     Read a more complex XMI file and compare the result with the expected output stored in .out file.
 
-    >>> xmiObj = XMIParser()
-    >>> xmiObj.parse("xmi2oerp/test/data/test_002.xmi")
+    >>> model = Model()
+    >>> model.load("xmi2oerp/test/data/test_002.xmi")
     >>> out = open("xmi2oerp/test/data/test_002.out").read()
-    >>> str(repr(xmiObj)) == out.strip()
+    >>> str(repr(model)) == out.strip()
     True
 
     Iterate for all Classes.
 
-    >>> for xmi_id in xmiObj.iterclass(uml.CClass):
-    ...     print xmiObj[xmi_id]
+    >>> for xmi_id in model.iterclass(uml.CClass):
+    ...     print model[xmi_id]
     <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010A5', name:'person')>
     <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010B1', name:'email')>
     <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D8', name:'document')>
@@ -82,20 +84,22 @@ class XMIParser:
 
     Iterate over members of "document"
 
-    >>> for xmi_id in xmiObj.iterclass(uml.CMember,
-    ...                                uml.CMember.member_of == xmiObj['127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D8']):
-    ...     print xmiObj[xmi_id]
+    >>> for xmi_id in model.iterclass(uml.CMember,
+    ...                                uml.CMember.member_of == model['127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D8']):
+    ...     print model[xmi_id]
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D9', name:'number', size=None)>
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010E7', name:'tipo', size=None)>
 
     """
 
-    def __init__(self):
+    def __init__(self, url=None):
         self.engine = create_engine('sqlite:///:memory:')
         uml.Base.metadata.create_all(self.engine)
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
         self.parsed_urls = []
+        if url != None:
+            self.load(url)
 
     def _c_load(self, url):
         if 'http://argouml.org/user-profiles/' in url:
@@ -165,7 +169,7 @@ class XMIParser:
     def __iter__(self):
         return self.iterkeys()
 
-    def parse(self, infile):
+    def load(self, infile):
         """Load a XMI file.
         
         :param infile: Input to parse.
@@ -207,7 +211,7 @@ class XMIParser:
 
             elif (kind, event, elem.tag) == ('externalref', 'start', '{org.omg.xmi.namespace.UML}DataType'):
                 url, xmi_id = elem.attrib['href'].split('#', 2)
-                self.parse(url)
+                self.load(url)
                 r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
                 if len(r) == 0:
                     cdatatype = xmi_id

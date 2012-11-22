@@ -31,7 +31,7 @@ setup(name='xmi2oerp',
       packages=['xmi2oerp'],
       scripts=['xmi2oerp/bin/xmi2oerp'],
       test_suite='xmi2oerp.test',
-      install_requires=[],
+      install_requires=['Genshi'],
       dependency_links=[]
    )
 

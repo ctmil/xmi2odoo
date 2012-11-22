@@ -12,7 +12,8 @@ Contents:
    :maxdepth: 2
    
    uml
-   xmiparser
+   model
+   builder
 
 Indices and tables
 ==================
