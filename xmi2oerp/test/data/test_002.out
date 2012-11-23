@@ -9,7 +9,7 @@
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D9', name:'number', size=None)>
       <CDataType(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:0000000000000B97', name:'Integer')>
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010E7', name:'tipo', size=None)>
-      <CEnumeration(xmi_id:'17', name:'tipo_documento', items:['dni', 'cuit', 'passport'])>
+      <CEnumeration(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010E1', name:'tipo_documento', literals:[u'dni', u'cuit', u'passport'])>
   <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010F7', name:'emaillist')>
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010F8', name:'name', size=None)>
       <CDataType(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:0000000000000B9C', name:'Char')>

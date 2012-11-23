@@ -94,7 +94,7 @@ C TestClass [<CAttribute(xmi_id:'a', name:'A', size=None)>, <CAttribute(xmi_id:'
 """
 
 from sqlalchemy import ForeignKey
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import PickleType
@@ -111,14 +111,25 @@ class CEntity(Base):
     :type name: str
     """
 
-    __tablename__ = 'umlentity'
+    __tablename__ = 'centity'
 
     id = Column(Integer, Sequence('entity_id_seq'), primary_key=True)
     xmi_id = Column(String, unique=True)
     name = Column(String)
-    umlentity= Column('type', String(50))
+    entityclass = Column('type', String(50))
+    tagvalues = relationship('CTaggedValue',
+                             primaryjoin='CTaggedValue.owner_id==CEntity.id',
+                             order_by='CTaggedValue.owner_id',
+                             backref=backref('owner'))
 
-    __mapper_args__ = {'polymorphic_on': umlentity}
+    __mapper_args__ = {
+        'polymorphic_on': entityclass,
+        'polymorphic_identity': 'centity'
+    }
+
+    @property
+    def tag(self):
+        return dict((i.tagdefinition.name, i.value) for i in self.tagvalues )
 
     def __init__(self, xmi_id, name):
         super(CEntity, self).__init__()
@@ -138,12 +149,32 @@ class CDataType(CEntity):
     """
 
     __tablename__ = 'cdatatype'
-    __mapper_args__ = {'polymorphic_identity': 'cdatatype'}
 
-    id = Column(Integer, ForeignKey('umlentity.id'), primary_key=True)
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cdatatype'
+    }
+
 
     def __repr__(self):
         return "<CDataType(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CEnumerationLiteral(CEntity):
+    """CEnumerationLiteral class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: Data type name.
+    :type xmi_id: str
+    :type name: str
+    """
+
+    __tablename__ = 'cenumerationliteral'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+    enumeration_id = Column(Integer, ForeignKey('cenumeration.id'))
+
+    __mapper_args__ = {'polymorphic_identity': 'cenumerationliteral'}
 
 class CEnumeration(CDataType):
     """CEnumeration class.
@@ -157,17 +188,22 @@ class CEnumeration(CDataType):
     """
 
     __tablename__ = 'cenumeration'
-    __mapper_args__ = {'polymorphic_identity': 'cenumeration'}
 
     id = Column(Integer, ForeignKey('cdatatype.id'), primary_key=True)
-    items = Column(PickleType)
 
-    def __init__(self, xmi_id, name, items=[]):
+    literals = relationship('CEnumerationLiteral',
+                             primaryjoin='CEnumerationLiteral.enumeration_id==CEnumeration.id',
+                             order_by='CEnumerationLiteral.enumeration_id',
+                             backref=backref('enumeration'))
+
+    __mapper_args__ = {'polymorphic_identity': 'cenumeration'}
+
+    def __init__(self, xmi_id, name, literals=[]):
         super(CEnumeration, self).__init__(xmi_id, name) 
-        self.items = items
+        self.literals = literals
 
     def __repr__(self):
-        return "<CEnumeration(xmi_id:'%s', name:'%s', items:%s)>" % (self.id, self.name, self.items)
+        return "<CEnumeration(xmi_id:'%s', name:'%s', literals:%s)>" % (self.xmi_id, self.name, [i.name for i in self.literals])
 
 class CPackage(CEntity):
     """Package class.
@@ -179,9 +215,10 @@ class CPackage(CEntity):
     """
 
     __tablename__ = 'cpackage'
-    __mapper_args__ = {'polymorphic_identity': 'cpackage'}
 
-    id = Column(Integer, ForeignKey('umlentity.id'), primary_key=True)
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = {'polymorphic_identity': 'cpackage'}
 
     def __repr__(self):
         return "<CPackage(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -198,10 +235,11 @@ class CClass(CEntity):
     """
 
     __tablename__ = 'cclass'
-    __mapper_args__ = {'polymorphic_identity': 'cclass'}
 
-    id = Column(Integer, ForeignKey('umlentity.id'), primary_key=True)
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
     package_id = Column(Integer, ForeignKey('cpackage.id'))
+
+    __mapper_args__ = {'polymorphic_identity': 'cclass'}
 
     package = relationship('CPackage',
                             primaryjoin=(package_id==CPackage.id),
@@ -226,10 +264,11 @@ class CMember(CEntity):
     """
 
     __tablename__ = 'cmember'
-    __mapper_args__ = {'polymorphic_identity': 'cmember'}
 
-    id = Column(Integer, ForeignKey('umlentity.id'), primary_key=True)
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
     member_of_id = Column(Integer, ForeignKey('cclass.id'))
+
+    __mapper_args__ = {'polymorphic_identity': 'cmember'}
 
     member_of = relationship('CClass',
                              primaryjoin=(member_of_id==CClass.id),
@@ -258,11 +297,12 @@ class CAttribute(CMember):
     """
 
     __tablename__ = 'cattribute'
-    __mapper_args__ = {'polymorphic_identity': 'cattribute'}
 
     id = Column(Integer, ForeignKey('cmember.id'), primary_key=True)
     datatype_id = Column(Integer, ForeignKey('cdatatype.id'))
     size = Column(Integer)
+
+    __mapper_args__ = {'polymorphic_identity': 'cattribute'}
 
     datatype = relationship('CDataType',
                              backref=backref('attributes', order_by=id))
@@ -285,9 +325,10 @@ class COperation(CMember):
     """
 
     __tablename__ = 'coperation'
-    __mapper_args__ = {'polymorphic_identity': 'coperation'}
 
     id = Column(Integer, ForeignKey('cmember.id'), primary_key=True)
+
+    __mapper_args__ = { 'polymorphic_identity': 'coperation' }
 
     def __repr__(self):
         return "<COperation(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -310,13 +351,14 @@ class CParameter(CEntity):
     """
     
     __tablename__ = 'cparameter'
-    __mapper_args__ = {'polymorphic_identity': 'cparameter'}
 
-    id = Column(Integer, ForeignKey('umlentity.id'), primary_key=True)
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
     datatype_id = Column(Integer, ForeignKey('cdatatype.id'))
     operation_id = Column(Integer, ForeignKey('coperation.id'))
     order = Column(Integer)
     kind = Column(String)
+
+    __mapper_args__ = { 'polymorphic_identity': 'cparameter' }
 
     datatype = relationship('CDataType',
                              primaryjoin=(datatype_id==CDataType.id),
@@ -334,5 +376,162 @@ class CParameter(CEntity):
 
     def __repr__(self):
         return "<CParameter(xmi_id:'%s', name:'%s', kind='%s')>" % (self.xmi_id, self.name, self.kind)
+
+class CTagDefinition(CEntity):
+    """Tag definition class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: Data type name.
+    :type xmi_id: str
+    :type name: str
+    """
+
+    __tablename__ = 'ctagdefinition'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = { 'polymorphic_identity': 'ctagdefiniton' }
+
+    def __repr__(self):
+        return "<CTagDefinition(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CTaggedValue(CEntity):
+    """Tag definition class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param tagdefinition: Tag definition.
+    :param value: Value of the tag.
+    :param owner: Owner of this value.
+    :type xmi_id: str
+    :type tag: CTagDefinition
+    :type value: str
+    :type owner: CEntity
+    """
+
+
+    __tablename__ = 'ctaggedvalue'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+    value = Column(String)
+    tagdefinition_id = Column(Integer, ForeignKey('ctagdefinition.id'))
+    owner_id = Column(Integer, ForeignKey('centity.id'))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'ctaggedvalue',
+        'inherit_condition': id == CEntity.id,
+    }
+
+    tagdefinition = relationship('CTagDefinition',
+                             primaryjoin=(tagdefinition_id==CTagDefinition.id),
+                             backref=backref('values', order_by=CTagDefinition.id))
+
+    def __init__(self, xmi_id, tag, value, owner=None):
+        super(CTaggedValue, self).__init__(xmi_id, None)
+        self.tagdefinition = tag
+        self.value = value
+        self.owner = owner
+
+    def __repr__(self):
+        return "<CTaggedValue(xmi_id:'%s', tag:'%s', value:'%s')>" % (self.xmi_id, self.tagdefinition.name, self.value)
+
+class CAssociation(CEntity):
+    """Association class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: Data type name.
+    :param ends: Association ends.
+    :type xmi_id: str
+    :type name: str
+    :type ends: CAssociationEnd
+    """
+
+    __tablename__ = 'cassociation'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    ends = relationship('CAssociationEnd',
+                        primaryjoin='CAssociationEnd.association_id==CAssociation.id',
+                        order_by='CAssociationEnd.association_id',
+                        backref=backref('association'))
+
+    __mapper_args__ = { 'polymorphic_identity': 'cassociation' }
+
+    def __init__(self, xmi_id, name, ends=[]):
+        super(CAssociation, self).__init__(xmi_id, name)
+        self.ends = ends
+
+    def __repr__(self):
+        return "<CAssociation(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CAssociationEnd(CEntity):
+    """AssociationEnd class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: Data type name.
+    :param participant: UML Element participant.
+    :param association: Owner association.
+    :type xmi_id: str
+    :type name: str
+    :type participant: CElement.
+    :type association: CAssociation
+    """
+
+    __tablename__ = 'cassociationend'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+    association_id = Column(Integer, ForeignKey('cassociation.id'))
+    participant_id = Column(Integer, ForeignKey('centity.id'))
+    isNavigable = Column(Boolean)
+    aggregation = Column(String)
+    multiplicityrange = Column(String)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cassociationend',
+        'inherit_condition': id == CEntity.id,
+    }
+
+    participant = relationship('CEntity',
+                             primaryjoin=(participant_id==CEntity.id),
+                             backref=backref('associations', order_by=CEntity.id))
+
+    def __init__(self, xmi_id, name, isNavigable=False, aggregation=None, participant=None, multiplicityrange=None, association=None):
+        super(CAssociationEnd, self).__init__(xmi_id, name)
+        self.isNavigable = isNavigable
+        self.aggregation = aggregation
+        self.participant = participant
+        self.multiplicityrange = multiplicityrange
+        self.association = association
+
+    def __repr__(self):
+        return "<CAssociationEnd(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+    @property
+    def swap(self):
+        return [ e for e in self.association.ends if e.xmi_id != self.xmi_id ]
+
+    @property
+    def multiplicity(self):
+        my_situation = eval(self.multiplicityrange), self.aggregation
+        his_situation = eval(self.swap[0].multiplicityrange), self.swap[0].aggregation
+        if   my_situation == ((0,1),'none')     and his_situation == (None,'aggregate'):
+            return "one2one"
+        elif my_situation == (None,'aggregate') and his_situation == ((0,1), 'none'):
+            return "one2one"
+        elif my_situation == (None,'composite') and his_situation == ((0,-1), 'none'):
+            return "many2one"
+        elif my_situation == ((0,-1),'none')    and his_situation == (None, 'composite'):
+            return "one2many"
+        elif my_situation == (None,'none')      and his_situation == (None, 'composite'):
+            return "one2many"
+        elif my_situation == (None,'composite') and his_situation == (None, 'none'):
+            return "many2one"
+        elif my_situation == ((0,-1),'none')    and his_situation == ((1,1), 'none'):
+            return "one2many"
+        elif my_situation == ((1,1),'none')     and his_situation == ((0,-1), 'none'):
+            return "many2one"
+        import sys
+        print >> sys.stderr, self.participant.name, self.name, my_situation
+        print >> sys.stderr, self.swap[0].participant.name, self.swap[0].name, his_situation
+        import pdb; pdb.set_trace()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

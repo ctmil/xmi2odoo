@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+${LICENSE_HEADER}
+-->
 <openerp>
     <data>
 
-	{SEARCHVIEW}
+	${SEARCHVIEW}
 
-	{TREEVIEW}
+	${TREEVIEW}
 
-	{FORMVIEW}
+	${FORMVIEW}
 
-	{WINDOWACTION}
+	${WINDOWACTION}
 
-	{TREEWINDOWACTION}
+	${TREEWINDOWACTION}
 
-	{FORMWINDOWACTION}
+	${FORMWINDOWACTION}
 
-	{MENUITEM}
+	${MENUITEM}
 
     </data>
 </openerp>
