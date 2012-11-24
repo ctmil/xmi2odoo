@@ -115,12 +115,18 @@ class Builder:
             # Por cada clase genero un archivo. El archivo lo agrego a la lista de importacion.
             for xmi_id, name in root_classes:
                 cclass = self.model[xmi_id]
+                if len(self.model[xmi_id].child_of) > 0:
+                    parent = self.model[xmi_id].child_of[0].parent
+                else:
+                    parent = None
                 ctag = cclass.tag
                 source_code = os.path.join(source, 'CLASS.py')
                 target_code = os.path.join(target, '%s.py' % name)
                 shutil.copy(source_code, target_code)
                 tags.update({
                     'CLASS_NAME': name,
+                    'CLASS_PARENT': parent.name if parent is not None else None,
+                    'CLASS_PARENT_MODULE': parent.package.name if parent is not None else None,
                     'CLASS_DOCUMENTATION': ctag.get('documentation', ''),
                     'CLASS_ATTRIBUTES': [ m for m in cclass.members if m.entityclass == 'cattribute' ],
                     'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations ],

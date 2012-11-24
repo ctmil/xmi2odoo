@@ -534,4 +534,41 @@ class CAssociationEnd(CEntity):
         print >> sys.stderr, self.swap[0].participant.name, self.swap[0].name, his_situation
         import pdb; pdb.set_trace()
 
+class CGeneralization(CEntity):
+    """Generalization class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: Data type name.
+    :param ends: Association ends.
+    :type xmi_id: str
+    :type name: str
+    :type ends: CGeneralizationEnd
+    """
+
+    __tablename__ = 'cgeneralization'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+    parent_id = Column(Integer, ForeignKey('centity.id'))
+    child_id = Column(Integer, ForeignKey('centity.id'))
+
+    parent = relationship('CEntity',
+                          primaryjoin=(parent_id==CEntity.id),
+                          backref=backref('parent_of', order_by=CEntity.id))
+    child = relationship('CEntity',
+                          primaryjoin=(child_id==CEntity.id),
+                          backref=backref('child_of', order_by=CEntity.id))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cgeneralization',
+        'inherit_condition': id == CEntity.id,
+    }
+
+    def __init__(self, xmi_id, parent, child):
+        super(CGeneralization, self).__init__(xmi_id, None)
+        self.parent = parent
+        self.child = child
+
+    def __repr__(self):
+        return "<CGeneralization(xmi_id:'%s', parent:'%s', child: '%s')>" % (self.xmi_id, self.parent.name, self.child.name)
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

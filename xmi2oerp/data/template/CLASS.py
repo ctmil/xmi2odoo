@@ -8,6 +8,9 @@ class ${CLASS_NAME}(osv.osv):
     ${CLASS_DOCUMENTATION}
     """
     _name = '${MODULE_NAME}.${CLASS_NAME}'
+{%  if CLASS_PARENT is not None %}\
+    _inherit = '${CLASS_PARENT_MODULE}.${CLASS_PARENT}'
+{%  end %}\
 
     _columns = {
 {%  for col in CLASS_ATTRIBUTES %}\
@@ -46,9 +49,8 @@ class ${CLASS_NAME}(osv.osv):
 
     _defaults = {
 {%  for col in CLASS_ATTRIBUTES %}\
-{%      def defval %}${col.tag.get('default', None)}{%end%}\
-{%      if defval() is not None %}\
-        '${col.name}': ${defval()},
+{%      if col.tag.get('default', None) is not None %}\
+        '${col.name}': ${col.tag['default']},
 {%      end %}\
 {%  end %}\
     }

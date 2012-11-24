@@ -107,6 +107,26 @@ class Model:
 
     >>> model['127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010A6'].tag
     {u'label': u'Name', u'size': u'64'}
+
+    Take generalizations.
+
+    >>> model = Model()
+    >>> model.load("xmi2oerp/test/data/test_003.xmi")
+    >>> gen = model.iterclass(uml.CGeneralization).next()
+    >>> model[gen]
+    <CGeneralization(xmi_id:'127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:0000000000000A0A', parent:'resource', child: 'car')>
+
+    >>> parent = model[gen].parent
+    >>> parent.parent_of
+    [<CGeneralization(xmi_id:'127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:0000000000000A0A', parent:'resource', child: 'car')>, <CGeneralization(xmi_id:'127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:0000000000000A0B', parent:'resource', child: 'wheel')>]
+    >>> parent.child_of
+    []
+    >>> child = model[gen].child
+    >>> child.parent_of
+    []
+    >>> child.child_of
+    [<CGeneralization(xmi_id:'127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:0000000000000A0A', parent:'resource', child: 'car')>]
+
     """
 
     def __init__(self, url=None, debug=False):
@@ -199,6 +219,9 @@ class Model:
         :param infile: Input to parse.
         :type infile: str for filene, or stream to direct process
         """
+
+# -- Loading
+
         store_url = False
         if type(infile) is str and not '<xml' in infile:
             if infile in self.parsed_urls:
@@ -210,6 +233,9 @@ class Model:
         postprocessing_create = []
         postprocessing_append = []
         owner = []
+
+# -- Parsing
+
         for event, elem in ET.iterparse(infile, events=('start', 'end')):
             kind = ('xmi.id'    in elem.attrib and 'description') or \
                    ('xmi.idref' in elem.attrib and 'reference') or \
@@ -222,10 +248,14 @@ class Model:
             if event == 'end' and 'xmi.id' in elem.attrib:
                 owner.remove(elem.attrib['xmi.id'])
 
+# Package
+
             if (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Package'):
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 cpackage = uml.CPackage(*params)
                 self.session.add(cpackage)
+
+# Class
 
             elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}Class'):
                 xmi_id = elem.attrib['xmi.idref']
@@ -243,6 +273,8 @@ class Model:
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Class'):
                 cclass = None
+
+# DataType
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}DataType'):
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
@@ -265,6 +297,8 @@ class Model:
                     cdatatype = xmi_id
                 else:
                     cdatatype = r[0]
+
+# Members: Enumeration
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Enumeration'):
                 enumerationliterals = []
@@ -297,6 +331,8 @@ class Model:
                 else:
                     cdatatype = r[0]
 
+# Members: Attribute
+
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Attribute'):
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 params.append(cdatatype)
@@ -307,6 +343,8 @@ class Model:
                     cattribute = uml.CAttribute(*params)
                     self.session.add(cattribute)
                     cclass.members.append(cattribute)
+
+# Tags
 
             elif (kind, event, elem.tag) == ('plain', 'start', '{org.omg.xmi.namespace.UML}TaggedValue.dataValue'):
                 tagvalue = elem.text if elem.text is not None else ''
@@ -345,6 +383,8 @@ class Model:
                         ctaggedvalue = uml.CTaggedValue(*params)
                         self.session.add(ctaggedvalue)
 
+# Associations
+
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}AssociationEnd'):
                 multiplicityrange = None
 
@@ -366,6 +406,26 @@ class Model:
                 cassociation = uml.CAssociation(*params)
                 self.session.add(cassociation)
 
+# Generalization
+
+            elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}Generalization.child'):
+                child = cclass
+                del cclass
+
+            elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}Generalization.parent'):
+                parent = cclass
+                del cclass
+
+            elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Generalization'):
+                params = [ elem.attrib[k] for k in  ['xmi.id'] ]
+                params.append(parent)
+                params.append(child)
+                cgeneralization = uml.CGeneralization(*params)
+                self.session.add(cgeneralization)
+                del cgeneralization
+
+# Unknown tags 
+
             else:
                 if False:
                     # Turn on only for debug.
@@ -373,6 +433,8 @@ class Model:
                         print >> sys.stderr, 'I:', elem.attrib.keys(), event, elem.tag
                     else:
                         print >> sys.stderr, 'I:', kind, event, elem.tag
+
+# -- Postprocessing
 
         class NotResolved:
             pass
