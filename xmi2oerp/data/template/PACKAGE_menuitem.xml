@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+${LICENSE_HEADER}
+-->
+<openerp>
+    <data>
+        <menuitem
+            name="${MODULE_LABEL}"
+            id="menu_${MODULE_NAME}"
+{%          if MENU_PARENT is not None %}\
+            parent="${MENU_PARENT}"
+{%          end %}
+{%          if GROUPS is not None %}\
+            groups="${GROUPS}"
+{%          end %}
+            sequence="${MENU_SEQUENCE}"/>
+    </data>
+</openerp>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4
+     -->
