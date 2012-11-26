@@ -1,23 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-${LICENSE_HEADER}
+${LICENSE_HEADER}\
 -->
+{% def model(s='.') %}${MODULE_NAME}${s}${CLASS_NAME}{% end %}\
 <openerp>
     <data>
+        <!-- SEARCHVIEW -->
 
-	${SEARCHVIEW}
+        <!-- FORMVIEW -->
 
-	${TREEVIEW}
+        <record id="view_${model('_')}_form" model="ir.ui.view">
+            <field name="name">${model()}.form</field>
+            <field name="model">${model()}</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="${CLASS_LABEL}">
+{%                  for col in CLASS_ATTRIBUTES %}\
+                    <field name="${col.name}"/>
+{%                  end %}\
+{%                  for ass in CLASS_ASSOCIATIONS %}\
+                    <field name="${ass.name}"/>
+{%                  end %}\
+                </form>
+            </field>
+        </record>
 
-	${FORMVIEW}
+        <!-- TREEVIEW -->
 
-	${WINDOWACTION}
+        <record id="view_${model('_')}_tree" model="ir.ui.view">
+            <field name="name">${model()}.tree</field>
+            <field name="model">${model()}</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="${CLASS_LABEL}">
+{%                  for col in CLASS_ATTRIBUTES %}
+                    <field name="${col.name}"/>
+{%                  end %}\
+{%                  for ass in CLASS_ASSOCIATIONS %}\
+                    <field name="${ass.name}"/>
+{%                  end %}\
+                </tree>
+            </field>
+        </record>
 
-	${TREEWINDOWACTION}
+        <!-- WINDOWACTION -->
+        <record id="action_${model('_')}_form" model="ir.actions.act_window">
+            <field name="name">${CLASS_LABEL}</field>
+            <field name="res_model">${model()}</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+{%          if CLASS_DOCUMENTATION is not None %}\
+            <field name="help">${CLASS_DOCUMENTATION}</field>
+{%          end %}\
+        </record>
 
-	${FORMWINDOWACTION}
+        <!-- TREEWINDOWACTION -->
 
-	${MENUITEM}
+        <!-- FORMWINDOWACTION -->
 
+        <!-- MENUITEM -->
+        <menuitem
+            action="action_${model('_')}_form"
+            id="menu_action_${model('_')}_form"
+{%          choose %}\
+            {% when MENU_PARENT is None %}parent="menu_${MODULE_NAME}"{% end %}\
+            {% otherwise %}parent="${MENU_PARENT}"{% end %}\
+{%          end %}
+            sequence="${MENU_SEQUENCE}"/>
     </data>
 </openerp>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4
+     -->

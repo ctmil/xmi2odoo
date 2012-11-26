@@ -1,5 +1,5 @@
 <?xml version = '1.0' encoding = 'UTF-8' ?>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Fri Nov 23 15:04:47 ART 2012'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Sun Nov 25 18:25:58 ART 2012'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.34(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -192,17 +192,6 @@
             </UML:Multiplicity>
           </UML:TagDefinition.multiplicity>
         </UML:TagDefinition>
-        <UML:TagDefinition xmi.id = '127-0-1-1-2b464aa4:13b09d81b72:-8000:0000000000001570'
-          name = 'menu_item' isSpecification = 'false'>
-          <UML:TagDefinition.multiplicity>
-            <UML:Multiplicity xmi.id = '127-0-1-1-2b464aa4:13b09d81b72:-8000:0000000000001572'>
-              <UML:Multiplicity.range>
-                <UML:MultiplicityRange xmi.id = '127-0-1-1-2b464aa4:13b09d81b72:-8000:0000000000001571'
-                  lower = '0' upper = '0'/>
-              </UML:Multiplicity.range>
-            </UML:Multiplicity>
-          </UML:TagDefinition.multiplicity>
-        </UML:TagDefinition>
         <UML:TagDefinition xmi.id = '127-0-1-1-2b464aa4:13b09d81b72:-8000:0000000000001573'
           name = 'label' isSpecification = 'false'>
           <UML:TagDefinition.multiplicity>
@@ -269,6 +258,33 @@
             </UML:Multiplicity>
           </UML:TagDefinition.multiplicity>
         </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--26cf3395:13b343df95b:-8000:0000000000000F90'
+          name = 'menu_parent' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--26cf3395:13b343df95b:-8000:0000000000000F92'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--26cf3395:13b343df95b:-8000:0000000000000F91'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--26cf3395:13b343df95b:-8000:0000000000000F93'
+          name = 'menu_sequence' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--26cf3395:13b343df95b:-8000:0000000000000F95'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--26cf3395:13b343df95b:-8000:0000000000000F94'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:Stereotype xmi.id = '127-0-1-1-663b23fd:13b396ee199:-8000:0000000000000D10'
+          name = 'external' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>Package</UML:Stereotype.baseClass>
+        </UML:Stereotype>
       </UML:Namespace.ownedElement>
     </UML:Model>
   </XMI.content>

@@ -99,6 +99,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import PickleType
 from sqlalchemy import Sequence
+from sqlalchemy.schema import Table
 
 Base = declarative_base()
 
@@ -130,6 +131,10 @@ class CEntity(Base):
     @property
     def tag(self):
         return dict((i.tagdefinition.name, i.value) for i in self.tagvalues )
+
+    def is_stereotype(self, stereotype):
+        st = [ st.name for st in self.stereotypes if st.name == stereotype]
+        return len(st) == 1
 
     def __init__(self, xmi_id, name):
         super(CEntity, self).__init__()
@@ -529,7 +534,10 @@ class CAssociationEnd(CEntity):
             return "one2many"
         elif my_situation == ((1,1),'none')     and his_situation == ((0,-1), 'none'):
             return "many2one"
+        elif my_situation == ((1,1), 'none')     and his_situation == (None, u'none'):
+            return "many2one"
         import sys
+        print >> sys.stderr, "Unsupported range."
         print >> sys.stderr, self.participant.name, self.name, my_situation
         print >> sys.stderr, self.swap[0].participant.name, self.swap[0].name, his_situation
         import pdb; pdb.set_trace()
@@ -570,5 +578,34 @@ class CGeneralization(CEntity):
 
     def __repr__(self):
         return "<CGeneralization(xmi_id:'%s', parent:'%s', child: '%s')>" % (self.xmi_id, self.parent.name, self.child.name)
+
+stereotypes = Table(
+    'stereotypes', Base.metadata,
+    Column('centity_id', Integer, ForeignKey('centity.id')),
+    Column('cstereotype_id', Integer, ForeignKey('cstereotype.id'))
+    )
+
+class CStereotype(CEntity):
+    """Stereotype class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: Data type name.
+    :type xmi_id: str
+    :type name: str
+    """
+
+    __tablename__ = 'cstereotype'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = { 'polymorphic_identity': 'cstereotype' }
+
+    entities = relationship('CEntity', secondary=stereotypes, backref=backref('stereotypes'))
+
+    def __init__(self, xmi_id, name, ends=[]):
+        super(CStereotype, self).__init__(xmi_id, name)
+
+    def __repr__(self):
+        return "<CStereotype(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

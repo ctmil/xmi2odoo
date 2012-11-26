@@ -27,6 +27,16 @@ from sqlalchemy.orm import sessionmaker
 import pkg_resources, os, sys
 import uml
 
+class FileWrapper:
+     def __init__(self, source, filename=None):
+         self.source = source
+         self.lineno = 0
+         self.filename = filename
+     def read(self, bytes):
+         s = self.source.readline()
+         self.lineno += 1
+         return s
+
 class Model:
     """UML Model.
     
@@ -46,6 +56,56 @@ class Model:
     ...     print xmi_id
     127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000866
     127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000867
+    .:0000000000000821
+    .:0000000000000822
+    .:0000000000000823
+    .:0000000000000824
+    .:0000000000000825
+    .:0000000000000826
+    .:0000000000000827
+    .:0000000000000828
+    .:0000000000000829
+    .:000000000000082A
+    .:000000000000082B
+    .:000000000000082C
+    .:000000000000082D
+    .:000000000000082E
+    .:0000000000000830
+    .:0000000000000833
+    .:0000000000000834
+    .:0000000000000835
+    .:0000000000000836
+    .:0000000000000837
+    .:0000000000000838
+    .:0000000000000839
+    .:000000000000083A
+    .:000000000000083B
+    .:000000000000083C
+    .:000000000000083D
+    .:000000000000083E
+    .:000000000000083F
+    .:0000000000000840
+    .:0000000000000842
+    .:0000000000000843
+    .:0000000000000844
+    .:0000000000000845
+    .:0000000000000846
+    .:0000000000000847
+    .:0000000000000848
+    .:0000000000000849
+    .:000000000000084A
+    .:000000000000084B
+    .:000000000000084C
+    .:000000000000084D
+    .:000000000000084E
+    .:000000000000084F
+    .:000000000000086A
+    .:0000000000000874
+    .:0000000000000875
+    .:0000000000000876
+    .:0000000000000877
+    .:0000000000000878
+    .:0000000000000879
     .:000000000000087C
     -84-17--56-5-43645a83:11466542d86:-8000:000000000000087C
     -84-17--56-5-43645a83:11466542d86:-8000:000000000000087D
@@ -61,6 +121,56 @@ class Model:
     ...     print model[xmi_id]
     <CPackage(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000866', name:'Testing 1')>
     <CClass(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000867', name:'Class 1')>
+    <CStereotype(xmi_id:'.:0000000000000821', name:'access')>
+    <CStereotype(xmi_id:'.:0000000000000822', name:'friend')>
+    <CStereotype(xmi_id:'.:0000000000000823', name:'import')>
+    <CStereotype(xmi_id:'.:0000000000000824', name:'association')>
+    <CStereotype(xmi_id:'.:0000000000000825', name:'global')>
+    <CStereotype(xmi_id:'.:0000000000000826', name:'local')>
+    <CStereotype(xmi_id:'.:0000000000000827', name:'parameter')>
+    <CStereotype(xmi_id:'.:0000000000000828', name:'self')>
+    <CStereotype(xmi_id:'.:0000000000000829', name:'become')>
+    <CStereotype(xmi_id:'.:000000000000082A', name:'copy')>
+    <CStereotype(xmi_id:'.:000000000000082B', name:'create')>
+    <CStereotype(xmi_id:'.:000000000000082C', name:'call')>
+    <CStereotype(xmi_id:'.:000000000000082D', name:'instantiate')>
+    <CStereotype(xmi_id:'.:000000000000082E', name:'send')>
+    <CStereotype(xmi_id:'.:0000000000000830', name:'destroy')>
+    <CStereotype(xmi_id:'.:0000000000000833', name:'derive')>
+    <CStereotype(xmi_id:'.:0000000000000834', name:'realize')>
+    <CStereotype(xmi_id:'.:0000000000000835', name:'refine')>
+    <CStereotype(xmi_id:'.:0000000000000836', name:'trace')>
+    <CStereotype(xmi_id:'.:0000000000000837', name:'document')>
+    <CStereotype(xmi_id:'.:0000000000000838', name:'executable')>
+    <CStereotype(xmi_id:'.:0000000000000839', name:'file')>
+    <CStereotype(xmi_id:'.:000000000000083A', name:'library')>
+    <CStereotype(xmi_id:'.:000000000000083B', name:'table')>
+    <CStereotype(xmi_id:'.:000000000000083C', name:'facade')>
+    <CStereotype(xmi_id:'.:000000000000083D', name:'framework')>
+    <CStereotype(xmi_id:'.:000000000000083E', name:'metamodel')>
+    <CStereotype(xmi_id:'.:000000000000083F', name:'stub')>
+    <CStereotype(xmi_id:'.:0000000000000840', name:'implementation')>
+    <CStereotype(xmi_id:'.:0000000000000842', name:'type')>
+    <CStereotype(xmi_id:'.:0000000000000843', name:'implicit')>
+    <CStereotype(xmi_id:'.:0000000000000844', name:'invariant')>
+    <CStereotype(xmi_id:'.:0000000000000845', name:'postcondition')>
+    <CStereotype(xmi_id:'.:0000000000000846', name:'precondition')>
+    <CStereotype(xmi_id:'.:0000000000000847', name:'metaclass')>
+    <CStereotype(xmi_id:'.:0000000000000848', name:'powertype')>
+    <CStereotype(xmi_id:'.:0000000000000849', name:'process')>
+    <CStereotype(xmi_id:'.:000000000000084A', name:'thread')>
+    <CStereotype(xmi_id:'.:000000000000084B', name:'utility')>
+    <CStereotype(xmi_id:'.:000000000000084C', name:'requirement')>
+    <CStereotype(xmi_id:'.:000000000000084D', name:'responsibility')>
+    <CStereotype(xmi_id:'.:000000000000084E', name:'topLevel')>
+    <CStereotype(xmi_id:'.:000000000000084F', name:'systemModel')>
+    <CStereotype(xmi_id:'.:000000000000086A', name:'signalflow')>
+    <CStereotype(xmi_id:'.:0000000000000874', name:'appliedProfile')>
+    <CStereotype(xmi_id:'.:0000000000000875', name:'auxiliary')>
+    <CStereotype(xmi_id:'.:0000000000000876', name:'modelLibrary')>
+    <CStereotype(xmi_id:'.:0000000000000877', name:'profile')>
+    <CStereotype(xmi_id:'.:0000000000000878', name:'source')>
+    <CStereotype(xmi_id:'.:0000000000000879', name:'stateInvariant')>
     <CTagDefinition(xmi_id:'.:000000000000087C', name:'documentation')>
     <CDataType(xmi_id:'-84-17--56-5-43645a83:11466542d86:-8000:000000000000087C', name:'Integer')>
     <CDataType(xmi_id:'-84-17--56-5-43645a83:11466542d86:-8000:000000000000087D', name:'UnlimitedInteger')>
@@ -127,6 +237,18 @@ class Model:
     >>> child.child_of
     [<CGeneralization(xmi_id:'127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:0000000000000A0A', parent:'resource', child: 'car')>]
 
+    Take stereotypes
+    >>> child.stereotypes
+    [<CStereotype(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:00000000000011E5', name:'form')>, <CStereotype(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:00000000000011E6', name:'tree')>]
+    
+    >>> child.stereotypes[0].entities
+    [<CClass(xmi_id:'127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:00000000000009AB', name:'car')>, <CClass(xmi_id:'127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:00000000000009DC', name:'partner')>, <CClass(xmi_id:'127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:00000000000009EF', name:'wheel')>, <CClass(xmi_id:'127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:0000000000000A09', name:'resource')>]
+
+    >>> child.is_stereotype('form')
+    True
+
+    >>> child.is_stereotype('method')
+    False
     """
 
     def __init__(self, url=None, debug=False):
@@ -223,6 +345,8 @@ class Model:
 # -- Loading
 
         store_url = False
+        if type(infile) is file:
+            store_url = infile.name
         if type(infile) is str and not '<xml' in infile:
             if infile in self.parsed_urls:
                 return True
@@ -232,11 +356,16 @@ class Model:
 
         postprocessing_create = []
         postprocessing_append = []
+        postprocessing_set = []
         owner = []
+
+        infile = FileWrapper(infile, store_url)
 
 # -- Parsing
 
-        for event, elem in ET.iterparse(infile, events=('start', 'end')):
+        try:
+
+          for event, elem in ET.iterparse(infile, events=('start', 'end')):
             kind = ('xmi.id'    in elem.attrib and 'description') or \
                    ('xmi.idref' in elem.attrib and 'reference') or \
                    ('href'      in elem.attrib and 'externalref') or \
@@ -336,7 +465,7 @@ class Model:
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Attribute'):
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 params.append(cdatatype)
-                if type(cdatatype) is str:
+                if type(cdatatype) is str or type(cclass) is str:
                     postprocessing_create.append((uml.CAttribute, params, (False, False, True)))
                     postprocessing_append.append((cclass.members, params[0]))
                 else:
@@ -396,9 +525,13 @@ class Model:
                 params[2] = (params[2] == 'true')
                 params.append(cclass)
                 params.append(repr(multiplicityrange))
-                cassociationend = uml.CAssociationEnd(*params)
-                cassociation.ends.append(cassociationend)
-                self.session.add(cassociationend)
+                if type(cclass) is str:
+                    postprocessing_create.append((uml.CAssociationEnd, params, (False, False, False, False, True, False)))
+                    postprocessing_append.append((cassociation.ends, elem.attrib['xmi.id']))
+                else:
+                    cassociationend = uml.CAssociationEnd(*params)
+                    cassociation.ends.append(cassociationend)
+                    self.session.add(cassociationend)
                 multiplicityrange = None
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Association'):
@@ -424,6 +557,40 @@ class Model:
                 self.session.add(cgeneralization)
                 del cgeneralization
 
+# Stereotypes
+
+            elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}Stereotype'):
+                xmi_id = elem.attrib['xmi.idref']
+                r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
+                if len(r) == 0:
+                    stereotypes.append(xmi_id)
+                else:
+                    stereotypes.append(r[0])
+
+            elif (kind, event, elem.tag) == ('externalref', 'start', '{org.omg.xmi.namespace.UML}Stereotype'):
+                url, xmi_id = elem.attrib['href'].split('#', 1)
+                self.load(url)
+                r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
+                if len(r) == 0:
+                    stereotypes.append(xmi_id)
+                else:
+                    stereotypes.append(r[0])
+
+            elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Stereotype'):
+                params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
+                stereotype = uml.CStereotype(*params)
+                self.session.add(stereotype)
+
+            elif (kind, event, elem.tag) == ('plain', 'start', '{org.omg.xmi.namespace.UML}ModelElement.stereotype'):
+                stereotypes = []
+
+            elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}ModelElement.stereotype'):
+                element = self.get(owner[-1], owner[-1])
+                if type(element) is str:
+                    postprocessing_set.append((xmi_id, 'stereotypes', stereotypes))
+                else:
+                    element.stereotypes = stereotypes
+
 # Unknown tags 
 
             else:
@@ -433,6 +600,9 @@ class Model:
                         print >> sys.stderr, 'I:', elem.attrib.keys(), event, elem.tag
                     else:
                         print >> sys.stderr, 'I:', kind, event, elem.tag
+
+        except Exception, m:
+            print "Parsing error in line %i of file %s." % (infile.lineno, infile.filename)
 
 # -- Postprocessing
 
@@ -454,6 +624,9 @@ class Model:
 
         for relation, xmi_id in postprocessing_append:
             relation.append(self[xmi_id])
+
+        for xmi_id, attr, value in postprocessing_set:
+            setattr(self[xmi_id], attr, value)
 
         self.session.commit()
 

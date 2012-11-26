@@ -5,7 +5,7 @@ from osv import osv, fields
 
 class ${CLASS_NAME}(osv.osv):
     """
-    ${CLASS_DOCUMENTATION}
+    ${CLASS_DOCUMENTATION}\
     """
     _name = '${MODULE_NAME}.${CLASS_NAME}'
 {%  if CLASS_PARENT is not None %}\
@@ -39,7 +39,7 @@ class ${CLASS_NAME}(osv.osv):
 {%      def relational_obj %}${'%s_%s_rel' % (MODULE_NAME, '_'.join([ e.name for e in ass.association.ends]))}{%end%}\
 {%      choose ass.multiplicity %}\
         \
-{%          when 'one2one'   %}'${name()}': fields.one2one('${other_module()}.${other_obj()}', '${label()}'), {% end %}\
+{%          when 'one2one'   %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'), {% end %}\
 {%          when 'many2one'  %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'), {% end %}\
 {%          when 'one2many'  %}'${name()}': fields.one2many('${other_module()}.${other_obj()}', '${other_name()}', '${label()}'), {% end %}\
 {%          when 'many2many' %}'${name()}': fields.many2many('${other_module()}.${other_obj()}', '${relational_obj()}', '${other_name()}', '${actual_id()}', '${other_id()}', '${label()}'), {% end %}\
@@ -54,6 +54,11 @@ class ${CLASS_NAME}(osv.osv):
 {%      end %}\
 {%  end %}\
     }
+
+{%  for op in CLASS_OPERATIONS %}\
+    def ${op}(self, cr, uid, ids{% for par in op.parameters %}, ${par.name}{% end %}):
+        pass
+{%      end %}\
 
 ${CLASS_NAME}()
 

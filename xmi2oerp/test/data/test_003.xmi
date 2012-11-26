@@ -516,7 +516,7 @@
               </UML:Enumeration.literal>
             </UML:Enumeration>
             <UML:Class xmi.id = '127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:00000000000009DC'
-              name = 'partner' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              name = 'partener' visibility = 'public' isSpecification = 'false' isRoot = 'false'
               isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
               <UML:ModelElement.stereotype>
                 <UML:Stereotype href = 'http://argouml.org/user-profiles/OpenObjectStadardElements.xmi#127-0-1-1--66344949:13b09938a14:-8000:00000000000011E5'/>

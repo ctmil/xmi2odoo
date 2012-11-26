@@ -51,18 +51,60 @@ class Builder:
             out.write(stream.render())
         pass
 
-    def build(self):
+    def reset(self):
+        """
+        Remove target directories. Do not remove root directory.
+        """
+        for k in self.model.iterclass(uml.CPackage):
+            package = self.model[k]
+            target = os.path.join(self.path, package.name)
+            if os.path.exists(target): shutil.rmtree(target)
+
+    def sort_classes(self, classes):
+        # Build forest of classes
+        tree = {}
+        for cls in classes:
+            parents = [ gen.parent.name for gen in cls.child_of ]
+            childs  = [ gen.child.name for gen in cls.parent_of ]
+            tree[cls.name] = (parents, childs)
+
+        # Take roots
+        roots = [ cls for cls in tree.keys() if len(tree[cls][0]) == 0 ]
+
+        # Sorting algorithm
+        def sorttree(root, tree):
+            r = [ root ] + reduce(lambda a,b: a+b, [ sorttree(child, tree) for child in tree[root][1] ], [])
+            return r
+
+        # Build list
+        result = reduce(lambda a,b: a+b, [ sorttree(root, tree) for root in roots ], [])
+
+        return result
+
+    def build(self, logfile=sys.stderr):
         # Por cada paquete generar un directorio de addon.
         for k in self.model.iterclass(uml.CPackage):
-            # Configuro las variables y tags para este paquete
             package = self.model[k]
+            # Si el paquete es externo no lo construyo.
+            if 'external' in [ s.name for s in package.stereotypes ]:
+                continue
+            # Configuro las variables y tags para este paquete
             ptag = package.tag
             root_classes = [ (c.xmi_id, c.name) for c in package.classes ]
             wizard_classes = [] # [ (c.xmi_id, c.name) for c in package.classes ]
             report_classes = [] # [ (c.xmi_id, c.name) for c in package.classes ]
+            view_files = [ '%s_view.xml' % name for xml_id, name in root_classes ]
+            menu_files = [ '%s_menuitem.xml' % package.name ]
+            # Calcula dependencias
+            dependencies = set()
+            for xmi_id, name in root_classes:
+                dependencies.update(set([ ass.swap[0].participant.package.name for ass in  self.model[xmi_id].associations ]))
+            dependencies.remove('res')
+            # Construyo los tags
             tags = {
                 'YEAR': str(date.today().year),
                 'MODULE_NAME': package.name,
+                'MODULE_LABEL': ptag.get('label', package.name),
                 'MODULE_SHORT_DESCRIPTION': ptag.get('documentation','\n').split('\n')[0],
                 'MODULE_DESCRIPTION': ptag.get('documentation', 'No documented'),
                 'MODULE_AUTHOR': ptag.get('author', 'No author.'),
@@ -72,7 +114,10 @@ class Builder:
                 'MODULE_WEBSITE': ptag.get('website', ''),
                 'MODULE_LICENSE': ptag.get('license', 'AGPL-3'),
                 'MODULE_DEPENDS': ptag.get('depends', ''),
-                'ROOT_IMPORT': '\n'.join([ "import %s" % n for k, n in root_classes ]),
+                'MENU_PARENT': ptag.get('menu_parent', None),
+                'MENU_SEQUENCE': ptag.get('menu_sequence', 100),
+                'GROUPS': ptag.get('groups', None),
+                'ROOT_IMPORT': '\n'.join([ "import %s" % n for n in self.sort_classes(package.classes) ]),
                 'WIZARD_IMPORT': '\n'.join([ "import %s" % n for k, n in wizard_classes ]),
                 'REPORT_IMPORT': '\n'.join([ "import %s" % n for k, n in report_classes ]),
             }
@@ -91,10 +136,10 @@ class Builder:
                     'website': tags['MODULE_WEBSITE'],
                     'license': tags['MODULE_LICENSE'],
                     'description': tags['MODULE_DESCRIPTION'],
-                    'depends': [ s.strip() for s in tags['MODULE_DEPENDS'].split(',') if s != '' ],
+                    'depends': list(dependencies),
                     'init_xml': [],
                     'demo_xml': [],
-                    'update_xml': [],
+                    'update_xml': menu_files + view_files,
                     'test': [],
                     'active': False,
                     'installable': True,
@@ -103,9 +148,11 @@ class Builder:
             # Copio la estructura basica al nuevo directorio.
             source = pkg_resources.resource_filename(__name__, os.path.join('data', 'template'))
             target = os.path.join(self.path, package.name)
-            print >> sys.stderr, "Copy template structure from: ", source, "to", target
+            print >> logfile, "Copy template structure from: ", source, "to", target
             shutil.copytree(source, target,
-                            ignore=shutil.ignore_patterns('*CLASS.py*', '*CLASS_view.xml*'))
+                            ignore=shutil.ignore_patterns('*CLASS*',
+                                                          '*PACKAGE_*'))
+            shutil.copy(os.path.join(source, 'PACKAGE_menuitem.xml'), os.path.join(target, menu_files[0]))
 
             # Proceso el template basico sobre los archivos copiados.
             for root, dirs, files in os.walk(target):
@@ -114,26 +161,38 @@ class Builder:
 
             # Por cada clase genero un archivo. El archivo lo agrego a la lista de importacion.
             for xmi_id, name in root_classes:
+                # Prepare data
                 cclass = self.model[xmi_id]
                 if len(self.model[xmi_id].child_of) > 0:
                     parent = self.model[xmi_id].child_of[0].parent
                 else:
                     parent = None
                 ctag = cclass.tag
+                tags.update({
+                    'CLASS_NAME': name,
+                    'CLASS_LABEL': cclass.tag.get('label', name),
+                    'CLASS_PARENT': parent.name if parent is not None else None,
+                    'CLASS_PARENT_MODULE': parent.package.name if parent is not None else None,
+                    'CLASS_DOCUMENTATION': ctag.get('documentation', None),
+                    'CLASS_ATTRIBUTES': [ m for m in cclass.members if m.entityclass == 'cattribute' ],
+                    'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations ],
+                    'CLASS_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' ],
+                    'MENU_PARENT': cclass.tag.get('menu_parent', None),
+                    'MENU_SEQUENCE': cclass.tag.get('menu_sequence', '100'),
+                    'STEREOTYPES': [ s.name for s in cclass.stereotypes ]
+                    })
+                # Generate class file
                 source_code = os.path.join(source, 'CLASS.py')
                 target_code = os.path.join(target, '%s.py' % name)
                 shutil.copy(source_code, target_code)
-                tags.update({
-                    'CLASS_NAME': name,
-                    'CLASS_PARENT': parent.name if parent is not None else None,
-                    'CLASS_PARENT_MODULE': parent.package.name if parent is not None else None,
-                    'CLASS_DOCUMENTATION': ctag.get('documentation', ''),
-                    'CLASS_ATTRIBUTES': [ m for m in cclass.members if m.entityclass == 'cattribute' ],
-                    'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations ],
-                    })
                 self.update(tags, target_code)
-
-        import pdb; pdb.set_trace()
+                # Generate view file
+                source_code = os.path.join(source, 'CLASS_view.xml')
+                target_code = os.path.join(target, '%s_view.xml' % name)
+                shutil.copy(source_code, target_code)
+                self.update(tags, target_code)
+                # TODO: Generate access rules.
+                # TODO: Creaate groups.
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
 
