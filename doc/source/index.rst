@@ -11,6 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
    
+   user_manual
    uml
    model
    builder
