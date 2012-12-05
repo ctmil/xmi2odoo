@@ -31,8 +31,8 @@ class ${CLASS_NAME}(osv.osv):
 {%  for ass in CLASS_ASSOCIATIONS %}\
 {%      def name %}${ass.name}{%end%}\
 {%      def label %}${ass.tag.get('label', ass.name)}{%end%}\
-{%      def actual_id %}{%end%}\
-{%      def other_id %}{%end%}\
+{%      def actual_id %}${"%s_id" % CLASS_NAME}{%end%}\
+{%      def other_id %}${"%s_id" % ass.participant.name.replace('.','_')}{%end%}\
 {%      def other_module %}${ass.participant.package.name}{%end%}\
 {%      def other_obj %}${ass.participant.name}{%end%}\
 {%      def other_name %}${ass.swap[0].name}{%end%}\
@@ -42,7 +42,7 @@ class ${CLASS_NAME}(osv.osv):
 {%          when 'one2one'   %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'), {% end %}\
 {%          when 'many2one'  %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'), {% end %}\
 {%          when 'one2many'  %}'${name()}': fields.one2many('${other_module()}.${other_obj()}', '${other_name()}', '${label()}'), {% end %}\
-{%          when 'many2many' %}'${name()}': fields.many2many('${other_module()}.${other_obj()}', '${relational_obj()}', '${other_name()}', '${actual_id()}', '${other_id()}', '${label()}'), {% end %}\
+{%          when 'many2many' %}'${name()}': fields.many2many('${other_module()}.${other_obj()}', '${relational_obj()}', '${actual_id()}', '${other_id()}', '${label()}'), {% end %}\
 {%      end %}
 {%  end %}\
     }

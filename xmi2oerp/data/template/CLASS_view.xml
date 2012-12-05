@@ -12,7 +12,6 @@ ${LICENSE_HEADER}\
         <record id="view_${model('_')}_form" model="ir.ui.view">
             <field name="name">${model()}.form</field>
             <field name="model">${model()}</field>
-            <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="${CLASS_LABEL}">
 {%                  for col in CLASS_ATTRIBUTES %}\
@@ -30,7 +29,6 @@ ${LICENSE_HEADER}\
         <record id="view_${model('_')}_tree" model="ir.ui.view">
             <field name="name">${model()}.tree</field>
             <field name="model">${model()}</field>
-            <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="${CLASS_LABEL}">
 {%                  for col in CLASS_ATTRIBUTES %}
