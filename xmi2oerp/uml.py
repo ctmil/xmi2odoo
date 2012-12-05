@@ -103,6 +103,20 @@ from sqlalchemy.schema import Table
 
 Base = declarative_base()
 
+def solvmul(v, t):
+    mr = eval(v)
+    if t in ['composite', 'aggregate' ]:
+        if mr in [(0,1), (1,1), None]:
+            return 'one'
+        elif mr in [(0,-1), (1,-1)]:
+            return 'many'
+    else:
+        if mr in [(0,1), (1,1)]:
+            return 'one'
+        elif mr in [(0,-1), (1,-1), None]:
+            return 'many'
+    return None
+
 class CEntity(Base):
     """Abstract UML entity class.
 
@@ -516,31 +530,16 @@ class CAssociationEnd(CEntity):
 
     @property
     def multiplicity(self):
-        my_situation = eval(self.multiplicityrange), self.aggregation
-        his_situation = eval(self.swap[0].multiplicityrange), self.swap[0].aggregation
-        if   my_situation == ((0,1),'none')     and his_situation == (None,'aggregate'):
-            return "one2one"
-        elif my_situation == (None,'aggregate') and his_situation == ((0,1), 'none'):
-            return "one2one"
-        elif my_situation == (None,'composite') and his_situation == ((0,-1), 'none'):
-            return "many2one"
-        elif my_situation == ((0,-1),'none')    and his_situation == (None, 'composite'):
-            return "one2many"
-        elif my_situation == (None,'none')      and his_situation == (None, 'composite'):
-            return "one2many"
-        elif my_situation == (None,'composite') and his_situation == (None, 'none'):
-            return "many2one"
-        elif my_situation == ((0,-1),'none')    and his_situation == ((1,1), 'none'):
-            return "one2many"
-        elif my_situation == ((1,1),'none')     and his_situation == ((0,-1), 'none'):
-            return "many2one"
-        elif my_situation == ((1,1), 'none')     and his_situation == (None, u'none'):
-            return "many2one"
-        import sys
-        print >> sys.stderr, "Unsupported range."
-        print >> sys.stderr, self.participant.name, self.name, my_situation
-        print >> sys.stderr, self.swap[0].participant.name, self.swap[0].name, his_situation
-        import pdb; pdb.set_trace()
+        my_mul = solvmul(self.multiplicityrange, self.aggregation)
+        hi_mul = solvmul(self.swap[0].multiplicityrange, self.swap[0].aggregation)
+        if my_mul is None or hi_mul is None:
+            print >> sys.stderr, "Unsupported range."
+            print >> sys.stderr, self.participant.name, self.name, my_situation
+            print >> sys.stderr, self.swap[0].participant.name, self.swap[0].name, his_situation
+            import pdb; pdb.set_trace()
+        else:
+            r = '%s2%s' % (hi_mul, my_mul)
+            return r
 
 class CGeneralization(CEntity):
     """Generalization class.
@@ -607,5 +606,24 @@ class CStereotype(CEntity):
 
     def __repr__(self):
         return "<CStereotype(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CSimpleState(CEntity):
+    """Simple State class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: Data type name.
+    """
+    __tablename__ = 'csimplestate'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = { 'polymorphic_identity': 'csimplestate' }
+
+    def __init__(self, xmi_id, name, ends=[]):
+        super(CSimpleState, self).__init__(xmi_id, name)
+
+    def __repr__(self):
+        return "<CSimpleState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

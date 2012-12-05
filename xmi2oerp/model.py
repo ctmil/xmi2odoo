@@ -37,6 +37,13 @@ class FileWrapper:
          self.lineno += 1
          return s
 
+class NotResolved:
+    pass
+
+def asNotResolved(p):
+    print p
+    return NotResolved
+
 class Model:
     """UML Model.
     
@@ -318,7 +325,7 @@ class Model:
         umlclass.tags
     """
 
-    def iterclass(self, umlclass, filter=None):
+    def iterclass(self, umlclass=uml.CEntity, filter=None):
         """Return a generator over a class of entity
 
         :param umlclass: Class over iterate.
@@ -358,6 +365,7 @@ class Model:
         postprocessing_append = []
         postprocessing_set = []
         owner = []
+        in_xmi = False
 
         infile = FileWrapper(infile, store_url)
 
@@ -366,6 +374,16 @@ class Model:
         try:
 
           for event, elem in ET.iterparse(infile, events=('start', 'end')):
+# Ignore tags outside XMI description.
+            if not in_xmi and elem.tag == 'XMI' and event == 'start':
+                in_xmi = True
+            if in_xmi     and elem.tag == 'XMI' and event == 'end':
+                in_xmi = False
+                break # In ArgoUML prevents errors if you load .uml files.
+            if not in_xmi:
+                continue
+
+# Setup comaparison variables
             kind = ('xmi.id'    in elem.attrib and 'description') or \
                    ('xmi.idref' in elem.attrib and 'reference') or \
                    ('href'      in elem.attrib and 'externalref') or \
@@ -473,6 +491,40 @@ class Model:
                     self.session.add(cattribute)
                     cclass.members.append(cattribute)
 
+# Members: Operation
+
+            elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Operation'):
+                params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
+                mask = (False, False, type(cdatatype) is str)
+                
+                if True in mask:
+                    postprocessing_create.append((uml.COperation, params, mask))
+                else:
+                    coperation = uml.COperation(*params)
+                    self.session.add(coperation)
+
+# Parameters
+
+            elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Parameter'):
+                if 'coperation' in globals():
+                    params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
+                    params.append(None)
+                    params.append(None)
+                    params.append(None)
+                    params.append(coperation)
+                    mask = (False, False, False, False, False, False)
+                    
+                    if True in mask:
+                        postprocessing_create.append((uml.CParameter, params, mask))
+                    else:
+                        cparameter = uml.CParameter(*params)
+                        self.session.add(cparameter)
+                else:
+                    """
+                    Could be a TemplateParameter
+                    """
+                    pass
+
 # Tags
 
             elif (kind, event, elem.tag) == ('plain', 'start', '{org.omg.xmi.namespace.UML}TaggedValue.dataValue'):
@@ -525,13 +577,14 @@ class Model:
                 params[2] = (params[2] == 'true')
                 params.append(cclass)
                 params.append(repr(multiplicityrange))
-                if type(cclass) is str:
-                    postprocessing_create.append((uml.CAssociationEnd, params, (False, False, False, False, True, False)))
-                    postprocessing_append.append((cassociation.ends, elem.attrib['xmi.id']))
+                params.append(cassociation)
+                mask = (False, False, False, False, type(cclass) is str, False, type(cassociation))
+                if True in mask:
+                    postprocessing_create.append((uml.CAssociationEnd, params, mask))
                 else:
                     cassociationend = uml.CAssociationEnd(*params)
-                    cassociation.ends.append(cassociationend)
                     self.session.add(cassociationend)
+
                 multiplicityrange = None
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Association'):
@@ -553,9 +606,12 @@ class Model:
                 params = [ elem.attrib[k] for k in  ['xmi.id'] ]
                 params.append(parent)
                 params.append(child)
-                cgeneralization = uml.CGeneralization(*params)
-                self.session.add(cgeneralization)
-                del cgeneralization
+                if type(parent) is str or type(child) is str:
+                    postprocessing_create.append((uml.CGeneralization, params, (False, type(parent) is str, type(parent) is str)))
+                else:
+                    cgeneralization = uml.CGeneralization(*params)
+                    self.session.add(cgeneralization)
+                    del cgeneralization
 
 # Stereotypes
 
@@ -591,6 +647,13 @@ class Model:
                 else:
                     element.stereotypes = stereotypes
 
+# State machine 
+
+            elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}SimpleState'):
+                params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
+                simplestate = uml.CSimpleState(*params)
+                self.session.add(simplestate)
+
 # Unknown tags 
 
             else:
@@ -602,25 +665,46 @@ class Model:
                         print >> sys.stderr, 'I:', kind, event, elem.tag
 
         except Exception, m:
-            print "Parsing error in line %i of file %s." % (infile.lineno, infile.filename)
+            r =  "Parsing error in line %i of file %s.\n" % (infile.lineno, infile.filename)
+            r += "\t<Tag: %s, ID: %s> -\n" % (elem.tag, kind == 'description' and elem.attrib['xmi.id'] or '')
+            r += "\tError: %s" % m
+            raise RuntimeError, r
 
 # -- Postprocessing
 
-        class NotResolved:
-            pass
+        allobjs = set(params[0] for theclass, params, querymask in postprocessing_create) | \
+                set(self.iterclass(uml.CPackage)) | \
+                set(self.iterclass(uml.CClass)) | \
+                set(self.iterclass(uml.CDataType)) | \
+                set(self.iterclass(uml.CEnumeration)) | \
+                set(self.iterclass(uml.CAttribute)) | \
+                set(self.iterclass(uml.COperation)) | \
+                set(self.iterclass(uml.CParameter)) | \
+                set(self.iterclass(uml.CTagDefinition)) | \
+                set(self.iterclass(uml.CTaggedValue)) | \
+                set(self.iterclass(uml.CAssociationEnd)) | \
+                set(self.iterclass(uml.CAssociation)) | \
+                set(self.iterclass(uml.CGeneralization)) | \
+                set(self.iterclass(uml.CStereotype)) 
 
-        while postprocessing_create:
+        needsolve = set()
+        while postprocessing_create and len(needsolve - allobjs) == 0:
             theclass, params, querymask = postprocessing_create.pop(0)
 
             querymask = [ type(v) is str and q for v,q in zip(params, querymask) ]
             newparams = [ (q and self.get(p, NotResolved)) or p for p, q in zip(params, querymask) ]
+            needsolve |= set( v for i,v in zip(newparams, params) if i is NotResolved )
 
             if NotResolved in [ m and p for p,m in zip(newparams, querymask) ]:
                 postprocessing_create.append((theclass, params, querymask))
             else:
+                if newparams[0] in needsolve:
+                    needsolve.remove(newparams[0])
                 newobj = theclass(*newparams)
                 self.session.add(newobj)
 
+        if len(needsolve - allobjs) != 0:
+            raise RuntimeError('Cant create %s from file %s.' % (','.join(needsolve - allobjs), infile.filename))
 
         for relation, xmi_id in postprocessing_append:
             relation.append(self[xmi_id])

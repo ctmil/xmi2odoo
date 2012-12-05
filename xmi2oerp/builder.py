@@ -99,7 +99,9 @@ class Builder:
             dependencies = set()
             for xmi_id, name in root_classes:
                 dependencies.update(set([ ass.swap[0].participant.package.name for ass in  self.model[xmi_id].associations ]))
-            dependencies.remove('res')
+            for base_mod in ['res', 'ir', package.name]:
+                if base_mod in dependencies:
+                    dependencies.remove(base_mod)
             # Construyo los tags
             tags = {
                 'YEAR': str(date.today().year),
@@ -175,7 +177,7 @@ class Builder:
                     'CLASS_PARENT_MODULE': parent.package.name if parent is not None else None,
                     'CLASS_DOCUMENTATION': ctag.get('documentation', None),
                     'CLASS_ATTRIBUTES': [ m for m in cclass.members if m.entityclass == 'cattribute' ],
-                    'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations ],
+                    'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations if m.swap[0].name not in [ None, '' ] ],
                     'CLASS_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' ],
                     'MENU_PARENT': cclass.tag.get('menu_parent', None),
                     'MENU_SEQUENCE': cclass.tag.get('menu_sequence', '100'),

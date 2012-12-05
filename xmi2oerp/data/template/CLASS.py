@@ -36,7 +36,7 @@ class ${CLASS_NAME}(osv.osv):
 {%      def other_module %}${ass.participant.package.name}{%end%}\
 {%      def other_obj %}${ass.participant.name}{%end%}\
 {%      def other_name %}${ass.swap[0].name}{%end%}\
-{%      def relational_obj %}${'%s_%s_rel' % (MODULE_NAME, '_'.join([ e.name for e in ass.association.ends]))}{%end%}\
+{%      def relational_obj %}${'%s_%s_rel' % (MODULE_NAME, '_'.join([ e.name or '_' for e in ass.association.ends]))}{%end%}\
 {%      choose ass.multiplicity %}\
         \
 {%          when 'one2one'   %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'), {% end %}\
