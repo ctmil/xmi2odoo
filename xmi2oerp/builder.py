@@ -64,8 +64,10 @@ class Builder:
         # Build forest of classes
         tree = {}
         for cls in classes:
-            parents = [ gen.parent.name for gen in cls.child_of ]
-            childs  = [ gen.child.name for gen in cls.parent_of ]
+            import pdb; pdb.set_trace()
+            parents = [ gen.parent.name for gen in cls.child_of if gen.parent.package.name == cls.package.name ]
+            childs  = [ gen.child.name for gen in cls.parent_of if gen.parent.package.name == cls.package.name ]
+            print parents, childs
             tree[cls.name] = (parents, childs)
 
         # Take roots

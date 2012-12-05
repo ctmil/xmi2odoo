@@ -374,6 +374,7 @@ class Model:
         try:
 
           for event, elem in ET.iterparse(infile, events=('start', 'end')):
+
 # Ignore tags outside XMI description.
             if not in_xmi and elem.tag == 'XMI' and event == 'start':
                 in_xmi = True
