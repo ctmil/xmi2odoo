@@ -166,18 +166,25 @@ class Builder:
                 # Prepare data
                 cclass = self.model[xmi_id]
                 if len(self.model[xmi_id].child_of) > 0:
-                    parent = self.model[xmi_id].child_of[0].parent
+                    generalization = self.model[xmi_id].child_of[0]
+                    parent = generalization.parent
+                    extend_parent = generalization.is_stereotype('extend')
                 else:
                     parent = None
+                    extend_parent = False
                 ctag = cclass.tag
                 tags.update({
-                    'CLASS_NAME': name,
+                    'CLASS_EXTEND_PARENT': extend_parent,
                     'CLASS_LABEL': cclass.tag.get('label', name),
-                    'CLASS_PARENT': parent.name if parent is not None else None,
+                    'CLASS_MODULE': parent.package.name if extend_parent else cclass.package.name,
+                    'CLASS_NAME': parent.name if extend_parent else name,
                     'CLASS_PARENT_MODULE': parent.package.name if parent is not None else None,
+                    'CLASS_PARENT_NAME': parent.name if parent is not None else None,
                     'CLASS_DOCUMENTATION': ctag.get('documentation', None),
                     'CLASS_ATTRIBUTES': [ m for m in cclass.members if m.entityclass == 'cattribute' ],
-                    'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations if m.swap[0].name not in [ None, '' ] ],
+                    'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations
+                                           if m.swap[0].name not in [ None, '' ]
+                                          ],
                     'CLASS_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' ],
                     'MENU_PARENT': cclass.tag.get('menu_parent', None),
                     'MENU_SEQUENCE': cclass.tag.get('menu_sequence', '100'),

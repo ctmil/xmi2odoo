@@ -644,7 +644,7 @@ class Model:
             elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}ModelElement.stereotype'):
                 element = self.get(owner[-1], owner[-1])
                 if type(element) is str:
-                    postprocessing_set.append((xmi_id, 'stereotypes', stereotypes))
+                    postprocessing_set.append((element, 'stereotypes', stereotypes))
                 else:
                     element.stereotypes = stereotypes
 

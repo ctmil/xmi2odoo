@@ -1,5 +1,5 @@
 <?xml version = '1.0' encoding = 'UTF-8' ?>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Fri Nov 30 12:10:49 ART 2012'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Thu Dec 06 10:07:43 ART 2012'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.34(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -49,44 +49,111 @@
           name = 'Float' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'/>
         <UML:DataType xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:0000000000000B9F'
-          name = 'binary' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          name = 'Binary' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'/>
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:0000000000000BA0'
           name = 'translatable' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D22'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El campo puede traducirse.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:0000000000000BA1'
           name = 'readonly' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1C'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El campo es de solo lectura.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:0000000000000BA2'
           name = 'required' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1D'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El campo es obligatorio.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:0000000000000BA3'
           name = 'select' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1F'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El campo tiene un índice asociado.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011E5'
           name = 'form' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
-          <UML:Stereotype.baseClass>Class</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D19'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El campo se observa en la vista de formulario.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011E6'
           name = 'tree' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
-          <UML:Stereotype.baseClass>Class</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D23'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El campo aparece en el la vista de árbol.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011E8'
           name = 'store' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D21'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El campo computado es almacenado en la base de datos.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
         </UML:Stereotype>
         <UML:TagDefinition xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011EC'
           name = 'fnct' isSpecification = 'false'>
@@ -124,7 +191,17 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011F5'
           name = 'method' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1B'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El campo es computado por una función miembro de la clase.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
         </UML:Stereotype>
         <UML:TagDefinition xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011F9'
           name = 'multi' isSpecification = 'false'>
@@ -284,13 +361,89 @@
           name = 'external' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Package</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D18'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El paquete es externo y no se tiene en cuenta a la hora de generar los paquetes.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1-7b01ca01:13b51db18aa:-8000:0000000000000D12'
           name = 'hidden' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1A'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El campo esta oculto (es lo mismo que no poner ni form ni tree?)</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
         </UML:Stereotype>
+        <UML:Stereotype xmi.id = '127-0-1-1--7f493fcf:13b6d9e307b:-8000:0000000000000F56'
+          name = 'search' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1E'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El campo aparece en el formulario de busqueda.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
+        </UML:Stereotype>
+        <UML:DataType xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D16'
+          name = 'HTML' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'/>
+        <UML:Stereotype xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D17'
+          name = 'state' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D20'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>El campo se representa por un widget de estados.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
+        </UML:Stereotype>
+        <UML:Stereotype xmi.id = '127-0-1-1-7944a5f0:13b6db16c37:-8000:00000000000011C6'
+          name = 'extend' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>Generalization</UML:Stereotype.baseClass>
+          <UML:ModelElement.taggedValue>
+            <UML:TaggedValue xmi.id = '127-0-1-1-7944a5f0:13b6db16c37:-8000:00000000000011C7'
+              isSpecification = 'false'>
+              <UML:TaggedValue.dataValue>Extiende la clase padre.</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.type>
+                <UML:TagDefinition xmi.idref = '127-0-1-1-63334cf4:13b2e4e29c5:-8000:00000000000011D3'/>
+              </UML:TaggedValue.type>
+            </UML:TaggedValue>
+          </UML:ModelElement.taggedValue>
+        </UML:Stereotype>
+        <UML:TagDefinition xmi.id = '127-0-1-1-19e0703c:13b6dbe7adf:-8000:00000000000011CA'
+          name = 'view_group' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1-19e0703c:13b6dbe7adf:-8000:00000000000011CC'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1-19e0703c:13b6dbe7adf:-8000:00000000000011CB'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
       </UML:Namespace.ownedElement>
     </UML:Model>
   </XMI.content>

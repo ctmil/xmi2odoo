@@ -7,9 +7,9 @@ class ${CLASS_NAME}(osv.osv):
     """
     ${CLASS_DOCUMENTATION}\
     """
-    _name = '${MODULE_NAME}.${CLASS_NAME}'
-{%  if CLASS_PARENT is not None %}\
-    _inherit = '${CLASS_PARENT_MODULE}.${CLASS_PARENT}'
+    _name = '${CLASS_MODULE}.${CLASS_NAME}'
+{%  if CLASS_PARENT_NAME is not None %}\
+    _inherit = '${CLASS_PARENT_MODULE}.${CLASS_PARENT_NAME}'
 {%  end %}\
 
     _columns = {
@@ -24,7 +24,8 @@ class ${CLASS_NAME}(osv.osv):
 {%          when 'Text'      %}'${col.name}': fields.text('${label()}'), {% end %}\
 {%          when 'Date'      %}'${col.name}': fields.date('${label()}'), {% end %}\
 {%          when 'Datetime'  %}'${col.name}': fields.datetime('${label()}'), {% end %}\
-{%          when 'binary'    %}'${col.name}': fields.binary('${label()}'), {% end %}\
+{%          when 'Binary'    %}'${col.name}': fields.binary('${label()}'), {% end %}\
+{%          when 'HTML'      %}'${col.name}': fields.html('${label()}'), {% end %}\
 {%          otherwise        %}'${col.name}': fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.literals])}, '${label()}'), {% end %}\
 {%      end %}
 {%  end %}\
@@ -42,7 +43,7 @@ class ${CLASS_NAME}(osv.osv):
 {%          when 'one2one'   %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'), {% end %}\
 {%          when 'many2one'  %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'), {% end %}\
 {%          when 'one2many'  %}'${name()}': fields.one2many('${other_module()}.${other_obj()}', '${other_name()}', '${label()}'), {% end %}\
-{%          when 'many2many' %}'${name()}': fields.many2many('${other_module()}.${other_obj()}', '${relational_obj()}', '${actual_id()}', '${other_id()}', '${label()}'), {% end %}\
+{%          when 'many2many' %}'${name()}': fields.many2many('${other_module()}.${other_obj()}', '${relational_obj()}', '${name()}', '${other_name()}', '${label()}'), {% end %}\
 {%      end %}
 {%  end %}\
     }
