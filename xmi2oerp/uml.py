@@ -242,7 +242,7 @@ class CPackage(CEntity):
     def __repr__(self):
         return "<CPackage(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
-class CClass(CEntity):
+class CClass(CDataType):
     """Class class.
 
     :param xmi_id: XMI identity of the data type.
@@ -255,7 +255,7 @@ class CClass(CEntity):
 
     __tablename__ = 'cclass'
 
-    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+    id = Column(Integer, ForeignKey('cdatatype.id'), primary_key=True)
     package_id = Column(Integer, ForeignKey('cpackage.id'))
 
     __mapper_args__ = {'polymorphic_identity': 'cclass'}

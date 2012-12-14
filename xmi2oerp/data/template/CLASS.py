@@ -26,7 +26,12 @@ class ${CLASS_NAME}(osv.osv):
 {%          when 'Datetime'  %}'${col.name}': fields.datetime('${label()}'), {% end %}\
 {%          when 'Binary'    %}'${col.name}': fields.binary('${label()}'), {% end %}\
 {%          when 'HTML'      %}'${col.name}': fields.html('${label()}'), {% end %}\
-{%          otherwise        %}'${col.name}': fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.literals])}, '${label()}'), {% end %}\
+{%          otherwise        %}'${col.name}': \
+{%            choose type(col.datatype).__tablename__ %}\
+{%            when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.literals])}, '${label()}'), {% end %}\
+{%            when 'cclass' %}fields.one2many('${col.datatype.package.name}.${col.datatype.name}', '${label()}'), {% end %}\
+{%            end %}\
+{%          end %}\
 {%      end %}
 {%  end %}\
 {%  for ass in CLASS_ASSOCIATIONS %}\

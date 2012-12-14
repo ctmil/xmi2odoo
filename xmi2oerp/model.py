@@ -373,7 +373,13 @@ class Model:
 
         try:
 
+          cclass = None
+          stop = False
+
           for event, elem in ET.iterparse(infile, events=('start', 'end')):
+
+            if infile.lineno in []:
+                stop = True
 
 # Ignore tags outside XMI description.
             if not in_xmi and elem.tag == 'XMI' and event == 'start':
@@ -399,6 +405,7 @@ class Model:
 # Package
 
             if (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Package'):
+                if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 cpackage = uml.CPackage(*params)
                 self.session.add(cpackage)
@@ -406,87 +413,94 @@ class Model:
 # Class
 
             elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}Class'):
+                if stop: import pdb; pdb.set_trace()
                 xmi_id = elem.attrib['xmi.idref']
                 r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
-                if len(r) == 0:
-                    cclass = xmi_id
-                else:
-                    cclass = r[0]
+                cdatatype = xmi_id if len(r) == 0 else r[0]
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Class'):
+                if stop: import pdb; pdb.set_trace()
+                if cclass is not None:
+                    r = 'Class %s is inside the class %s.' % (elem.attrib['name'], cclass)
+                    raise RuntimeError, r
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 cclass = uml.CClass(*params)
                 cpackage.classes.append(cclass)
                 self.session.add(cclass)
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Class'):
+                if stop: import pdb; pdb.set_trace()
+                cdatatype = cclass
                 cclass = None
 
 # DataType
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}DataType'):
+                if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
-                cmember = uml.CDataType(*params)
-                self.session.add(cmember)
+                cdatatype = uml.CDataType(*params)
+                self.session.add(cdatatype)
 
             elif (kind, event, elem.tag) == ('externalref', 'start', '{org.omg.xmi.namespace.UML}DataType'):
+                if stop: import pdb; pdb.set_trace()
                 url, xmi_id = elem.attrib['href'].split('#', 1)
                 self.load(url)
                 r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
-                if len(r) == 0:
-                    cdatatype = xmi_id
-                else:
-                    cdatatype = r[0]
+                cdatatype = xmi_id if len(r) == 0 else r[0]
 
             elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}DataType'):
+                if stop: import pdb; pdb.set_trace()
                 xmi_id = elem.attrib['xmi.idref']
                 r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
-                if len(r) == 0:
-                    cdatatype = xmi_id
-                else:
-                    cdatatype = r[0]
+                cdatatype = xmi_id if len(r) == 0 else r[0]
 
 # Members: Enumeration
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Enumeration'):
+                if stop: import pdb; pdb.set_trace()
                 enumerationliterals = []
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}EnumerationLiteral'):
+                if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 enumerationliterals.append(uml.CEnumerationLiteral(*params))
                 self.session.add(enumerationliterals[-1])
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Enumeration'):
+                if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 params.append(enumerationliterals)
-                cmember = uml.CEnumeration(*params)
-                self.session.add(cmember)
+                cdatatype = uml.CEnumeration(*params)
+                self.session.add(cdatatype)
 
             elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}Enumeration'):
+                if stop: import pdb; pdb.set_trace()
                 xmi_id = elem.attrib['xmi.idref']
                 r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
-                if len(r) == 0:
-                    cdatatype = xmi_id
-                else:
-                    cdatatype = r[0]
+                cdatatype = xmi_id if len(r) == 0 else r[0]
 
             elif (kind, event, elem.tag) == ('externalref', 'start', '{org.omg.xmi.namespace.UML}Enumeration'):
+                if stop: import pdb; pdb.set_trace()
                 url, xmi_id = elem.attrib['href'].split('#', 1)
                 self.load(url)
                 r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
-                if len(r) == 0:
-                    cdatatype = xmi_id
-                else:
-                    cdatatype = r[0]
+                cdatatype = xmi_id if len(r) == 0 else r[0]
 
 # Members: Attribute
 
+            elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Attribute'):
+                if stop: import pdb; pdb.set_trace()
+                cdatatype = None
+
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Attribute'):
+                if stop: import pdb; pdb.set_trace()
+                if cclass is None or cdatatype is None:
+                    import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 params.append(cdatatype)
                 if type(cdatatype) is str or type(cclass) is str:
                     postprocessing_create.append((uml.CAttribute, params, (False, False, True)))
-                    postprocessing_append.append((cclass.members, params[0]))
+                    postprocessing_append.append((cclass if type(cclass) is str else cclass.xmi_id, 'members', params[0]))
                 else:
                     cattribute = uml.CAttribute(*params)
                     self.session.add(cattribute)
@@ -495,6 +509,7 @@ class Model:
 # Members: Operation
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Operation'):
+                if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 mask = (False, False, type(cdatatype) is str)
                 
@@ -507,6 +522,7 @@ class Model:
 # Parameters
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Parameter'):
+                if stop: import pdb; pdb.set_trace()
                 if 'coperation' in globals():
                     params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                     params.append(None)
@@ -529,31 +545,30 @@ class Model:
 # Tags
 
             elif (kind, event, elem.tag) == ('plain', 'start', '{org.omg.xmi.namespace.UML}TaggedValue.dataValue'):
+                if stop: import pdb; pdb.set_trace()
                 tagvalue = elem.text if elem.text is not None else ''
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}TagDefinition'):
+                if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 ctagdefinition = uml.CTagDefinition(*params)
                 self.session.add(ctagdefinition)
 
             elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}TagDefinition'):
+                if stop: import pdb; pdb.set_trace()
                 xmi_id = elem.attrib['xmi.idref']
                 r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
-                if len(r) == 0:
-                    tagdefinition = xmi_id
-                else:
-                    tagdefinition = r[0]
+                tagdefinition = xmi_id if len(r) == 0 else r[0]
 
             elif (kind, event, elem.tag) == ('externalref', 'start', '{org.omg.xmi.namespace.UML}TagDefinition'):
+                if stop: import pdb; pdb.set_trace()
                 url, xmi_id = elem.attrib['href'].split('#', 1)
                 self.load(url)
                 r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
-                if len(r) == 0:
-                    tagdefinition = xmi_id
-                else:
-                    tagdefinition = r[0]
+                tagdefinition = xmi_id if len(r) == 0 else r[0]
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}TaggedValue'):
+                if stop: import pdb; pdb.set_trace()
                 if len(owner) > 1:
                     params = [ elem.attrib[k] for k in  ['xmi.id'] ]
                     params.append(tagdefinition)
@@ -568,18 +583,21 @@ class Model:
 # Associations
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}AssociationEnd'):
+                if stop: import pdb; pdb.set_trace()
                 multiplicityrange = None
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}MultiplicityRange'):
+                if stop: import pdb; pdb.set_trace()
                 multiplicityrange = (int(elem.attrib['lower']), int(elem.attrib['upper']))
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}AssociationEnd'):
+                if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib.get(k, None) for k in  ['xmi.id', 'name', 'isNavigable', 'aggregation' ] ]
                 params[2] = (params[2] == 'true')
-                params.append(cclass)
+                params.append(cdatatype)
                 params.append(repr(multiplicityrange))
                 params.append(cassociation)
-                mask = (False, False, False, False, type(cclass) is str, False, type(cassociation))
+                mask = (False, False, False, False, type(cdatatype) is str, False, type(cassociation))
                 if True in mask:
                     postprocessing_create.append((uml.CAssociationEnd, params, mask))
                 else:
@@ -589,21 +607,26 @@ class Model:
                 multiplicityrange = None
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Association'):
+                if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 cassociation = uml.CAssociation(*params)
                 self.session.add(cassociation)
 
+            elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Association'):
+                pass
+
 # Generalization
 
             elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}Generalization.child'):
-                child = cclass
-                del cclass
+                if stop: import pdb; pdb.set_trace()
+                child = cdatatype
 
             elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}Generalization.parent'):
-                parent = cclass
-                del cclass
+                if stop: import pdb; pdb.set_trace()
+                parent = cdatatype
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Generalization'):
+                if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id'] ]
                 params.append(parent)
                 params.append(child)
@@ -612,11 +635,11 @@ class Model:
                 else:
                     cgeneralization = uml.CGeneralization(*params)
                     self.session.add(cgeneralization)
-                    del cgeneralization
 
 # Stereotypes
 
             elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}Stereotype'):
+                if stop: import pdb; pdb.set_trace()
                 xmi_id = elem.attrib['xmi.idref']
                 r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
                 if len(r) == 0:
@@ -625,6 +648,7 @@ class Model:
                     stereotypes.append(r[0])
 
             elif (kind, event, elem.tag) == ('externalref', 'start', '{org.omg.xmi.namespace.UML}Stereotype'):
+                if stop: import pdb; pdb.set_trace()
                 url, xmi_id = elem.attrib['href'].split('#', 1)
                 self.load(url)
                 r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
@@ -634,14 +658,17 @@ class Model:
                     stereotypes.append(r[0])
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Stereotype'):
+                if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 stereotype = uml.CStereotype(*params)
                 self.session.add(stereotype)
 
             elif (kind, event, elem.tag) == ('plain', 'start', '{org.omg.xmi.namespace.UML}ModelElement.stereotype'):
+                if stop: import pdb; pdb.set_trace()
                 stereotypes = []
 
             elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}ModelElement.stereotype'):
+                if stop: import pdb; pdb.set_trace()
                 element = self.get(owner[-1], owner[-1])
                 if type(element) is str:
                     postprocessing_set.append((element, 'stereotypes', stereotypes))
@@ -651,6 +678,7 @@ class Model:
 # State machine 
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}SimpleState'):
+                if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 simplestate = uml.CSimpleState(*params)
                 self.session.add(simplestate)
@@ -658,12 +686,12 @@ class Model:
 # Unknown tags 
 
             else:
-                if False:
-                    # Turn on only for debug.
+                if stop:
                     if not kind:
                         print >> sys.stderr, 'I:', elem.attrib.keys(), event, elem.tag
                     else:
                         print >> sys.stderr, 'I:', kind, event, elem.tag
+                    import pdb; pdb.set_trace()
 
         except Exception, m:
             r =  "Parsing error in line %i of file %s.\n" % (infile.lineno, infile.filename)
@@ -707,10 +735,17 @@ class Model:
         if len(needsolve - allobjs) != 0:
             raise RuntimeError('Cant create %s from file %s.' % (','.join(needsolve - allobjs), infile.filename))
 
-        for relation, xmi_id in postprocessing_append:
-            relation.append(self[xmi_id])
+        for owner_xmi_id, member, xmi_id in postprocessing_append:
+            getattr(self[owner_xmi_id],member).append(self[xmi_id])
 
         for xmi_id, attr, value in postprocessing_set:
+            if type(value) is list:
+                ts = set( type(v) for v in value )
+                if len(ts)>1 and str in ts:
+                    value = [ v if type(v) is not str else self[v] for v in value ]
+                ts = set( type(v) for v in value )
+                if len(ts)>1 and str in ts:
+                    raise RuntimeError, "Error resolving '%s'." % "','".join(value)
             setattr(self[xmi_id], attr, value)
 
         self.session.commit()
