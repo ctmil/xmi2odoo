@@ -12,6 +12,11 @@ class ${CLASS_NAME}(osv.osv):
     _inherit = '${CLASS_PARENT_MODULE}.${CLASS_PARENT_NAME}'
 {%  end %}\
 
+{%  for op in CLASS_PRIVATE_OPERATIONS %}\
+    def ${op.name}(self, cr, uid, ids{% for par in op.parameters %}, ${par.name}{% end %}):
+        pass
+{%      end %}\
+
     _columns = {
 {%  for col in CLASS_ATTRIBUTES %}\
 {%      def label %}${col.tag.get('label', col.name)}{%end%}\
@@ -27,7 +32,7 @@ class ${CLASS_NAME}(osv.osv):
 {%          when 'Binary'    %}'${col.name}': fields.binary('${label()}'), {% end %}\
 {%          when 'HTML'      %}'${col.name}': fields.html('${label()}'), {% end %}\
 {%          otherwise        %}'${col.name}': \
-{%            choose type(col.datatype).__tablename__ %}\
+{%            choose col.datatype.entityclass %}\
 {%            when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.literals])}, '${label()}'), {% end %}\
 {%            when 'cclass' %}fields.one2many('${col.datatype.package.name}.${col.datatype.name}', '${label()}'), {% end %}\
 {%            end %}\
@@ -61,8 +66,8 @@ class ${CLASS_NAME}(osv.osv):
 {%  end %}\
     }
 
-{%  for op in CLASS_OPERATIONS %}\
-    def ${op}(self, cr, uid, ids{% for par in op.parameters %}, ${par.name}{% end %}):
+{%  for op in CLASS_PUBLIC_OPERATIONS %}\
+    def ${op.name}(self, cr, uid, ids{% for par in op.parameters %}, ${par.name}{% end %}):
         pass
 {%      end %}\
 

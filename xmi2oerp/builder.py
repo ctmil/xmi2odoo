@@ -185,7 +185,8 @@ class Builder:
                     'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations
                                            if m.swap[0].name not in [ None, '' ]
                                           ],
-                    'CLASS_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' ],
+                    'CLASS_PRIVATE_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' and m.name[0] == '_' ],
+                    'CLASS_PUBLIC_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' and m.name[0] != '_' ],
                     'MENU_PARENT': cclass.tag.get('menu_parent', None),
                     'MENU_SEQUENCE': cclass.tag.get('menu_sequence', '100'),
                     'STEREOTYPES': [ s.name for s in cclass.stereotypes ]

@@ -27,6 +27,8 @@ from sqlalchemy.orm import sessionmaker
 import pkg_resources, os, sys
 import uml
 
+_lines_to_stop = []
+
 class FileWrapper:
      def __init__(self, source, filename=None):
          self.source = source
@@ -378,7 +380,7 @@ class Model:
 
           for event, elem in ET.iterparse(infile, events=('start', 'end')):
 
-            if infile.lineno in []:
+            if infile.lineno in _lines_to_stop:
                 stop = True
 
 # Ignore tags outside XMI description.
@@ -513,11 +515,13 @@ class Model:
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 mask = (False, False, type(cdatatype) is str)
                 
-                if True in mask:
+                if True in mask or type(cclass) is str:
                     postprocessing_create.append((uml.COperation, params, mask))
+                    postprocessing_append.append((cclass if type(cclass) is str else cclass.xmi_id, 'members', params[0]))
                 else:
                     coperation = uml.COperation(*params)
                     self.session.add(coperation)
+                    cclass.members.append(coperation)
 
 # Parameters
 

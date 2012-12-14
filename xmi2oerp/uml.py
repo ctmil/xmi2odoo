@@ -384,7 +384,7 @@ class CParameter(CEntity):
                              backref=backref('parameters', order_by=id))
     operation = relationship('COperation',
                               primaryjoin=(operation_id==COperation.id),
-                              backref=backref('operations', order_by=id))
+                              backref=backref('parameters', order_by=id))
 
     def __init__(self, xmi_id, name, datatype, order, kind, operation=None):
         super(CParameter, self).__init__(xmi_id, name) 
