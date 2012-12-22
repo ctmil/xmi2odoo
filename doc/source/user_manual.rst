@@ -101,6 +101,16 @@ de Operaciones
 de Relaciones
 ~~~~~~~~~~~~~
 
+de Casos de Uso
+~~~~~~~~~~~~~~~
+
+        * menu
+
+de Actor
+~~~~~~~~
+
+        * group
+
 Etiquetas o tags
 ----------------
 
@@ -146,6 +156,7 @@ de Relaciones
 
         * label
         * documentation
+        * related_to
 
 Clases
 ------
@@ -154,11 +165,6 @@ El concepto de Clase en UML es muy parecido a las clases de OpenObject_, el moto
 En principio contiene los mismos principios de miembros atributos o variables, miembros operaciones o funciones, y herencia.
 
 Las diferencias escenciales es que el objeto de OpenERP tiene más atributos y propiedades como clase por lo que hay que utilizar etiquetas o tags para indicarle como configurar.
-
-
-
-
-
 
 .. _OpenObject: http://doc.openerp.com/v6.0/developer/2_5_Objects_Fields_Methods/methods.html
 .. _ORM: http://es.wikipedia.org/wiki/Mapeo_objeto-relacional

@@ -33,7 +33,7 @@ class ${CLASS_NAME}(osv.osv):
 {%          when 'HTML'      %}'${col.name}': fields.html('${label()}'), {% end %}\
 {%          otherwise        %}'${col.name}': \
 {%            choose col.datatype.entityclass %}\
-{%            when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.literals])}, '${label()}'), {% end %}\
+{%            when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()])}, '${label()}'), {% end %}\
 {%            when 'cclass' %}fields.one2many('${col.datatype.package.name}.${col.datatype.name}', '${label()}'), {% end %}\
 {%            end %}\
 {%          end %}\

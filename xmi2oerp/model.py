@@ -27,7 +27,7 @@ from sqlalchemy.orm import sessionmaker
 import pkg_resources, os, sys
 import uml
 
-_lines_to_stop = []
+_lines_to_stop = [ ]
 
 class FileWrapper:
      def __init__(self, source, filename=None):
@@ -412,6 +412,42 @@ class Model:
                 cpackage = uml.CPackage(*params)
                 self.session.add(cpackage)
 
+# UseCase
+
+            elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}UseCase'):
+                if stop: import pdb; pdb.set_trace()
+                xmi_id = elem.attrib['xmi.idref']
+                r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
+                cusecase = xmi_id if len(r) == 0 else r[0]
+
+            elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}UseCase'):
+                if stop: import pdb; pdb.set_trace()
+                params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
+                cusecase = uml.CActor(*params)
+                self.session.add(cusecase)
+
+            elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}UseCase'):
+                if stop: import pdb; pdb.set_trace()
+                cusecase = None
+
+# Actor
+
+            elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}Actor'):
+                if stop: import pdb; pdb.set_trace()
+                xmi_id = elem.attrib['xmi.idref']
+                r = list(self.session.query(uml.CEntity).filter(uml.CEntity.xmi_id == xmi_id))
+                cactor = xmi_id if len(r) == 0 else r[0]
+
+            elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Actor'):
+                if stop: import pdb; pdb.set_trace()
+                params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
+                cactor = uml.CActor(*params)
+                self.session.add(cactor)
+
+            elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Actor'):
+                if stop: import pdb; pdb.set_trace()
+                cactor = None
+
 # Class
 
             elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}Class'):
@@ -497,7 +533,7 @@ class Model:
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Attribute'):
                 if stop: import pdb; pdb.set_trace()
                 if cclass is None or cdatatype is None:
-                    import pdb; pdb.set_trace()
+                    raise RuntimeError, "The attribute %s.%s has not type." % (cclass if type(cclass) is str else cclass.name, elem.attrib['name']) 
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
                 params.append(cdatatype)
                 if type(cdatatype) is str or type(cclass) is str:
@@ -635,7 +671,7 @@ class Model:
                 params.append(parent)
                 params.append(child)
                 if type(parent) is str or type(child) is str:
-                    postprocessing_create.append((uml.CGeneralization, params, (False, type(parent) is str, type(parent) is str)))
+                    postprocessing_create.append((uml.CGeneralization, params, (False, type(parent) is str, type(child) is str)))
                 else:
                     cgeneralization = uml.CGeneralization(*params)
                     self.session.add(cgeneralization)
@@ -740,7 +776,8 @@ class Model:
             raise RuntimeError('Cant create %s from file %s.' % (','.join(needsolve - allobjs), infile.filename))
 
         for owner_xmi_id, member, xmi_id in postprocessing_append:
-            getattr(self[owner_xmi_id],member).append(self[xmi_id])
+            ref = self[owner_xmi_id]
+            getattr(ref, member).append(self[xmi_id])
 
         for xmi_id, attr, value in postprocessing_set:
             if type(value) is list:

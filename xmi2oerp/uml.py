@@ -158,6 +158,47 @@ class CEntity(Base):
     def __repr__(self):
         return "<CEntity(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
+class CUseCase(CEntity):
+    """CUseCase class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: Data type name.
+    :type xmi_id: str
+    :type name: str
+    """
+
+    __tablename__ = 'cusecase'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cusecase'
+    }
+
+
+    def __repr__(self):
+        return "<CUseCase(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CActor(CEntity):
+    """CActor class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: Data type name.
+    :type xmi_id: str
+    :type name: str
+    """
+
+    __tablename__ = 'cactor'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cactor'
+    }
+
+    def __repr__(self):
+        return "<CActor(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
 class CDataType(CEntity):
     """CDataType class.
 
@@ -223,6 +264,14 @@ class CEnumeration(CDataType):
 
     def __repr__(self):
         return "<CEnumeration(xmi_id:'%s', name:'%s', literals:%s)>" % (self.xmi_id, self.name, [i.name for i in self.literals])
+
+    def all_literals(self):
+        """Return literals for this enumeration, from parents to self."""
+        for parent in self.child_of:
+            for literal in parent.parent.all_literals():
+                yield literal
+        for literal in self.literals:
+            yield literal
 
 class CPackage(CEntity):
     """Package class.
