@@ -19,41 +19,65 @@ class ${CLASS_NAME}(osv.osv):
 
     _columns = {
 {%  for col in CLASS_ATTRIBUTES %}\
-{%      def label %}${col.tag.get('label', col.name)}{%end%}\
+{%      def name(prefix='', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
+{%      def label %}${col.tag.get('label',name('[',']'))}{%end%}\
+{%      def digits %}{% if 'digits' in col.tag %}, digits=${col.tag['digits']}{%end%}{%end%}\
+{%      def size %}{% if 'digits' in col.tag %}, digits=${col.tag['digits']}{%end%}{%end%}\
+{%      def required  %}{% if col.is_stereotype('required')  %}, required=True{%end %}{%end%}\
+{%      def readonly  %}{% if col.is_stereotype('readonly')  %}, readonly=True{%end %}{%end%}\
+{%      def select    %}{% if col.is_stereotype('select')    %}, select=True{%end   %}{%end%}\
+{%      def store     %}{% if col.is_stereotype('store')     %}, store=True{%end    %}{%end%}\
+{%      def invisible %}{% if col.is_stereotype('invisible') %}, invisible=True{%end%}{%end%}\
+{%      def options   %}${required()}${readonly()}${select()}${store()}${invisible()}{%end%}\
 {%      choose col.datatype.name %}\
         \
-{%          when 'Boolean'   %}'${col.name}': fields.boolean('${label()}'), {% end %}\
-{%          when 'Integer'   %}'${col.name}': fields.integer('${label()}'), {% end %}\
-{%          when 'Float'     %}'${col.name}': fields.float('${label()}'{% if 'digits' in col.tag %}, digits=${col.tag['digits']}{% end %}), {% end %}\
-{%          when 'Char'      %}'${col.name}': fields.char('${label()}'{% if 'size' in col.tag %}, size=${col.tag['size']}{% end %}), {% end %}\
-{%          when 'Text'      %}'${col.name}': fields.text('${label()}'), {% end %}\
-{%          when 'Date'      %}'${col.name}': fields.date('${label()}'), {% end %}\
-{%          when 'Datetime'  %}'${col.name}': fields.datetime('${label()}'), {% end %}\
-{%          when 'Binary'    %}'${col.name}': fields.binary('${label()}'), {% end %}\
-{%          when 'HTML'      %}'${col.name}': fields.html('${label()}'), {% end %}\
-{%          otherwise        %}'${col.name}': \
+{%          when 'Boolean'   %}'${name()}': fields.boolean('${label()}'${options()}), {% end %}\
+{%          when 'Integer'   %}'${name()}': fields.integer('${label()}'${options()}), {% end %}\
+{%          when 'Float'     %}'${name()}': fields.float('${label()}'${digits()}${options()}), {% end %}\
+{%          when 'Char'      %}'${name()}': fields.char('${label()}'${size()}${options()}), {% end %}\
+{%          when 'Text'      %}'${name()}': fields.text('${label()}'${options()}), {% end %}\
+{%          when 'Date'      %}'${name()}': fields.date('${label()}'${options()}), {% end %}\
+{%          when 'Datetime'  %}'${name()}': fields.datetime('${label()}'${options()}), {% end %}\
+{%          when 'Binary'    %}'${name()}': fields.binary('${label()}'${options()}), {% end %}\
+{%          when 'HTML'      %}'${name()}': fields.html('${label()}'${options()}), {% end %}\
+{%          otherwise        %}'${name()}': \
 {%            choose col.datatype.entityclass %}\
-{%            when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()])}, '${label()}'), {% end %}\
-{%            when 'cclass' %}fields.one2many('${col.datatype.package.name}.${col.datatype.name}', '${label()}'), {% end %}\
+{%            when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()])}, '${label()}'${options()}), {% end %}\
+{%            when 'cclass' %}fields.many2one('${col.datatype.package.name}.${col.datatype.name}', '${label()}'${options()}), {% end %}\
 {%            end %}\
 {%          end %}\
 {%      end %}
 {%  end %}\
 {%  for ass in CLASS_ASSOCIATIONS %}\
-{%      def name %}${ass.name}{%end%}\
-{%      def label %}${ass.tag.get('label', ass.name)}{%end%}\
 {%      def actual_id %}${"%s_id" % CLASS_NAME}{%end%}\
 {%      def other_id %}${"%s_id" % ass.participant.name.replace('.','_')}{%end%}\
+{%      def name(prefix='', suffix='') %}${prefix}${ass.name if ass.name not in [ None, ''] else other_id() }${suffix}{%end%}\
+{%      def label %}${ass.tag.get('label', name('[',']'))}{%end%}\
 {%      def other_module %}${ass.participant.package.name}{%end%}\
 {%      def other_obj %}${ass.participant.name}{%end%}\
-{%      def other_name %}${ass.swap[0].name}{%end%}\
+{%      def other_name %}${actual_id() if ass.swap[0].name in [None, ''] else ass.swap[0].name}{%end%}\
 {%      def relational_obj %}${'%s_%s_rel' % (MODULE_NAME, '_'.join([ e.name or '_' for e in ass.association.ends]))}{%end%}\
+{%      def ondelete  %}{% if 'ondelete' in ass.tag %}, ondelete='${col.tag["ondelete"]}'{%end%}{%end%}\
+{%      def composite %}{% if ass.aggregation == 'composite' %}, ondelete='cascade'{%end%}{%end%}\
+{%      def required  %}{% if ass.is_stereotype('required')  %}, required=True{%end %}{%end%}\
+{%      def readonly  %}{% if ass.is_stereotype('readonly')  %}, readonly=True{%end %}{%end%}\
+{%      def select    %}{% if ass.is_stereotype('select')    %}, select=True{%end   %}{%end%}\
+{%      def store     %}{% if ass.is_stereotype('store')     %}, store=True{%end    %}{%end%}\
+{%      def invisible %}{% if ass.is_stereotype('invisible') %}, invisible=True{%end%}{%end%}\
+{%      def options   %}${composite()}${required()}${readonly()}${select()}${store()}${invisible()}{%end%}\
 {%      choose ass.multiplicity %}\
         \
-{%          when 'one2one'   %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'), {% end %}\
-{%          when 'many2one'  %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'), {% end %}\
-{%          when 'one2many'  %}'${name()}': fields.one2many('${other_module()}.${other_obj()}', '${other_name()}', '${label()}'), {% end %}\
-{%          when 'many2many' %}'${name()}': fields.many2many('${other_module()}.${other_obj()}', '${relational_obj()}', '${name()}', '${other_name()}', '${label()}'), {% end %}\
+{%          when 'one2one'   %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'${options()}), {% end %}\
+{%          when 'many2one'  %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'${options()}), {% end %}\
+{%          when 'one2many'  %}'${name()}': fields.one2many('${other_module()}.${other_obj()}', '${other_name()}', '${label()}'${options()}), {% end %}\
+{%          when 'many2many' %}'${name()}': fields.many2many('${other_module()}.${other_obj()}', '${relational_obj()}', '${name()}', '${other_name()}', '${label()}'${options()}), {% end %}\
+{%          when 'related'   %}'${name()}': fields.related(
+                    ${"'%s'" % "','".join(ass.tag['related_by'].split(','))},
+                    ${"'%s'" % ass.tag['related_to']},
+                    type='${ass.participant.member_by_name("type").datatype.oerp_type}',
+                    relation='${other_module()}.${other_obj()}',
+                    string='${label()}'${options()}
+                    ),{% end %}\
 {%      end %}
 {%  end %}\
     }

@@ -100,8 +100,27 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import PickleType
 from sqlalchemy import Sequence
 from sqlalchemy.schema import Table
+import re
 
 Base = declarative_base()
+
+re_valid_name = re.compile(r'^[0-9a-zA-Z_\.]+$')
+
+def is_valid_name(s):
+    """Check id a string a valid openerp name."""
+    return type(s) is str and re_valid_name.match(s) is not None
+
+_oerp_type = {
+    'Boolean': 'boolean',
+    'Integer': 'integer',
+    'Float': 'float',
+    'Char': 'char',
+    'Text': 'text',
+    'Date': 'date',
+    'Datetime': 'datetime',
+    'Binary': 'binary',
+    'HTML': 'html',
+}
 
 def solvmul(v, t):
     mr = eval(v)
@@ -220,6 +239,10 @@ class CDataType(CEntity):
     def __repr__(self):
         return "<CDataType(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
+    @property 
+    def oerp_type(self):
+        return _oerp_type[self.name]
+
 class CEnumerationLiteral(CEntity):
     """CEnumerationLiteral class.
 
@@ -259,6 +282,8 @@ class CEnumeration(CDataType):
     __mapper_args__ = {'polymorphic_identity': 'cenumeration'}
 
     def __init__(self, xmi_id, name, literals=[]):
+        if not is_valid_name(name):
+            raise RuntimeError, "Cant create an entity '%s' with name '%s'." % (xmi_id, name)
         super(CEnumeration, self).__init__(xmi_id, name) 
         self.literals = literals
 
@@ -272,6 +297,10 @@ class CEnumeration(CDataType):
                 yield literal
         for literal in self.literals:
             yield literal
+
+    @property 
+    def oerp_type(self):
+        return 'enumeration'
 
 class CPackage(CEntity):
     """Package class.
@@ -314,11 +343,20 @@ class CClass(CDataType):
                             backref=backref('classes', order_by=id))
 
     def __init__(self, xmi_id, name, package=None):
+        if not is_valid_name(name):
+            raise RuntimeError, "Cant create an entity '%s' with name '%s'." % (xmi_id, name)
         super(CClass, self).__init__(xmi_id, name) 
         self.package = package
 
     def __repr__(self):
         return "<CClass(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+    def member_by_name(self, name):
+        """ Return a member by name.  """
+        for i in self.members:
+            if i.name == name:
+                return i
+        return None
 
 class CMember(CEntity):
     """Member of a class class.
@@ -579,6 +617,10 @@ class CAssociationEnd(CEntity):
 
     @property
     def multiplicity(self):
+        if 'related_to' in self.tag.keys():
+            if not 'related_by' in self.tag.keys():
+                raise RuntimeError, "Attribute %s.%s is a relation without path. Please set related_by tag." % (self.swap[0].participant.name, self.name)
+            return 'related'
         my_mul = solvmul(self.multiplicityrange, self.aggregation)
         hi_mul = solvmul(self.swap[0].multiplicityrange, self.swap[0].aggregation)
         if my_mul is None or hi_mul is None:

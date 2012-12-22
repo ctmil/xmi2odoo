@@ -96,12 +96,8 @@ class Builder:
             view_files = [ '%s_view.xml' % name for xml_id, name in root_classes ]
             menu_files = [ '%s_menuitem.xml' % package.name ]
             # Calcula dependencias
-            dependencies = set()
-            for xmi_id, name in root_classes:
-                dependencies.update(set([ ass.swap[0].participant.package.name for ass in  self.model[xmi_id].associations ]))
-            for base_mod in ['res', 'ir', package.name]:
-                if base_mod in dependencies:
-                    dependencies.remove(base_mod)
+            dependencies = set([ self.model[ass].name for ass in self.model.iterclass(uml.CPackage) ]) \
+                    - set(['res', 'ir', package.name])
             # Construyo los tags
             tags = {
                 'YEAR': str(date.today().year),
@@ -182,9 +178,7 @@ class Builder:
                     'CLASS_PARENT_NAME': parent.name if parent is not None else None,
                     'CLASS_DOCUMENTATION': ctag.get('documentation', None),
                     'CLASS_ATTRIBUTES': [ m for m in cclass.members if m.entityclass == 'cattribute' ],
-                    'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations
-                                           if m.swap[0].name not in [ None, '' ]
-                                          ],
+                    'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations ],
                     'CLASS_PRIVATE_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' and m.name[0] == '_' ],
                     'CLASS_PUBLIC_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' and m.name[0] != '_' ],
                     'MENU_PARENT': cclass.tag.get('menu_parent', None),
