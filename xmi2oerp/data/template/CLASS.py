@@ -48,6 +48,9 @@ class ${CLASS_NAME}(osv.osv):
 {%          end %}\
 {%      end %}
 {%  end %}\
+{%  if CLASS_STATES is not None %}\
+        'state': fields.selection(${repr(CLASS_STATES)}, 'State'),
+{%  end %}\
 {%  for ass in CLASS_ASSOCIATIONS %}\
 {%      def actual_id %}${"%s_id" % CLASS_NAME}{%end%}\
 {%      def other_id %}${"%s_id" % ass.participant.name.replace('.','_')}{%end%}\

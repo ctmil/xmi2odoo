@@ -67,6 +67,7 @@ Check stored datatypes with related attributes.
 ...    print instance.xmi_id, instance.name, instance.attributes
 int Integer [<CAttribute(xmi_id:'a', name:'A', size=None)>]
 str String [<CAttribute(xmi_id:'b', name:'B', size=20)>]
+C TestClass []
 
 Append an operation with an output to the class.
 
@@ -514,7 +515,6 @@ class CTaggedValue(CEntity):
     :type owner: CEntity
     """
 
-
     __tablename__ = 'ctaggedvalue'
 
     id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
@@ -698,23 +698,190 @@ class CStereotype(CEntity):
     def __repr__(self):
         return "<CStereotype(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
-class CSimpleState(CEntity):
+class CStateMachine(CEntity):
+    """StateMachine class.
+
+    :param xmi_id: XMI identity of the state machine.
+    :param name: State machine name.
+    """
+    __tablename__ = 'cstatemachine'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+    context_id = Column(Integer, ForeignKey('centity.id', use_alter=True, name='sm_context_id'))
+
+    context = relationship('CEntity',
+                           primaryjoin=context_id==CEntity.id,
+                           backref=backref('statemachines'))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cstatemachine',
+        'inherit_condition': id == CEntity.id,
+    }
+
+    def __init__(self, xmi_id, name, context):
+        super(CStateMachine, self).__init__(xmi_id, name)
+        self.context = context
+
+    def __repr__(self):
+        return "<CStateMachine(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+    def enumerate_states(self):
+        for s in self.states:
+            if type(s) is CSimpleState:
+                yield s.name, s.tag.get('label', s.name)
+
+class CBaseState(CEntity):
     """Simple State class.
 
     :param xmi_id: XMI identity of the data type.
-    :param name: Data type name.
+    :param name: State type name.
+    """
+    __tablename__ = 'cbasestate'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+    state_machine_id = Column(Integer, ForeignKey('cstatemachine.id'))
+    state_of_id = Column(Integer, ForeignKey('ccompositestate.id', use_alter=True, name='sm_state_composition_id'))
+
+    state_machine = relationship('CStateMachine',
+                             primaryjoin='CBaseState.state_machine_id==CStateMachine.id',
+                             backref=backref('states'))
+    state_of = relationship('CCompositeState',
+                             primaryjoin='CBaseState.state_of_id==CCompositeState.id',
+                             backref=backref('states'))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cbasestate',
+        'inherit_condition': id == CEntity.id,
+    }
+
+    def __init__(self, xmi_id, name, state_machine, state_of=None):
+        super(CBaseState, self).__init__(xmi_id, name)
+        self.state_machine = state_machine
+        self.state_of = state_of
+
+    def __repr__(self):
+        return "<CBaseState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CFinalState(CBaseState):
+    """Final State class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    """
+    __tablename__ = 'cfinalstate'
+
+    id = Column(Integer, ForeignKey('cbasestate.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cfinalstate',
+        'inherit_condition': id == CBaseState.id,
+    }
+
+    def __init__(self, xmi_id, state_machine, state_of=None):
+        super(CFinalState, self).__init__(xmi_id, None, state_machine, state_of)
+
+    def __repr__(self):
+        return "<CFinalState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CSimpleState(CBaseState):
+    """Simple State class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
     """
     __tablename__ = 'csimplestate'
 
-    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+    id = Column(Integer, ForeignKey('cbasestate.id'), primary_key=True)
 
-    __mapper_args__ = { 'polymorphic_identity': 'csimplestate' }
+    __mapper_args__ = {
+        'polymorphic_identity': 'csimplestate',
+        'inherit_condition': id == CBaseState.id,
+    }
 
-    def __init__(self, xmi_id, name, ends=[]):
-        super(CSimpleState, self).__init__(xmi_id, name)
+    def __init__(self, xmi_id, name, state_machine, state_of=None):
+        super(CSimpleState, self).__init__(xmi_id, name, state_machine, state_of)
 
     def __repr__(self):
         return "<CSimpleState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
+class CPseudostate(CBaseState):
+    """Pseudo State class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    """
+    __tablename__ = 'cpseudostate'
+
+    id = Column(Integer, ForeignKey('cbasestate.id'), primary_key=True)
+    kind = Column(String)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cpseudostate',
+        'inherit_condition': id == CBaseState.id,
+    }
+
+    def __init__(self, xmi_id, name, kind, state_machine, state_of=None):
+        super(CPseudostate, self).__init__(xmi_id, name, state_machine, state_of)
+        self.kind = kind
+
+    def __repr__(self):
+        return "<CPseudostate(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CCompositeState(CBaseState):
+    """Composite State class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    """
+    __tablename__ = 'ccompositestate'
+
+    id = Column(Integer, ForeignKey('cbasestate.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'ccompositestate',
+        'inherit_condition': id == CBaseState.id,
+    }
+
+    def __init__(self, xmi_id, name, state_machine, state_of=None):
+        super(CCompositeState, self).__init__(xmi_id, name, state_machine, state_of)
+
+    def __repr__(self):
+        return "<CCompositeState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CTransition(CEntity):
+    """Pseudo State class.
+
+    :param xmi_id: XMI identity of the state.
+    :param name: State name.
+    :param state_from: Original state.
+    :param state_to: Target state.
+    """
+    __tablename__ = 'ctransition'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+    state_machine_id = Column(Integer, ForeignKey('cstatemachine.id'))
+    state_from_id = Column(Integer, ForeignKey('cbasestate.id'))
+    state_to_id = Column(Integer, ForeignKey('cbasestate.id'))
+
+    state_machine = relationship('CStateMachine',
+                             primaryjoin=state_machine_id==CStateMachine.id,
+                             backref=backref('transitions'))
+    state_from = relationship('CBaseState',
+                              primaryjoin=(state_from_id==CBaseState.id),
+                              backref=backref('out_transitions'))
+    state_to = relationship('CBaseState',
+                            primaryjoin=(state_to_id==CBaseState.id),
+                            backref=backref('in_transitions'))
+
+    __mapper_args__ = { 'polymorphic_identity': 'ctransition' }
+
+    def __init__(self, xmi_id, state_machine, state_from, state_to):
+        super(CTransition, self).__init__(xmi_id, None)
+        self.state_machine = state_machine
+        self.state_from = state_from
+        self.state_to = state_to
+
+    def __repr__(self):
+        return "<CTransition(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

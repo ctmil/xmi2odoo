@@ -717,11 +717,98 @@ class Model:
 
 # State machine 
 
-            elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}SimpleState'):
+            elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}StateMachine'):
                 if stop: import pdb; pdb.set_trace()
                 params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
-                simplestate = uml.CSimpleState(*params)
-                self.session.add(simplestate)
+                ccompositestates = []
+                cstatemachine = None
+
+            elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}StateMachine.context'):
+                if stop: import pdb; pdb.set_trace()
+                params.append(cdatatype)
+                if type(cdatatype) is str:
+                    postprocessing_create.append((uml.CStateMachine, params, (False, False, True)))
+                    cstatemachine = params[0]
+                else:
+                    cstatemachine = uml.CStateMachine(*params)
+                    self.session.add(cstatemachine)
+
+            elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}CompositeState'):
+                if stop: import pdb; pdb.set_trace()
+                if cstatemachine != None:
+                    params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
+                    params.append(cstatemachine)
+                    ccompositestates.append( uml.CCompositeState(*params) )
+                    cstate = ccompositestates[-1]
+                    self.session.add(cstate)
+
+            elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}CompositeState'):
+                if stop: import pdb; pdb.set_trace()
+                if cstatemachine != None:
+                    ccompositestates.pop()
+                    cstate = ccompositestates[-1] if len(ccompositestates) > 0 else None
+
+            elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}SimpleState'):
+                if stop: import pdb; pdb.set_trace()
+                if cstatemachine != None:
+                    params = [ elem.attrib[k] for k in  ['xmi.id', 'name'] ]
+                    params.append(cstatemachine)
+                    params.append(ccompositestates[-1] if len(ccompositestates)>0 else None)
+                    cstate = uml.CSimpleState(*params)
+                    self.session.add(cstate)
+
+            elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Pseudostate'):
+                if stop: import pdb; pdb.set_trace()
+                if cstatemachine != None:
+                    params = [ elem.attrib[k] for k in  ['xmi.id', 'name', 'kind'] ]
+                    params.append(cstatemachine)
+                    params.append(ccompositestates[-1] if len(ccompositestates)>0 else None)
+                    cstate = uml.CPseudostate(*params)
+                    self.session.add(cstate)
+
+            elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}FinalState'):
+                if stop: import pdb; pdb.set_trace()
+                if cstatemachine != None:
+                    params = [ elem.attrib[k] for k in  ['xmi.id'] ]
+                    params.append(cstatemachine)
+                    params.append(ccompositestates[-1] if len(ccompositestates)>0 else None)
+                    cstate = uml.CFinalState(*params)
+                    self.session.add(cstate)
+
+            elif (kind, event, elem.tag) in [
+                    ('reference', 'start', '{org.omg.xmi.namespace.UML}CompositeState'), 
+                    ('reference', 'start', '{org.omg.xmi.namespace.UML}SimpleState'), 
+                    ('reference', 'start', '{org.omg.xmi.namespace.UML}Pseudostate'), 
+                    ('reference', 'start', '{org.omg.xmi.namespace.UML}FinalState')
+            ]:
+                if cstatemachine != None:
+                    cstate = self[elem.attrib['xmi.idref']]
+
+            elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Transition'):
+                if stop: import pdb; pdb.set_trace()
+                if cstatemachine != None:
+                    source = None
+                    target = None
+
+            elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}Transition.source'):
+                if stop: import pdb; pdb.set_trace()
+                if cstatemachine != None:
+                    source = cstate
+
+            elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}Transition.target'):
+                if stop: import pdb; pdb.set_trace()
+                if cstatemachine != None:
+                    target = cstate
+
+            elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Transition'):
+                if stop: import pdb; pdb.set_trace()
+                if cstatemachine != None:
+                    params = [ elem.attrib[k] for k in  ['xmi.id'] ]
+                    params.append(cstatemachine)
+                    params.append(source)
+                    params.append(target)
+                    ctransition = uml.CTransition(*params)
+                    self.session.add(ctransition)
 
 # Unknown tags 
 

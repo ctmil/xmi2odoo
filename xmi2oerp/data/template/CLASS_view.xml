@@ -14,6 +14,28 @@ ${LICENSE_HEADER}\
             <field name="model">${model()}</field>
             <field name="arch" type="xml">
                 <form string="${CLASS_LABEL}">
+{%                  if CLASS_STATES is not None %}\
+                    <header>
+{%                    for button in CLASS_STATE_BUTTONS %}\
+                        <button name="${button['name']}"
+{%                          if 'class' in button %}\
+                            class="${button['class']}"
+{%                          end %}\
+{%                          if 'type' in button %}\
+                            type="${button['type']}"
+{%                          end %}\
+                            states="${button['states']}"
+                            string="${button['label']}"
+{%                          if 'groups' in button %}\
+                            groups="${button['groups']}"/>
+{%                          end %}\
+{%                    end %}\
+                        <field name="state" widget="statusbar"
+                            statusbar_visible="${CLASS_STATEBAR_VISIBLE}"
+                            statusbar_colors="${CLASS_STATEBAR_COLORS}"
+                            />
+                    </header>
+{%                  end %}\
 {%                  for col in CLASS_ATTRIBUTES %}\
 {%                    if 'form' in [ s.name for s in col.stereotypes ] %}\
                     <field name="${col.name}"/>

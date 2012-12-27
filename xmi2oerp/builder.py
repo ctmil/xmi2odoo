@@ -181,6 +181,10 @@ class Builder:
                     'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations ],
                     'CLASS_PRIVATE_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' and m.name[0] == '_' ],
                     'CLASS_PUBLIC_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' and m.name[0] != '_' ],
+                    'CLASS_STATES': [ s for s in cclass.statemachines[0].enumerate_states() ] if len(cclass.statemachines) > 0 else None,
+                    'CLASS_STATE_BUTTONS': [],
+                    'CLASS_STATEBAR_VISIBLE': '',
+                    'CLASS_STATEBAR_COLORS': '',
                     'MENU_PARENT': cclass.tag.get('menu_parent', None),
                     'MENU_SEQUENCE': cclass.tag.get('menu_sequence', '100'),
                     'STEREOTYPES': [ s.name for s in cclass.stereotypes ]
