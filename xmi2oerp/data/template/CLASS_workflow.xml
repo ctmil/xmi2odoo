@@ -19,18 +19,20 @@ ${LICENSE_HEADER}\
 {%   for s in sm.list_states() %}\
         <record id="act_${CLASS.name}_${sm.name}_${s.name}" model="workflow.activity">
             <field name="wkf_id" ref="${wkfname()}"/>
-{%     if s.is_initial() %}
+{%     if s.is_initial() %}\
             <field name="flow_start">True</field>
 {%     end %}\
-{%     if s.is_final() %}
-            <field name="flow_end">True</field>
+{%     if s.is_final() %}\
+            <field name="flow_stop">True</field>
 {%     end %}\
             <field name="name">${s.tag['label']}</field>
 {%     if 'action' in s.tag %}\
             <field name="action">${act.tag['action']}</field>
+            <field name="kind">function</field>
 {%     end %}\
 {%     if 'action' not in s.tag %}\
             <field name="action">write({'state':'${s.name}'})</field>
+            <field name="kind">function</field>
 {%     end %}\
         </record>
 {%   end %}\
@@ -42,13 +44,10 @@ ${LICENSE_HEADER}\
             <field name="act_from" ref="act_${CLASS.name}_${sm.name}_${t.state_from.name}"/>
             <field name="act_to" ref="act_${CLASS.name}_${sm.name}_${t.state_to.name}"/>
 {%     if t.trigger is not None %}\
-            <field name="signal">${t.trigger.name}</field>
+            <field name="signal">sgn_${t.trigger.name}</field>
 {%     end %}\
-{%     if 'signal' in t.tag %}\
-            <field name="signal">${t.tag['signal']}</field>
-{%     end %}\
-{%     if 'condition' in t.tag %}\
-            <field name="condition">${t.tag['condition']}</field>
+{%     if t.guard is not None %}\
+            <field name="condition">${t.guard.body}</field>
 {%     end %}\
 {%     if 'trigger_model' in t.tag %}\
             <field name="trigger_model">${t.tag['trigger_model']}</field>
