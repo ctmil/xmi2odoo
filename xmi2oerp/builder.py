@@ -26,6 +26,9 @@ from xmi2oerp.model import Model
 from genshi.template import NewTextTemplate
 from datetime import date
 from pprint import PrettyPrinter
+import logging
+import cgi
+import itertools
 
 class Builder:
     """Builder engine for addons.
@@ -42,8 +45,10 @@ class Builder:
         self.model = model
         self.variables = None
         self.pp = PrettyPrinter(indent=4)
+        self.t = 0
 
     def update(self, tags, filename):
+        logging.info('Updating %s' % filename)
         with open(filename) as stmpl:
             tmpl = NewTextTemplate(stmpl.read())
         stream = tmpl.generate(**tags)
@@ -60,12 +65,49 @@ class Builder:
             target = os.path.join(self.path, package.name)
             if os.path.exists(target): shutil.rmtree(target)
 
+    def sort_menues(self, menues):
+        if len(menues)==0:
+            return []
+        r = []
+        items = menues[0].prev_leafs(uml.CUseCase, uml.CUseCase)
+        while items:
+            r.extend(items)
+            items = set(itertools.chain(*[ i.nexts(uml.CUseCase) for i in items ]))
+        assert(len(menues) == len(r))
+        return r
+
+    def sort_by_gen(self, entities):
+        tree = {}
+        obj = {}
+        for ent in entities:
+            obj[ent.oerp_id()] = ent
+            tree[ent.oerp_id()] = (ent.parents(), ent.childs())
+        roots = [ obj[k] for k in tree.keys() if len(tree[k][0]) == 0 ]
+
+        # Sorting algorithm
+        def sorttree(root, tree):
+            root_name = root.oerp_id()
+            if root in tree[root_name][0]:
+                logging.warning('Preventing infinite recursion for %s.' % root_name)
+                tree[root_name][0].remove(root)
+            if root in tree[root_name][1]:
+                logging.warning('Preventing infinite recursion for %s.' % root_name)
+                tree[root_name][1].remove(root)
+            r = [ root ] + reduce(lambda a,b: a+b, [ sorttree(child, tree) for child in tree[root_name][1] ], [])
+            return r
+
+        # Build list
+        result = reduce(lambda a,b: a+b, [ sorttree(root, tree) for root in roots ], [])
+        return result
+
+
+
     def sort_classes(self, classes):
         # Build forest of classes
         tree = {}
         for cls in classes:
-            parents = [ gen.parent.name for gen in cls.child_of if gen.parent.package.name == cls.package.name ]
-            childs  = [ gen.child.name for gen in cls.parent_of if gen.parent.package.name == cls.package.name ]
+            parents = [ gen.parent.name for gen in cls.child_of if gen.parent.package == cls.package ]
+            childs  = [ gen.child.name for gen in cls.parent_of if gen.parent.package == cls.package ]
             tree[cls.name] = (parents, childs)
 
         # Take roots
@@ -73,6 +115,12 @@ class Builder:
 
         # Sorting algorithm
         def sorttree(root, tree):
+            if root in tree[root][0]:
+                logging.warning('Preventing infinite recursion for %s.' % root)
+                tree[root][0].remove(root)
+            if root in tree[root][1]:
+                logging.warning('Preventing infinite recursion for %s.' % root)
+                tree[root][1].remove(root)
             r = [ root ] + reduce(lambda a,b: a+b, [ sorttree(child, tree) for child in tree[root][1] ], [])
             return r
 
@@ -86,20 +134,25 @@ class Builder:
         for k in self.model.iterclass(uml.CPackage):
             package = self.model[k]
             # Si el paquete es externo no lo construyo.
-            if 'external' in [ s.name for s in package.stereotypes ]:
+            if package.is_stereotype('external'):
                 continue
             # Configuro las variables y tags para este paquete
             ptag = package.tag
-            root_classes = [ (c.xmi_id, c.name) for c in package.classes ]
+            root_classes = [ (c.xmi_id, c.name) for c in package.get_entities(uml.CClass) ]
             wizard_classes = [] # [ (c.xmi_id, c.name) for c in package.classes ]
             report_classes = [] # [ (c.xmi_id, c.name) for c in package.classes ]
             view_files = [ '%s_view.xml' % name for xml_id, name in root_classes ]
             menu_files = [ '%s_menuitem.xml' % package.name ]
+            group_files = [ '%s_group.xml' % package.name ]
+            workflow_files = [ '%s_workflow.xml' % name for xml_id, name in root_classes if len(self.model[xml_id].statemachines)>0 ]
+            app_files = [ '%s_app.xml' % package.name ]
             # Calcula dependencias
             dependencies = set([ self.model[ass].name for ass in self.model.iterclass(uml.CPackage) ]) \
                     - set(['res', 'ir', package.name])
             # Construyo los tags
             tags = {
+                'escape': cgi.escape,
+                'uml': uml,
                 'YEAR': str(date.today().year),
                 'MODULE_NAME': package.name,
                 'MODULE_LABEL': ptag.get('label', package.name),
@@ -108,14 +161,13 @@ class Builder:
                 'MODULE_AUTHOR': ptag.get('author', 'No author.'),
                 'MODULE_AUTHOR_EMAIL': ptag.get('email','No email'),
                 'MODULE_VERSION': ptag.get('version', 'No version'),
-                'MODULE_CATEGORY': ptag.get('category', ''),
+                'MODULE_CATEGORY': ptag.get('category', 'base.module_category_hidden'),
                 'MODULE_WEBSITE': ptag.get('website', ''),
                 'MODULE_LICENSE': ptag.get('license', 'AGPL-3'),
                 'MODULE_DEPENDS': ptag.get('depends', ''),
-                'MENU_PARENT': ptag.get('menu_parent', None),
-                'MENU_SEQUENCE': ptag.get('menu_sequence', 100),
-                'GROUPS': ptag.get('groups', None),
-                'ROOT_IMPORT': '\n'.join([ "import %s" % n for n in self.sort_classes(package.classes) ]),
+                'MENUES': self.sort_menues([ cu for cu in self.model.session.query(uml.CUseCase) if cu.is_stereotype('menu')]),
+                'GROUPS': self.sort_by_gen([ ac for ac in self.model.session.query(uml.CActor) if ac.is_stereotype('group')]),
+                'ROOT_IMPORT': '\n'.join([ "import %s" % n for n in self.sort_classes(package.get_entities(uml.CClass)) ]),
                 'WIZARD_IMPORT': '\n'.join([ "import %s" % n for k, n in wizard_classes ]),
                 'REPORT_IMPORT': '\n'.join([ "import %s" % n for k, n in report_classes ]),
             }
@@ -137,7 +189,7 @@ class Builder:
                     'depends': list(dependencies),
                     'init_xml': [],
                     'demo_xml': [],
-                    'update_xml': menu_files + view_files,
+                    'update_xml': group_files + view_files + menu_files + workflow_files,
                     'test': [],
                     'active': False,
                     'installable': True,
@@ -146,11 +198,22 @@ class Builder:
             # Copio la estructura basica al nuevo directorio.
             source = pkg_resources.resource_filename(__name__, os.path.join('data', 'template'))
             target = os.path.join(self.path, package.name)
-            print >> logfile, "Copy template structure from: ", source, "to", target
+            logging.info("Copy template structure from: %s to %s" % ( source, target) )
             shutil.copytree(source, target,
                             ignore=shutil.ignore_patterns('*CLASS*',
                                                           '*PACKAGE_*'))
-            shutil.copy(os.path.join(source, 'PACKAGE_menuitem.xml'), os.path.join(target, menu_files[0]))
+
+            # Generate menu file
+            source_code = os.path.join(source, 'PACKAGE_menuitem.xml')
+            target_code = os.path.join(target, '%s_menuitem.xml' % package.name)
+            shutil.copy(source_code, target_code)
+            self.update(tags, target_code)
+
+            # Generate groups file
+            source_code = os.path.join(source, 'PACKAGE_group.xml')
+            target_code = os.path.join(target, '%s_group.xml' % package.name)
+            shutil.copy(source_code, target_code)
+            self.update(tags, target_code)
 
             # Proceso el template basico sobre los archivos copiados.
             for root, dirs, files in os.walk(target):
@@ -161,8 +224,8 @@ class Builder:
             for xmi_id, name in root_classes:
                 # Prepare data
                 cclass = self.model[xmi_id]
-                if len(self.model[xmi_id].child_of) > 0:
-                    generalization = self.model[xmi_id].child_of[0]
+                if len(cclass.child_of) > 0:
+                    generalization = cclass.child_of[0]
                     parent = generalization.parent
                     extend_parent = generalization.is_stereotype('extend')
                 else:
@@ -170,6 +233,7 @@ class Builder:
                     extend_parent = False
                 ctag = cclass.tag
                 tags.update({
+                    'CLASS': cclass,
                     'CLASS_EXTEND_PARENT': extend_parent,
                     'CLASS_LABEL': cclass.tag.get('label', name),
                     'CLASS_MODULE': parent.package.name if extend_parent else cclass.package.name,
@@ -178,14 +242,15 @@ class Builder:
                     'CLASS_PARENT_NAME': parent.name if parent is not None else None,
                     'CLASS_DOCUMENTATION': ctag.get('documentation', None),
                     'CLASS_ATTRIBUTES': [ m for m in cclass.members if m.entityclass == 'cattribute' ],
-                    'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations ],
+                    'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations if type(m.swap[0].participant) is uml.CClass ],
                     'CLASS_PRIVATE_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' and m.name[0] == '_' ],
                     'CLASS_PUBLIC_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' and m.name[0] != '_' ],
-                    'CLASS_STATES': [ s for s in cclass.statemachines[0].enumerate_states() ] if len(cclass.statemachines) > 0 else None,
-                    'CLASS_STATE_BUTTONS': [],
-                    'CLASS_STATEBAR_VISIBLE': '',
-                    'CLASS_STATEBAR_COLORS': '',
-                    'MENU_PARENT': cclass.tag.get('menu_parent', None),
+                    'MENU_PARENT': cclass.tag.get('menu_parent', None) or (
+                        [ass.participant.tag['label']
+                         for ass in cclass.associations
+                         if type(ass.swap[0]) is uml.CUseCase and ass.swap[0].is_stereotype('menu')
+                        ]+[None]
+                    )[0],
                     'MENU_SEQUENCE': cclass.tag.get('menu_sequence', '100'),
                     'STEREOTYPES': [ s.name for s in cclass.stereotypes ]
                     })
@@ -194,11 +259,18 @@ class Builder:
                 target_code = os.path.join(target, '%s.py' % name)
                 shutil.copy(source_code, target_code)
                 self.update(tags, target_code)
+
                 # Generate view file
                 source_code = os.path.join(source, 'CLASS_view.xml')
                 target_code = os.path.join(target, '%s_view.xml' % name)
                 shutil.copy(source_code, target_code)
                 self.update(tags, target_code)
+                # Generate workflow file
+                if len(cclass.statemachines) > 0:
+                    source_code = os.path.join(source, 'CLASS_workflow.xml')
+                    target_code = os.path.join(target, '%s_workflow.xml' % name)
+                    shutil.copy(source_code, target_code)
+                    self.update(tags, target_code)
                 # TODO: Generate access rules.
                 # TODO: Creaate groups.
 

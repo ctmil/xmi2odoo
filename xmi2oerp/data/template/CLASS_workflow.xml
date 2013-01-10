@@ -2,105 +2,63 @@
 <!--
 ${LICENSE_HEADER}\
 -->
-{% def model(s='.') %}${CLASS_MODULE}${s}${CLASS_NAME}{% end %}\
 <openerp>
     <data>
+{% for sm in CLASS.statemachines %}\
+{% def wkfname() %}${CLASS.name}_${sm.name}_wkf{% end %}\
         <!-- Workflow -->
 
-        <record id="${model()}.wkf" model="workflow">
-            <field name="name">${model()}.basic</field>
-            <field name="osv">${model()}</field>
+        <record id="${wkfname()}" model="workflow">
+            <field name="name">${CLASS.oerp_id()}.${sm.name}</field>
+            <field name="osv">${CLASS.oerp_id()}</field>
             <field name="on_create">True</field>
         </record>
 
         <!-- Activities -->
 
-        <record id="act_${CLASS_WORKFLOW_START_STATE}" model="workflow.activity">
-            <field name="wkf_id" ref="${model()}.wkf"/>
+{%   for s in sm.list_states() %}\
+        <record id="act_${CLASS.name}_${sm.name}_${s.name}" model="workflow.activity">
+            <field name="wkf_id" ref="${wkfname()}"/>
+{%     if s.is_initial() %}
             <field name="flow_start">True</field>
-            <field name="name">${CLASS_WORKFLOW_START_STATE}</field>
-        </record>
-
-{% for act in CLASS_WORKFLOW_NOSTART_STATES %}\
-        <record id="act_${act.name}" model="workflow.activity">
-            <field name="wkf_id" ref="${model()}.wkf"/>
-            <field name="name">draft</field>
-{%  if act.stop_flow %}\
-            <field name="flow_stop">True</field>
-{%  end %}\
-{%  if 'action' in act.tag %}\
+{%     end %}\
+{%     if s.is_final() %}
+            <field name="flow_end">True</field>
+{%     end %}\
+            <field name="name">${s.tag['label']}</field>
+{%     if 'action' in s.tag %}\
             <field name="action">${act.tag['action']}</field>
-{%  end %}\
-{%  if 'action' not in act.tag %}\
-            <field name="action">write({'state':'${act.name}'})</field>
-{%  end %}\
-            <field name="kind">function</field>
+{%     end %}\
+{%     if 'action' not in s.tag %}\
+            <field name="action">write({'state':'${s.name}'})</field>
+{%     end %}\
         </record>
-{% end %}\
+{%   end %}\
 
         <!-- Transitions -->
 
-{% for tran in CLASS_WORKFLOW_TRANSITIONS %}\
-        <record id="t4" model="workflow.transition">
-            <field name="act_from" ref="act_${tran.source.name}"/>
-            <field name="act_to" ref="act_${tran.target.name}"/>
-            <field name="signal">invoice_open</field>
+{%   for t in sm.middle_transitions() %}\
+        <record id="t${t.id}" model="workflow.transition">
+            <field name="act_from" ref="act_${CLASS.name}_${sm.name}_${t.state_from.name}"/>
+            <field name="act_to" ref="act_${CLASS.name}_${sm.name}_${t.state_to.name}"/>
+{%     if t.trigger is not None %}\
+            <field name="signal">${t.trigger.name}</field>
+{%     end %}\
+{%     if 'signal' in t.tag %}\
+            <field name="signal">${t.tag['signal']}</field>
+{%     end %}\
+{%     if 'condition' in t.tag %}\
+            <field name="condition">${t.tag['condition']}</field>
+{%     end %}\
+{%     if 'trigger_model' in t.tag %}\
+            <field name="trigger_model">${t.tag['trigger_model']}</field>
+{%     end %}\
+{%     if 'trigger_expr_id' in t.tag %}\
+            <field name="trigger_expr_id">${t.tag['trigger_expr_id']}</field>
+{%     end %}\
         </record>
+{%   end %}\
 {% end %}\
-
-        <record id="t8" model="workflow.transition">
-            <field name="act_from" ref="act_open"/>
-            <field name="act_to" ref="act_paid"/>
-            <field name="trigger_model">account.move.line</field>
-            <field name="trigger_expr_id">move_line_id_payment_get()</field>
-            <field name="condition">test_paid()</field>
-        </record>
-        <record id="t9" model="workflow.transition">
-            <field name="act_from" ref="act_draft"/>
-            <field name="act_to" ref="act_cancel"/>
-            <field name="signal">invoice_cancel</field>
-        </record>
-        <record id="t12" model="workflow.transition">
-            <field name="act_from" ref="act_open"/>
-            <field name="act_to" ref="act_cancel"/>
-            <field name="signal">invoice_cancel</field>
-        </record>
-        <record id="t13" model="workflow.transition">
-            <field name="act_from" ref="act_paid"/>
-            <field name="act_to" ref="act_open_test"/>
-            <field name="signal">open_test</field>
-        </record>
-        <record id="t14" model="workflow.transition">
-            <field name="act_from" ref="act_open_test"/>
-            <field name="act_to" ref="act_cancel"/>
-            <field name="signal">invoice_cancel</field>
-        </record>
-
-        <record id="open_test_to_paid" model="workflow.transition">
-            <field name="act_from" ref="act_open_test"/>
-            <field name="act_to" ref="act_paid"/>
-            <field name="trigger_model">account.move.line</field>
-            <field name="trigger_expr_id">move_line_id_payment_get()</field>
-            <field name="condition">test_paid()</field>
-        </record>
-
-        <record id="draft_to_pro2" model="workflow.transition">
-            <field name="act_from" ref="account.act_draft"/>
-            <field name="act_to" ref="act_proforma2"/>
-            <field name="signal">invoice_proforma2</field>
-        </record>
-
-        <record id="pro2_to_open" model="workflow.transition">
-            <field name="act_from" ref="act_proforma2"/>
-            <field name="act_to" ref="account.act_open"/>
-            <field name="signal">invoice_open</field>
-        </record>
-
-        <record id="pro2_to_cancel" model="workflow.transition">
-            <field name="act_from" ref="act_proforma2"/>
-            <field name="act_to" ref="account.act_cancel"/>
-            <field name="signal">invoice_cancel</field>
-        </record>
     </data>
 </openerp>
 <!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4

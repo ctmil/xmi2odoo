@@ -4,29 +4,25 @@ ${LICENSE_HEADER}
 -->
 <openerp>
     <data>
-{%      if MENU_PARENT is None %}\
+{%  for menu in MENUES %}\
         <menuitem
-            name="${MODULE_LABEL}"
-            id="menu_${MODULE_NAME}_root"
-{%          if GROUPS is not None %}\
-            groups="${GROUPS}"
-{%          end %}\
-            sequence="${MENU_SEQUENCE}"/>
+            name="${escape(menu.tag.get('label', '<No label>'))}"
+            id="menu_${menu.name}"
+            sequence="${menu.tag.get('menu_sequence',100)}"
+{%      if 'action' in menu.tag %}\
+            action="${menu.tag['action']}"
 {%      end %}\
-
-        <menuitem
-            name="${MODULE_LABEL}"
-            id="menu_${MODULE_NAME}"
-{%          if MENU_PARENT is not None %}\
-            parent="${MENU_PARENT}"
-{%          end %}\
-{%          if MENU_PARENT is None %}\
-            parent="menu_${MODULE_NAME}_root"
-{%          end %}\
-{%          if GROUPS is not None %}\
-            groups="${GROUPS}"
-{%          end %}\
-            sequence="${MENU_SEQUENCE}"/>
+{%      if 'action' not in menu.tag and len(list(menu.relateds(uml.CClass))) == 1 %}\
+            action="action_${menu.relateds(uml.CClass)[0].package.name}_${menu.relateds(uml.CClass)[0].name}_${menu.tag.get('view','form')}"
+{%      end %}\
+{%      if len(list(menu.prevs(uml.CUseCase))) > 0 %}\
+            parent="menu_${menu.prevs(uml.CUseCase)[0].name}"
+{%      end %}\
+{%      if len(list(menu.prev_leafs(uml.CActor))) > 0 %}\
+            groups="${','.join([ 'group_%s' % actor.name for actor in menu.prev_leafs(uml.CActor)])}"
+{%      end %}\
+            />
+{%  end %}\
     </data>
 </openerp>
 <!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4

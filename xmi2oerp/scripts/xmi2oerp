@@ -24,17 +24,21 @@ import sys, os
 import argparse
 from xmi2oerp.model import Model
 from xmi2oerp.builder import Builder
+import logging
 
-def convert(func, infile, target, logfile, remove):
+_loglevel = [ logging.ERROR, logging.INFO, logging.DEBUG ]
+
+def convert(func, infile, target, logfile, loglevel, remove):
     """
     Convert XMI file to a set of OpenERP modules.
     """
-    logfile.write('Starting.\n')
+    logging.basicConfig(stream=logfile, level=_loglevel[loglevel])
+    logging.info('Starting.')
     model = Model(infile)
     builder = Builder(target, model)
     if remove: builder.reset()
     builder.build(logfile=logfile)
-    logfile.write('End.\n')
+    logging.info('End.\n')
 
 def main():
     """
@@ -54,6 +58,10 @@ def main():
                         type=argparse.FileType('w'), nargs='?',
                         default=sys.stderr,
                         help='Log processing')
+    parser.add_argument('--loglevel', '-v',
+                        type=int, nargs='?',
+                        default=0,
+                        help='Log level. 0 - basic, 1 - info, 2 - debug.')
     parser.add_argument('--remove', '-r',
                         action='store_true',
                         help='Remove destination before recreate.')
@@ -62,6 +70,9 @@ def main():
                         target=os.getcwd())
 
     args = parser.parse_args()
+
+    #logging.basicConfig(level=logging.WARNING)
+    #logging.basicConfig(level=logging.INFO)
 
     try:
         args.func(**args.__dict__)

@@ -7,15 +7,15 @@
     <XMI.metamodel xmi.name="UML" xmi.version="1.4"/></XMI.header>
   <XMI.content>
     <UML:Model xmi.id = '127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000865'
-      name = 'modelo sin título' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+      name = 'untitle' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
       isAbstract = 'false'>
       <UML:Namespace.ownedElement>
         <UML:Package xmi.id = '127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000866'
-          name = 'Testing 1' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          name = 'Testing1' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
           <UML:Namespace.ownedElement>
             <UML:Class xmi.id = '127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000867'
-              name = 'Class 1' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              name = 'Class1' visibility = 'public' isSpecification = 'false' isRoot = 'false'
               isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
               <UML:Classifier.feature>
                 <UML:Attribute xmi.id = '127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000868'

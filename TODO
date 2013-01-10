@@ -1,2 +1,6 @@
 ! Test files: XMI files with one class
 
+TODO: Agregar tag action: que hace el menu.
+TODO: Agregar tag view: dice que tipo de accion hace (form, tree, search, etc.)
+TODO: Agregar tag category: indica a que categoria de aplicación pertenece el modulo.
+

@@ -5,6 +5,10 @@ ${LICENSE_HEADER}\
 {% def model(s='.') %}${CLASS_MODULE}${s}${CLASS_NAME}{% end %}\
 <openerp>
     <data>
+{% if ('%s.%s' % (CLASS.package.name, CLASS.name) != CLASS.oerp_id('.')) %}
+        <!-- INHERITED -->
+{% end %}
+{% if ('%s.%s' % (CLASS.package.name, CLASS.name) == CLASS.oerp_id('.')) %}
         <!-- SEARCHVIEW -->
 
         <!-- FORMVIEW -->
@@ -13,39 +17,43 @@ ${LICENSE_HEADER}\
             <field name="name">${model()}.form</field>
             <field name="model">${model()}</field>
             <field name="arch" type="xml">
-                <form string="${CLASS_LABEL}">
-{%                  if CLASS_STATES is not None %}\
+                <form string="${CLASS_LABEL}" version="7.0">
                     <header>
-{%                    for button in CLASS_STATE_BUTTONS %}\
-                        <button name="${button['name']}"
-{%                          if 'class' in button %}\
-                            class="${button['class']}"
+{%                  for sm in CLASS.statemachines %}\
+{%                    for t in [ t for t in set(sm.list_triggers()) ] %}\
+                        <button name="${t.name}"
+{%                          if 'class' in t.tag %}\
+                            class="${t.tag['class']}"
 {%                          end %}\
-{%                          if 'type' in button %}\
-                            type="${button['type']}"
+{%                          if 'type' in t.tag %}\
+                            type="${t.tag['type']}"
 {%                          end %}\
-                            states="${button['states']}"
-                            string="${button['label']}"
-{%                          if 'groups' in button %}\
-                            groups="${button['groups']}"/>
+                            states="${','.join([ s.name for s in set(t.list_states_from(sm)) ])}"
+                            string="${t.tag['label']}"
+{%                          if 'groups' in t.tag %}\
+                            groups="${t.tag['groups']}"
 {%                          end %}\
-{%                    end %}\
-                        <field name="state" widget="statusbar"
-                            statusbar_visible="${CLASS_STATEBAR_VISIBLE}"
-                            statusbar_colors="${CLASS_STATEBAR_COLORS}"
                             />
+{%                    end %}\
+                        <field name="state" widget="statusbar" />
+{%                  end %}\
                     </header>
+                    <sheet string="${CLASS_LABEL}">
+                     <group>
+{%                  for col in CLASS.all_attributes(stereotype='form') %}\
+                        <field name="${col.name}"/>
 {%                  end %}\
-{%                  for col in CLASS_ATTRIBUTES %}\
-{%                    if 'form' in [ s.name for s in col.stereotypes ] %}\
-                    <field name="${col.name}"/>
-{%                    end %}\
+{%                  for ass in CLASS.all_associations(stereotype='form') %}\
+                        <field name="${ass.name}"/>
 {%                  end %}\
-{%                  for ass in CLASS_ASSOCIATIONS %}\
-{%                    if 'form' in [ s.name for s in ass.stereotypes ] %}\
-                    <field name="${ass.name}"/>
-{%                    end %}\
-{%                  end %}\
+                     </group>
+                    </sheet>
+{% if CLASS.is_child_of('mail.thread') %}
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+{% end %}
                 </form>
             </field>
         </record>
@@ -57,15 +65,11 @@ ${LICENSE_HEADER}\
             <field name="model">${model()}</field>
             <field name="arch" type="xml">
                 <tree string="${CLASS_LABEL}">
-{%                  for col in CLASS_ATTRIBUTES %}\
-{%                    if 'tree' in [ s.name for s in col.stereotypes] %}\
+{%                  for col in CLASS.all_attributes(stereotype='tree') %}\
                     <field name="${col.name}"/>
-{%                    end %}\
 {%                  end %}\
-{%                  for ass in CLASS_ASSOCIATIONS %}\
-{%                    if 'tree' in [ s.name for s in ass.stereotypes] %}\
+{%                  for ass in CLASS.all_associations(stereotype='tree') %}\
                     <field name="${ass.name}"/>
-{%                    end %}\
 {%                  end %}\
                 </tree>
             </field>
@@ -85,16 +89,7 @@ ${LICENSE_HEADER}\
         <!-- TREEWINDOWACTION -->
 
         <!-- FORMWINDOWACTION -->
-
-        <!-- MENUITEM -->
-        <menuitem
-            action="action_${model('_')}_form"
-            id="menu_action_${model('_')}_form"
-{%          choose %}\
-            {% when MENU_PARENT is None %}parent="menu_${MODULE_NAME}"{% end %}\
-            {% otherwise %}parent="${MENU_PARENT}"{% end %}\
-{%          end %}
-            sequence="${MENU_SEQUENCE}"/>
+{% end %}
     </data>
 </openerp>
 <!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4

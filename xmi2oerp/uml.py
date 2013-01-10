@@ -41,7 +41,7 @@ Generate two main datatypes, Integer and String.
 
 Create the main package
 
->>> package = CPackage('P', 'Test')
+>>> package = CPackage('P', 'test')
 >>> session.add(package)
 
 Append a class with two attributes to the package
@@ -67,7 +67,7 @@ Check stored datatypes with related attributes.
 ...    print instance.xmi_id, instance.name, instance.attributes
 int Integer [<CAttribute(xmi_id:'a', name:'A', size=None)>]
 str String [<CAttribute(xmi_id:'b', name:'B', size=20)>]
-C TestClass []
+C testclass []
 
 Append an operation with an output to the class.
 
@@ -91,25 +91,31 @@ Check stored classes.
 
 >>> for instance in session.query(CClass).order_by(CClass.id):
 ...    print instance.xmi_id, instance.name, instance.members
-C TestClass [<CAttribute(xmi_id:'a', name:'A', size=None)>, <CAttribute(xmi_id:'b', name:'B', size=20)>, <COperation(xmi_id:'o', name:'A')>]
+C testclass [<CAttribute(xmi_id:'a', name:'A', size=None)>, <CAttribute(xmi_id:'b', name:'B', size=20)>, <COperation(xmi_id:'o', name:'A')>]
 """
 
 from sqlalchemy import ForeignKey
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, Text
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import PickleType
 from sqlalchemy import Sequence
 from sqlalchemy.schema import Table
 import re
+import itertools
+import logging
 
 Base = declarative_base()
 
-re_valid_name = re.compile(r'^[0-9a-zA-Z_\.]+$')
+re_valid_name = re.compile(r'^[0-9a-z_\.]+$')
+re_clean_name = re.compile('\W|^(?=\d)')
 
 def is_valid_name(s):
     """Check id a string a valid openerp name."""
     return type(s) is str and re_valid_name.match(s) is not None
+
+def clean_name(s, replace='_'):
+    return re_clean_name.sub(replace, s).lower()
 
 _oerp_type = {
     'Boolean': 'boolean',
@@ -152,28 +158,105 @@ class CEntity(Base):
     xmi_id = Column(String, unique=True)
     name = Column(String)
     entityclass = Column('type', String(50))
+    default_tagvalues = Column(PickleType)
+    package_id = Column(Integer, ForeignKey('cpackage.id', use_alter=True, name='ent_package_id'))
+
     tagvalues = relationship('CTaggedValue',
                              primaryjoin='CTaggedValue.owner_id==CEntity.id',
                              order_by='CTaggedValue.owner_id',
                              backref=backref('owner'))
+
+    package = relationship('CPackage',
+                            primaryjoin='CPackage.id==CEntity.package_id',
+                            backref=backref('entities', order_by=id),
+                            )
+
 
     __mapper_args__ = {
         'polymorphic_on': entityclass,
         'polymorphic_identity': 'centity'
     }
 
+    __normalize_name__ = False
+
     @property
     def tag(self):
-        return dict((i.tagdefinition.name, i.value) for i in self.tagvalues )
+        tagvalues = self.default_tagvalues.copy()
+        tagvalues.update(dict((i.tagdefinition.name, i.value) for i in self.tagvalues ))
+        return tagvalues
+
+    def oerp_id(self, sep='.'):
+        if self.package == None:
+            package = ''
+            sep = ''
+        else:
+            package = self.package.name
+        return '%s%s%s' % (package, sep, self.name)
 
     def is_stereotype(self, stereotype):
         st = [ st.name for st in self.stereotypes if st.name == stereotype]
         return len(st) == 1
 
-    def __init__(self, xmi_id, name):
+    def relateds(self, ctype=None):
+        ctype = CEntity if ctype is None else ctype
+        return [ ass.swap[0].participant for ass in self.associations if isinstance(ass.swap[0].participant, ctype) ]
+
+    def prevs(self, ctype=None):
+        ctype = CEntity if ctype is None else ctype
+        return [ ass.swap[0].participant for ass in self.associations if not ass.swap[0].isNavigable and isinstance(ass.swap[0].participant, ctype) ]
+
+    def nexts(self, ctype=None):
+        ctype = CEntity if ctype is None else ctype
+        return [ ass.swap[0].participant for ass in self.associations if ass.swap[0].isNavigable and isinstance(ass.swap[0].participant, ctype) ]
+
+    def prev_leafs(self, ftype=None, ctype=None, i = 10):
+        ftype = CEntity if ftype is None else ftype
+        ctype = CEntity if ctype is None else ctype
+        if i <= 0:
+            raise RuntimeError, 'prev_leafs loop cant stop'
+        if len(self.prevs(ctype)) > 0:
+            return itertools.chain(*[ entity.prev_leafs(ftype, ctype, i-1) for entity in self.prevs(ctype) ])
+        elif isinstance(self, ftype):
+            return [ self ]
+        else:
+            return []
+
+    def next_leafs(self, ftype=None, ctype=None, i = 10):
+        ftype = CEntity if ftype is None else ftype
+        ctype = CEntity if ctype is None else ctype
+        if i <= 0:
+            raise RuntimeError, 'next_leafs loop cant stop'
+        if len(self.prevs(ctype)) > 0:
+            return itertools.chain(*[ entity.next_leafs(ftype, ctype, i-1) for entity in self.nexts(ctype) ])
+        elif isinstance(self, ftype):
+            return [ self ]
+        else:
+            return []
+
+    def parents(self):
+        return [ gen.parent for gen in self.child_of ]
+
+    def childs(self):
+        return [ gen.child for gen in self.parent_of ]
+
+    def is_child_of(self, oerp_id):
+        oerp_ids = [ '%s.%s' % (gen.parent.package.name, gen.parent.name) for gen in self.child_of ]
+        return (oerp_id in oerp_ids) or max([ gen.parent.is_child_of(oerp_id) for gen in self.child_of ] + [False])
+
+    def __init__(self, xmi_id, name, package=None, default_tagvalues={}):
         super(CEntity, self).__init__()
+        if type(self).__normalize_name__ and name is None:
+            logging.warning('Creating %s without name' % xmi_id)
+        label = name or u'<no label>'
+        if type(self).__normalize_name__ and not is_valid_name(name):
+            label = unicode(name)
+            name = clean_name(name)
+            logging.warning('Invalid name \'%s\'. Converting to \'%s\' and assign the name to label tag' % (label, name))
+        default_tagvalues.update({u'label': label.strip() })
         self.xmi_id = xmi_id
         self.name = name
+        self.default_tagvalues = default_tagvalues.copy()
+        self.package = package
 
     def __repr__(self):
         return "<CEntity(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -195,6 +278,7 @@ class CUseCase(CEntity):
         'polymorphic_identity': 'cusecase'
     }
 
+    __normalize_name__ = True
 
     def __repr__(self):
         return "<CUseCase(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -215,6 +299,8 @@ class CActor(CEntity):
     __mapper_args__ = {
         'polymorphic_identity': 'cactor'
     }
+
+    __normalize_name__ = True
 
     def __repr__(self):
         return "<CActor(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -243,6 +329,20 @@ class CDataType(CEntity):
     @property 
     def oerp_type(self):
         return _oerp_type[self.name]
+
+    def all_attributes(self, stereotype=None):
+        r = itertools.chain([ m for m in self.members if type(m) is CAttribute ],
+                            *[ gen.parent.all_attributes() for gen in self.child_of ])
+        if stereotype is not None:
+            r = itertools.ifilter(lambda x: x.is_stereotype(stereotype), r)
+        return r
+
+    def all_associations(self, stereotype=None):
+        r = itertools.chain([ ass.swap[0] for ass in self.associations ],
+                            *[ gen.parent.all_associations() for gen in self.child_of ])
+        if stereotype is not None:
+            r = itertools.ifilter(lambda x: x.is_stereotype(stereotype), r)
+        return r
 
 class CEnumerationLiteral(CEntity):
     """CEnumerationLiteral class.
@@ -282,10 +382,10 @@ class CEnumeration(CDataType):
 
     __mapper_args__ = {'polymorphic_identity': 'cenumeration'}
 
-    def __init__(self, xmi_id, name, literals=[]):
-        if not is_valid_name(name):
-            raise RuntimeError, "Cant create an entity '%s' with name '%s'." % (xmi_id, name)
-        super(CEnumeration, self).__init__(xmi_id, name) 
+    __normalize_name__ = False
+
+    def __init__(self, xmi_id, name, literals=[], package=None):
+        super(CEnumeration, self).__init__(xmi_id, name, package=package) 
         self.literals = literals
 
     def __repr__(self):
@@ -303,6 +403,24 @@ class CEnumeration(CDataType):
     def oerp_type(self):
         return 'enumeration'
 
+class CModel(CEntity):
+    """Model class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: Data type name.
+    :type xmi_id: str
+    :type name: str
+    """
+
+    __tablename__ = 'cmodel'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = {'polymorphic_identity': 'cmodel'}
+
+    def __repr__(self):
+        return "<CModel(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
 class CPackage(CEntity):
     """Package class.
 
@@ -315,11 +433,28 @@ class CPackage(CEntity):
     __tablename__ = 'cpackage'
 
     id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+    model_id = Column(Integer, ForeignKey('cmodel.id'))
 
-    __mapper_args__ = {'polymorphic_identity': 'cpackage'}
+    __mapper_args__ = {
+        'polymorphic_identity': 'cpackage',
+        'inherit_condition': id == CEntity.id,
+    }
+
+    __normalize_name__ = True
+
+    model = relationship('CModel',
+                         primaryjoin=(model_id==CModel.id),
+                         backref=backref('packages', order_by=id))
+
+    def __init__(self, xmi_id, name, model=None, package=None):
+        super(CPackage, self).__init__(xmi_id, name, package=package) 
+        self.model = model
 
     def __repr__(self):
         return "<CPackage(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+    def get_entities(self, cclass):
+        return [ ent for ent in self.entities if type(ent) is cclass ]
 
 class CClass(CDataType):
     """Class class.
@@ -335,19 +470,13 @@ class CClass(CDataType):
     __tablename__ = 'cclass'
 
     id = Column(Integer, ForeignKey('cdatatype.id'), primary_key=True)
-    package_id = Column(Integer, ForeignKey('cpackage.id'))
 
     __mapper_args__ = {'polymorphic_identity': 'cclass'}
 
-    package = relationship('CPackage',
-                            primaryjoin=(package_id==CPackage.id),
-                            backref=backref('classes', order_by=id))
+    __normalize_name__ = True
 
     def __init__(self, xmi_id, name, package=None):
-        if not is_valid_name(name):
-            raise RuntimeError, "Cant create an entity '%s' with name '%s'." % (xmi_id, name)
-        super(CClass, self).__init__(xmi_id, name) 
-        self.package = package
+        super(CClass, self).__init__(xmi_id, name, package=package)
 
     def __repr__(self):
         return "<CClass(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -358,6 +487,15 @@ class CClass(CDataType):
             if i.name == name:
                 return i
         return None
+
+    def oerp_id(self, sep='.'):
+        if len(self.child_of) > 0:
+            generalization = self.child_of[0]
+            parent = generalization.parent
+            extend_parent = generalization.is_stereotype('extend')
+            if extend_parent:
+                return sep.join([parent.package.name, parent.name])
+        return sep.join([self.package.name, self.name])
 
 class CMember(CEntity):
     """Member of a class class.
@@ -381,8 +519,8 @@ class CMember(CEntity):
                              primaryjoin=(member_of_id==CClass.id),
                              backref=backref('members', order_by=id))
 
-    def __init__(self, xmi_id, name, member_of=None):
-        super(CMember, self).__init__(xmi_id, name) 
+    def __init__(self, xmi_id, name, member_of=None, package=None):
+        super(CMember, self).__init__(xmi_id, name, package=package) 
         self.member_of = member_of
 
     def __repr__(self):
@@ -414,8 +552,8 @@ class CAttribute(CMember):
     datatype = relationship('CDataType',
                              backref=backref('attributes', order_by=id))
 
-    def __init__(self, xmi_id, name, datatype, member_of=None, size=None):
-        super(CAttribute, self).__init__(xmi_id, name, member_of) 
+    def __init__(self, xmi_id, name, datatype, member_of=None, size=None, package=None):
+        super(CAttribute, self).__init__(xmi_id, name, member_of=member_of, package=package) 
         self.datatype = datatype
         self.size = size
 
@@ -474,8 +612,8 @@ class CParameter(CEntity):
                               primaryjoin=(operation_id==COperation.id),
                               backref=backref('parameters', order_by=id))
 
-    def __init__(self, xmi_id, name, datatype, order, kind, operation=None):
-        super(CParameter, self).__init__(xmi_id, name) 
+    def __init__(self, xmi_id, name, datatype, order, kind, operation=None, package=None):
+        super(CParameter, self).__init__(xmi_id, name, package=package) 
         self.operation = operation
         self.datatype = datatype
         self.order = order
@@ -531,8 +669,8 @@ class CTaggedValue(CEntity):
                              primaryjoin=(tagdefinition_id==CTagDefinition.id),
                              backref=backref('values', order_by=CTagDefinition.id))
 
-    def __init__(self, xmi_id, tag, value, owner=None):
-        super(CTaggedValue, self).__init__(xmi_id, None)
+    def __init__(self, xmi_id, tag, value, owner=None, package=None):
+        super(CTaggedValue, self).__init__(xmi_id, None, package=package)
         self.tagdefinition = tag
         self.value = value
         self.owner = owner
@@ -562,8 +700,8 @@ class CAssociation(CEntity):
 
     __mapper_args__ = { 'polymorphic_identity': 'cassociation' }
 
-    def __init__(self, xmi_id, name, ends=[]):
-        super(CAssociation, self).__init__(xmi_id, name)
+    def __init__(self, xmi_id, name, ends=[], package=None):
+        super(CAssociation, self).__init__(xmi_id, name, package=package)
         self.ends = ends
 
     def __repr__(self):
@@ -578,7 +716,7 @@ class CAssociationEnd(CEntity):
     :param association: Owner association.
     :type xmi_id: str
     :type name: str
-    :type participant: CElement.
+    :type participant: CEntity.
     :type association: CAssociation
     """
 
@@ -600,8 +738,8 @@ class CAssociationEnd(CEntity):
                              primaryjoin=(participant_id==CEntity.id),
                              backref=backref('associations', order_by=CEntity.id))
 
-    def __init__(self, xmi_id, name, isNavigable=False, aggregation=None, participant=None, multiplicityrange=None, association=None):
-        super(CAssociationEnd, self).__init__(xmi_id, name)
+    def __init__(self, xmi_id, name, isNavigable=False, aggregation=None, participant=None, multiplicityrange=None, association=None, package=None):
+        super(CAssociationEnd, self).__init__(xmi_id, name, package=package)
         self.isNavigable = isNavigable
         self.aggregation = aggregation
         self.participant = participant
@@ -624,9 +762,10 @@ class CAssociationEnd(CEntity):
         my_mul = solvmul(self.multiplicityrange, self.aggregation)
         hi_mul = solvmul(self.swap[0].multiplicityrange, self.swap[0].aggregation)
         if my_mul is None or hi_mul is None:
-            print >> sys.stderr, "Unsupported range."
-            print >> sys.stderr, self.participant.name, self.name, my_situation
-            print >> sys.stderr, self.swap[0].participant.name, self.swap[0].name, his_situation
+            logging.warning("Multiplicity: Unsupported range %s, %s, %s, %s, %s, %s." (
+                self.participant.name, self.name, my_situation,
+                self.swap[0].participant.name, self.swap[0].name, his_situation
+            ))
             import pdb; pdb.set_trace()
         else:
             r = '%s2%s' % (hi_mul, my_mul)
@@ -661,8 +800,8 @@ class CGeneralization(CEntity):
         'inherit_condition': id == CEntity.id,
     }
 
-    def __init__(self, xmi_id, parent, child):
-        super(CGeneralization, self).__init__(xmi_id, None)
+    def __init__(self, xmi_id, parent, child, package=None):
+        super(CGeneralization, self).__init__(xmi_id, None, package=package)
         self.parent = parent
         self.child = child
 
@@ -692,8 +831,8 @@ class CStereotype(CEntity):
 
     entities = relationship('CEntity', secondary=stereotypes, backref=backref('stereotypes'))
 
-    def __init__(self, xmi_id, name, ends=[]):
-        super(CStereotype, self).__init__(xmi_id, name)
+    def __init__(self, xmi_id, name, ends=[], package=None):
+        super(CStereotype, self).__init__(xmi_id, name, package=package)
 
     def __repr__(self):
         return "<CStereotype(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -718,17 +857,31 @@ class CStateMachine(CEntity):
         'inherit_condition': id == CEntity.id,
     }
 
-    def __init__(self, xmi_id, name, context):
-        super(CStateMachine, self).__init__(xmi_id, name)
+    __normalize_name__ = True
+
+    def __init__(self, xmi_id, name, context, package=None):
+        super(CStateMachine, self).__init__(xmi_id, name, package=package)
         self.context = context
 
     def __repr__(self):
         return "<CStateMachine(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
-    def enumerate_states(self):
+    def list_states(self):
         for s in self.states:
             if type(s) is CSimpleState:
-                yield s.name, s.tag.get('label', s.name)
+                yield s
+
+    def middle_transitions(self):
+        for t in self.transitions:
+            if type(t.state_from) is CSimpleState and type(t.state_to) is CSimpleState:
+                yield t
+
+    def list_triggers(self, stereotype=None):
+        for t in self.transitions:
+            tt = t.trigger
+            if tt is None or (stereotype is not None and not tt.is_stereotype(stereotype)):
+                continue
+            yield tt
 
 class CBaseState(CEntity):
     """Simple State class.
@@ -739,11 +892,11 @@ class CBaseState(CEntity):
     __tablename__ = 'cbasestate'
 
     id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
-    state_machine_id = Column(Integer, ForeignKey('cstatemachine.id'))
+    statemachine_id = Column(Integer, ForeignKey('cstatemachine.id'))
     state_of_id = Column(Integer, ForeignKey('ccompositestate.id', use_alter=True, name='sm_state_composition_id'))
 
-    state_machine = relationship('CStateMachine',
-                             primaryjoin='CBaseState.state_machine_id==CStateMachine.id',
+    statemachine = relationship('CStateMachine',
+                             primaryjoin='CBaseState.statemachine_id==CStateMachine.id',
                              backref=backref('states'))
     state_of = relationship('CCompositeState',
                              primaryjoin='CBaseState.state_of_id==CCompositeState.id',
@@ -754,13 +907,32 @@ class CBaseState(CEntity):
         'inherit_condition': id == CEntity.id,
     }
 
-    def __init__(self, xmi_id, name, state_machine, state_of=None):
-        super(CBaseState, self).__init__(xmi_id, name)
-        self.state_machine = state_machine
+    __normalize_name__ = True
+
+    def __init__(self, xmi_id, name, statemachine, state_of=None, package=None):
+        super(CBaseState, self).__init__(xmi_id, name, package=package)
+        self.statemachine = statemachine
         self.state_of = state_of
 
     def __repr__(self):
         return "<CBaseState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+    def prev_states(self):
+        for t in self.in_transitions:
+            yield t.state_from
+
+    def next_states(self):
+        for t in self.out_transitions:
+            yield t.state_to
+
+    def is_initial(self):
+        return max([ getattr(s, 'kind', '') == 'initial'
+                    for s in self.prev_states() ])
+    
+    def is_final(self):
+        return max([ type(s) is CFinalState
+                    for s in self.next_states() ])
+    
 
 class CFinalState(CBaseState):
     """Final State class.
@@ -777,8 +949,10 @@ class CFinalState(CBaseState):
         'inherit_condition': id == CBaseState.id,
     }
 
-    def __init__(self, xmi_id, state_machine, state_of=None):
-        super(CFinalState, self).__init__(xmi_id, None, state_machine, state_of)
+    __normalize_name__ = False
+
+    def __init__(self, xmi_id, name, statemachine, state_of=None, package=None):
+        super(CFinalState, self).__init__(xmi_id, name, statemachine, state_of=state_of, package=package)
 
     def __repr__(self):
         return "<CFinalState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -798,8 +972,10 @@ class CSimpleState(CBaseState):
         'inherit_condition': id == CBaseState.id,
     }
 
-    def __init__(self, xmi_id, name, state_machine, state_of=None):
-        super(CSimpleState, self).__init__(xmi_id, name, state_machine, state_of)
+    __normalize_name__ = True
+
+    def __init__(self, xmi_id, name, statemachine, state_of=None, package=None):
+        super(CSimpleState, self).__init__(xmi_id, name, statemachine, state_of=state_of, package=package)
 
     def __repr__(self):
         return "<CSimpleState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -820,8 +996,10 @@ class CPseudostate(CBaseState):
         'inherit_condition': id == CBaseState.id,
     }
 
-    def __init__(self, xmi_id, name, kind, state_machine, state_of=None):
-        super(CPseudostate, self).__init__(xmi_id, name, state_machine, state_of)
+    __normalize_name__ = False
+
+    def __init__(self, xmi_id, name, kind, statemachine, state_of=None, package=None):
+        super(CPseudostate, self).__init__(xmi_id, name, statemachine, state_of=state_of, package=package)
         self.kind = kind
 
     def __repr__(self):
@@ -842,11 +1020,254 @@ class CCompositeState(CBaseState):
         'inherit_condition': id == CBaseState.id,
     }
 
-    def __init__(self, xmi_id, name, state_machine, state_of=None):
-        super(CCompositeState, self).__init__(xmi_id, name, state_machine, state_of)
+    __normalize_name__ = True
+
+    def __init__(self, xmi_id, name, statemachine, state_of=None, package=None):
+        super(CCompositeState, self).__init__(xmi_id, name, statemachine, state_of=state_of, package=package)
 
     def __repr__(self):
         return "<CCompositeState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CExpression(CEntity):
+    """Boolean Expression class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    """
+    __tablename__ = 'cexpression'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cexpression',
+        'inherit_condition': id == CEntity.id,
+    }
+
+    __normalize_name__ = True
+
+    def __repr__(self):
+        return "<CExpression(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CBooleanExpression(CExpression):
+    """Boolean Expression class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    :param language: Language of the expression.
+    :param body: Expression it self.
+    """
+    __tablename__ = 'cbooleanexpression'
+
+    id = Column(Integer, ForeignKey('cexpression.id'), primary_key=True)
+    language = Column(String)
+    body = Column(Text)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cbooleanexpression',
+        'inherit_condition': id == CExpression.id,
+    }
+
+    __normalize_name__ = False
+
+    def __init__(self, xmi_id, name, language, body, package=None):
+        super(CBooleanExpression, self).__init__(xmi_id, name, package=package)
+        self.language = language
+        self.body = body
+
+    def __repr__(self):
+        return "<CBooleanExpression(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CGuard(CEntity):
+    """Guard class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    :param expression: State type name.
+    """
+    __tablename__ = 'cguard'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+    expression_id = Column(Integer, ForeignKey('cexpression.id'), primary_key=True)
+
+    expression = relationship('CExpression',
+                            primaryjoin=(expression_id==CExpression.id),
+                            backref=backref('guards'))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cguard',
+        'inherit_condition': id == CEntity.id,
+    }
+
+    __normalize_name__ = False
+
+    def __init__(self, xmi_id, name, expression, package=None):
+        super(CGuard, self).__init__(xmi_id, name, package=package)
+        self.expression = expression
+
+    def __repr__(self):
+        return "<CGuard(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CAction(CEntity):
+    """Action class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    """
+    __tablename__ = 'caction'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'caction',
+        'inherit_condition': id == CEntity.id,
+    }
+
+    __normalize_name__ = True
+
+    def __repr__(self):
+        return "<CAction(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CCallAction(CAction):
+    """Call action class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    :param operator: Operator.
+    """
+    __tablename__ = 'ccallaction'
+
+    id = Column(Integer, ForeignKey('caction.id'), primary_key=True)
+    operation_id = Column(Integer, ForeignKey('coperation.id'))
+
+    operation = relationship('COperation',
+                            primaryjoin=(operation_id==COperation.id),
+                            backref=backref('related_actions'))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'ccallaction',
+        'inherit_condition': id == CAction.id,
+    }
+
+    __normalize_name__ = False
+
+    def __init__(self, xmi_id, name, operation, package=None):
+        super(CCallAction, self).__init__(xmi_id, name, package=package)
+        self.operation = operation
+
+    def __repr__(self):
+        return "<CCallAction(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CEvent(CEntity):
+    """Event class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    """
+    __tablename__ = 'cevent'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'cevent',
+        'inherit_condition': id == CEntity.id,
+    }
+
+    __normalize_name__ = True
+
+    def __repr__(self):
+        return "<CEvent(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+    def list_states_from(self, statemachine):
+        for t in self.transitions:
+            if t.statemachine == statemachine:
+                yield t.state_from
+
+    def list_states_to(self, statemachine):
+        for t in self.transitions:
+            if t.statemachine == statemachine:
+                yield t.state_to
+
+class CCallEvent(CEvent):
+    """Call event class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    :param operator: Operator.
+    """
+    __tablename__ = 'ccallevent'
+
+    id = Column(Integer, ForeignKey('cevent.id'), primary_key=True)
+    operation_id = Column(Integer, ForeignKey('coperation.id'))
+
+    operation = relationship('COperation',
+                            primaryjoin=(operation_id==COperation.id),
+                            backref=backref('related_events'))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'ccallevent',
+        'inherit_condition': id == CEvent.id,
+    }
+
+    __normalize_name__ = True
+
+    def __init__(self, xmi_id, name, operation, package=None):
+        super(CCallEvent, self).__init__(xmi_id, name, package=package)
+        self.operation = operation
+
+    def __repr__(self):
+        return "<CCallEvent(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CSignal(CEntity):
+    """Signal class.
+
+    Asynchronous signal.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    """
+    __tablename__ = 'csignal'
+
+    id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'csignal',
+        'inherit_condition': id == CEntity.id,
+    }
+
+    __normalize_name__ = True
+
+    def __repr__(self):
+        return "<CSignal(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+class CSignalEvent(CEvent):
+    """Signal event class.
+
+    :param xmi_id: XMI identity of the data type.
+    :param name: State type name.
+    :param operator: Operator.
+    """
+    __tablename__ = 'csignalevent'
+
+    id = Column(Integer, ForeignKey('cevent.id'), primary_key=True)
+    signal_id = Column(Integer, ForeignKey('csignal.id'))
+
+    signal = relationship('CSignal',
+                            primaryjoin=(signal_id==CSignal.id),
+                            backref=backref('called_by'))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'csignalevent',
+        'inherit_condition': id == CEvent.id,
+    }
+
+    __normalize_name__ = True
+
+    def __init__(self, xmi_id, name, signal, package=None):
+        super(CSignalEvent, self).__init__(xmi_id, name, operation, package=package)
+        self.signal = signal
+
+    def __repr__(self):
+        return "<CSignalEvent(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
 class CTransition(CEntity):
     """Pseudo State class.
@@ -859,12 +1280,15 @@ class CTransition(CEntity):
     __tablename__ = 'ctransition'
 
     id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
-    state_machine_id = Column(Integer, ForeignKey('cstatemachine.id'))
+    statemachine_id = Column(Integer, ForeignKey('cstatemachine.id'))
     state_from_id = Column(Integer, ForeignKey('cbasestate.id'))
     state_to_id = Column(Integer, ForeignKey('cbasestate.id'))
+    guard_id = Column(Integer, ForeignKey('cexpression.id'))
+    effect_id = Column(Integer, ForeignKey('caction.id'))
+    trigger_id = Column(Integer, ForeignKey('cevent.id'))
 
-    state_machine = relationship('CStateMachine',
-                             primaryjoin=state_machine_id==CStateMachine.id,
+    statemachine = relationship('CStateMachine',
+                             primaryjoin=statemachine_id==CStateMachine.id,
                              backref=backref('transitions'))
     state_from = relationship('CBaseState',
                               primaryjoin=(state_from_id==CBaseState.id),
@@ -873,13 +1297,28 @@ class CTransition(CEntity):
                             primaryjoin=(state_to_id==CBaseState.id),
                             backref=backref('in_transitions'))
 
+    guard = relationship('CExpression',
+                            primaryjoin=(guard_id==CExpression.id),
+                            backref=backref('transitions'))
+    effect = relationship('CAction',
+                            primaryjoin=(effect_id==CAction.id),
+                            backref=backref('transitions'))
+    trigger = relationship('CEvent',
+                            primaryjoin=(trigger_id==CEvent.id),
+                            backref=backref('transitions'))
+
     __mapper_args__ = { 'polymorphic_identity': 'ctransition' }
 
-    def __init__(self, xmi_id, state_machine, state_from, state_to):
-        super(CTransition, self).__init__(xmi_id, None)
-        self.state_machine = state_machine
+    __normalize_name__ = False
+
+    def __init__(self, xmi_id, name, statemachine, state_from, state_to, guard=None, effect=None, trigger=None, package=None):
+        super(CTransition, self).__init__(xmi_id, name, package=package)
+        self.statemachine = statemachine
         self.state_from = state_from
         self.state_to = state_to
+        self.guard = guard
+        self.effect = effect
+        self.trigger = trigger
 
     def __repr__(self):
         return "<CTransition(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)

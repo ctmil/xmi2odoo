@@ -8,15 +8,16 @@ class ${CLASS_NAME}(osv.osv):
     ${CLASS_DOCUMENTATION}\
     """
     _name = '${CLASS_MODULE}.${CLASS_NAME}'
-{%  if CLASS_PARENT_NAME is not None %}\
-    _inherit = '${CLASS_PARENT_MODULE}.${CLASS_PARENT_NAME}'
+    _description = '${CLASS_LABEL}'
+{%  if len(CLASS.child_of)>0 %}\
+    _inherit = [ ${','.join(['\'%s.%s\'' % (gen.parent.package.name, gen.parent.name) for gen in CLASS.child_of])} ]
 {%  end %}\
 
 {%  for op in CLASS_PRIVATE_OPERATIONS %}\
     def ${op.name}(self, cr, uid, ids{% for par in op.parameters %}, ${par.name}{% end %}):
         pass
-{%      end %}\
 
+{%      end %}\
     _columns = {
 {%  for col in CLASS_ATTRIBUTES %}\
 {%      def name(prefix='', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
@@ -43,19 +44,20 @@ class ${CLASS_NAME}(osv.osv):
 {%          otherwise        %}'${name()}': \
 {%            choose col.datatype.entityclass %}\
 {%            when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()])}, '${label()}'${options()}), {% end %}\
-{%            when 'cclass' %}fields.many2one('${col.datatype.package.name}.${col.datatype.name}', '${label()}'${options()}), {% end %}\
+{%            when 'cclass' %}fields.many2one('${col.datatype.oerp_id()}', '${label()}'${options()}), {% end %}\
 {%            end %}\
 {%          end %}\
 {%      end %}
 {%  end %}\
-{%  if CLASS_STATES is not None %}\
-        'state': fields.selection(${repr(CLASS_STATES)}, 'State'),
+{%  for sm in CLASS.statemachines %}\
+        'state': fields.selection(${repr([ (s.name, s.tag['label']) for s in sm.list_states()])}, "State"),
 {%  end %}\
 {%  for ass in CLASS_ASSOCIATIONS %}\
 {%      def actual_id %}${"%s_id" % CLASS_NAME}{%end%}\
 {%      def other_id %}${"%s_id" % ass.participant.name.replace('.','_')}{%end%}\
 {%      def name(prefix='', suffix='') %}${prefix}${ass.name if ass.name not in [ None, ''] else other_id() }${suffix}{%end%}\
 {%      def label %}${ass.tag.get('label', name('[',']'))}{%end%}\
+{%      def oerp_id %}${ass.participant.oerp_id()}{%end%}\
 {%      def other_module %}${ass.participant.package.name}{%end%}\
 {%      def other_obj %}${ass.participant.name}{%end%}\
 {%      def other_name %}${actual_id() if ass.swap[0].name in [None, ''] else ass.swap[0].name}{%end%}\
@@ -70,15 +72,15 @@ class ${CLASS_NAME}(osv.osv):
 {%      def options   %}${composite()}${required()}${readonly()}${select()}${store()}${invisible()}{%end%}\
 {%      choose ass.multiplicity %}\
         \
-{%          when 'one2one'   %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'${options()}), {% end %}\
-{%          when 'many2one'  %}'${name()}': fields.many2one('${other_module()}.${other_obj()}', '${label()}'${options()}), {% end %}\
-{%          when 'one2many'  %}'${name()}': fields.one2many('${other_module()}.${other_obj()}', '${other_name()}', '${label()}'${options()}), {% end %}\
-{%          when 'many2many' %}'${name()}': fields.many2many('${other_module()}.${other_obj()}', '${relational_obj()}', '${name()}', '${other_name()}', '${label()}'${options()}), {% end %}\
+{%          when 'one2one'   %}'${name()}': fields.many2one('${oerp_id()}', '${label()}'${options()}), {% end %}\
+{%          when 'many2one'  %}'${name()}': fields.many2one('${oerp_id()}', '${label()}'${options()}), {% end %}\
+{%          when 'one2many'  %}'${name()}': fields.one2many('${oerp_id()}', '${other_name()}', '${label()}'${options()}), {% end %}\
+{%          when 'many2many' %}'${name()}': fields.many2many('${oerp_id()}', '${relational_obj()}', '${name()}', '${other_name()}', '${label()}'${options()}), {% end %}\
 {%          when 'related'   %}'${name()}': fields.related(
                     ${"'%s'" % "','".join(ass.tag['related_by'].split(','))},
                     ${"'%s'" % ass.tag['related_to']},
-                    type='${ass.participant.member_by_name("type").datatype.oerp_type}',
-                    relation='${other_module()}.${other_obj()}',
+                    type='${getattr(getattr(ass.participant.member_by_name("type"), "datatype", None),"oerp_type","<Not defined>")}',
+                    relation='${oerp_id()}',
                     string='${label()}'${options()}
                     ),{% end %}\
 {%      end %}
@@ -86,6 +88,9 @@ class ${CLASS_NAME}(osv.osv):
     }
 
     _defaults = {
+{%  for sm in CLASS.statemachines %}\
+        'state': '${','.join([ s.name for s in sm.list_states() if s.is_initial() ])}',
+{%  end %}\
 {%  for col in CLASS_ATTRIBUTES %}\
 {%      if col.tag.get('default', None) is not None %}\
         '${col.name}': ${col.tag['default']},
@@ -96,8 +101,7 @@ class ${CLASS_NAME}(osv.osv):
 {%  for op in CLASS_PUBLIC_OPERATIONS %}\
     def ${op.name}(self, cr, uid, ids{% for par in op.parameters %}, ${par.name}{% end %}):
         pass
-{%      end %}\
-
+{%      end %}
 ${CLASS_NAME}()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
