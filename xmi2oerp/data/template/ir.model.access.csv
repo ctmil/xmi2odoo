@@ -1,0 +1,8 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+{% for model in PACKAGE.get_entities(uml.CClass) %}\
+{%   for actor in PACKAGE.get_entities(uml.CActor) %}\
+{%      if actor.is_stereotype('group') %}\
+"access_${model.oerp_id('_')}_${actor.name}","${model.oerp_id('.')}.${actor.name}","model_${model.oerp_id('_')}","group_${actor.name}",1,1,1,1
+{%      end %}\
+{%   end %}\
+{% end %}\
