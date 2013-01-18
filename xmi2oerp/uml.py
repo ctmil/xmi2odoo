@@ -115,6 +115,7 @@ def is_valid_name(s):
     return type(s) is str and re_valid_name.match(s) is not None
 
 def clean_name(s, replace='_'):
+    #s = 'untitle' if type(s) is not str else s
     return re_clean_name.sub(replace, s).lower()
 
 _oerp_type = {
@@ -260,6 +261,20 @@ class CEntity(Base):
 
     def __repr__(self):
         return "<CEntity(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
+
+    def get_inhereted_attr(self, attrs):
+        r = getattr(self, attrs, None) 
+        if r is not None:
+            return r
+        for parent in self.parents():
+            return parent.get_inhereted_attrs(attrs)
+
+    def iter_over_inhereted_attrs(self, attrs):
+        for value in getattr(self, attrs, []):
+            yield value
+        for parent in self.parents():
+            for item in parent.iter_over_inhereted_attrs(attrs):
+                yield item
 
 class CUseCase(CEntity):
     """CUseCase class.
@@ -871,6 +886,18 @@ class CStateMachine(CEntity):
             if type(s) is CSimpleState:
                 yield s
 
+    def initial_states(self):
+        return [ s for s in self.list_states() if s.is_initial() ]
+
+    def final_states(self):
+        return [ s for s in self.list_states() if s.is_final() ]
+
+    def middle_states(self):
+        return [ s for s in self.list_states() if not s.is_final() and not s.is_initial() ]
+
+    def stereotype_states(self, stereotype):
+        return [ s for s in self.list_states() if s.is_stereotype(stereotype) ]
+
     def middle_transitions(self):
         for t in self.transitions:
             if type(t.state_from) is CSimpleState and type(t.state_to) is CSimpleState:
@@ -1186,6 +1213,15 @@ class CEvent(CEntity):
         for t in self.transitions:
             if t.statemachine == statemachine:
                 yield t.state_to
+
+    def sm_transitions(self, statemachine):
+        return [ t for t in self.transitions if t.statemachine == statemachine ]
+
+    def any_transition_is_stereotype(self, statemachine, stereotype):
+        for t in self.sm_transitions:
+            if t.statemachine == statemachine and t.is_stereotype(stereotype):
+                return True
+        return False
 
 class CCallEvent(CEvent):
     """Call event class.

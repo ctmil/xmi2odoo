@@ -23,13 +23,15 @@ class ${CLASS_NAME}(osv.osv):
 {%      def name(prefix='', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
 {%      def label %}${col.tag.get('label',name('[',']'))}{%end%}\
 {%      def digits %}{% if 'digits' in col.tag %}, digits=${col.tag['digits']}{%end%}{%end%}\
-{%      def size %}{% if 'digits' in col.tag %}, digits=${col.tag['digits']}{%end%}{%end%}\
+{%      def size %}{% if 'size' in col.tag %}, size=${col.tag['size']}{%end%}{%end%}\
 {%      def required  %}{% if col.is_stereotype('required')  %}, required=True{%end %}{%end%}\
 {%      def readonly  %}{% if col.is_stereotype('readonly')  %}, readonly=True{%end %}{%end%}\
 {%      def select    %}{% if col.is_stereotype('select')    %}, select=True{%end   %}{%end%}\
 {%      def store     %}{% if col.is_stereotype('store')     %}, store=True{%end    %}{%end%}\
+{%      def translate %}{% if col.is_stereotype('translatable') %}, translate=True{%end%}{%end%}\
 {%      def invisible %}{% if col.is_stereotype('invisible') %}, invisible=True{%end%}{%end%}\
-{%      def options   %}${required()}${readonly()}${select()}${store()}${invisible()}{%end%}\
+{%      def groups    %}{% if 'module_groups' in col.tag or 'groups' in col.tag %}, groups='${','.join([col.tag.get('module_groups',''), col.tag.get('groups','')])}'{%end%}{%end%}\
+{%      def options   %}${required()}${readonly()}${select()}${store()}${invisible()}${translate()}${groups()}{%end%}\
 {%      choose col.datatype.name %}\
         \
 {%          when 'Boolean'   %}'${name()}': fields.boolean('${label()}'${options()}), {% end %}\
@@ -79,7 +81,7 @@ class ${CLASS_NAME}(osv.osv):
 {%          when 'related'   %}'${name()}': fields.related(
                     ${"'%s'" % "','".join(ass.tag['related_by'].split(','))},
                     ${"'%s'" % ass.tag['related_to']},
-                    type='${getattr(getattr(ass.participant.member_by_name("type"), "datatype", None),"oerp_type","<Not defined>")}',
+                    type='${getattr(getattr(ass.participant.member_by_name(ass.tag["related_to"]), "datatype", None),"oerp_type","<Not defined>")}',
                     relation='${oerp_id()}',
                     string='${label()}'${options()}
                     ),{% end %}\

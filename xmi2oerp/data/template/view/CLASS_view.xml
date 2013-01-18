@@ -10,6 +10,28 @@ ${LICENSE_HEADER}\
 {% end %}
 {% if ('%s.%s' % (CLASS.package.name, CLASS.name) == CLASS.oerp_id('.')) %}
         <!-- SEARCHVIEW -->
+        <record id="view_${model('_')}_filter" model="ir.ui.view">
+            <field name="name">${model()}.select</field>
+            <field name="model">${model()}</field>
+            <field name="arch" type="xml">
+                <search string="${CLASS_LABEL}" version="7.0">
+{%                  for col in CLASS.all_attributes(stereotype='search') %}\
+                        <field name="${col.name}"
+{%                    if 'view_groups' in col.tag or 'groups' in col.tag %}\
+                            groups="${','.join([col.tag.get('view_groups',''),col.tag.get('groups','')])}"
+{%                    end %}\
+                            />
+{%                  end %}\
+{%                  for ass in CLASS.all_associations(stereotype='search') %}\
+                        <field name="${ass.name}"
+{%                    if 'view_groups' in ass.tag or 'groups' in ass.tag %}\
+                            groups="${','.join([ass.tag.get('view_groups',''),ass.tag.get('groups','')])}"
+{%                    end %}\
+                            />
+{%                  end %}\
+                </search>
+            </field>
+        </record>
 
         <!-- FORMVIEW -->
 
@@ -33,18 +55,31 @@ ${LICENSE_HEADER}\
 {%                          if 'groups' in t.tag %}\
                             groups="${t.tag['groups']}"
 {%                          end %}\
+{%                          if max([ tra.is_stereotype('default') for tra in t.sm_transitions(sm)]) %}\
+                            class="oe_highlight"
+{%                          end %}\
                             />
 {%                    end %}\
-                        <field name="state" widget="statusbar" />
+                        <field name="state" widget="statusbar"
+                            statusbar_colors='${doublequote(repr(stereotype_dict(sm.list_states(),'name',{'exception':'red'})))}'
+                            />
 {%                  end %}\
                     </header>
                     <sheet string="${CLASS_LABEL}">
                      <group>
 {%                  for col in CLASS.all_attributes(stereotype='form') %}\
-                        <field name="${col.name}"/>
+                        <field name="${col.name}"
+{%                    if 'view_groups' in col.tag or 'groups' in col.tag %}\
+                            groups="${','.join([col.tag.get('view_groups',''),col.tag.get('groups','')])}"
+{%                    end %}\
+                            />
 {%                  end %}\
 {%                  for ass in CLASS.all_associations(stereotype='form') %}\
-                        <field name="${ass.name}"/>
+                        <field name="${ass.name}"
+{%                    if 'view_groups' in ass.tag or 'groups' in ass.tag %}\
+                            groups="${','.join([ass.tag.get('view_groups',''),ass.tag.get('groups','')])}"
+{%                    end %}\
+                            />
 {%                  end %}\
                      </group>
                     </sheet>
@@ -64,12 +99,26 @@ ${LICENSE_HEADER}\
             <field name="name">${model()}.tree</field>
             <field name="model">${model()}</field>
             <field name="arch" type="xml">
-                <tree string="${CLASS_LABEL}">
+                <tree string="${CLASS_LABEL}"
+{%                  if CLASS.is_child_of('ir.needaction_mixin') %}\
+                    fonts="bold:message_unread==True" 
+{%                  end %}\
+{%                  for sm in [ sm for sm in CLASS.statemachines ] %}\
+{% def colors() %}grey:state=='cancelled';blue:state in ${repr(tuple(names(sm.initial_states())))};black:state in ${repr(tuple(set(names(sm.middle_states()))-set(names(sm.stereotype_states('exceptional')))))}; red:state in ${repr(tuple(names(sm.stereotype_states('exceptional'))))}{% end %}\
+                    colors="${colors()}"
+{%                  end %}\
+                    >
+{%                  if CLASS.is_child_of('ir.needaction_mixin') %}\
+                    <field name="message_unread" invisible="1"/>
+{%                  end %}\
 {%                  for col in CLASS.all_attributes(stereotype='tree') %}\
                     <field name="${col.name}"/>
 {%                  end %}\
 {%                  for ass in CLASS.all_associations(stereotype='tree') %}\
                     <field name="${ass.name}"/>
+{%                  end %}\
+{%                  for sm in [ sm for sm in CLASS.statemachines ] %}\
+                    <field name="state"/>
 {%                  end %}\
                 </tree>
             </field>
@@ -81,6 +130,7 @@ ${LICENSE_HEADER}\
             <field name="res_model">${model()}</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_${model('_')}_filter"/>
 {%          if CLASS_DOCUMENTATION is not None %}\
             <field name="help">${CLASS_DOCUMENTATION}</field>
 {%          end %}\

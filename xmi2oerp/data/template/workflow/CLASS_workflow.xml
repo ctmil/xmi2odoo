@@ -4,7 +4,7 @@ ${LICENSE_HEADER}\
 -->
 <openerp>
     <data>
-{% for sm in CLASS.statemachines %}\
+{% for sm in CLASS.iter_over_inhereted_attrs('statemachines') %}\
 {% def wkfname() %}${CLASS.name}_${sm.name}_wkf{% end %}\
         <!-- Workflow -->
 
@@ -54,6 +54,10 @@ ${LICENSE_HEADER}\
 {%     end %}\
 {%     if 'trigger_expr_id' in t.tag %}\
             <field name="trigger_expr_id">${t.tag['trigger_expr_id']}</field>
+{%     end %}\
+{%     if 'groups' in t.tag %}\
+{% def groups() %}${','.join([ '(4, ref(\'%s\'))' % (name if '.' in name else 'group_%s' % name) for name in t.tag['groups'].split(',')])}{% end %}\
+            <field name="group_ids" eval="${groups()}"/>
 {%     end %}\
         </record>
 {%   end %}\

@@ -27,8 +27,25 @@ from genshi.template import NewTextTemplate
 from datetime import date
 from pprint import PrettyPrinter
 import logging
-import cgi
+from xml.sax.saxutils import quoteattr, escape
 import itertools
+
+def names(items):
+    return [ i.name.encode('ascii', 'ignore') for i in items ]
+
+def stereotype_dict(items, attribute, dictmap, default=None, prefix=None, suffix=None):
+    prefix = prefix or ''
+    suffix = suffix or ''
+    stereotypes = set(dictmap.keys())
+    r = {}
+    for i in items:
+        k = '%s%s%s' % (prefix, getattr(i, attribute).encode('ascii', 'ignore'), suffix)
+        active_stereotypes = stereotypes & set(names(i.stereotypes))
+        if len(active_stereotypes) > 0:
+            r[k] = dictmap[active_stereotypes.pop()]
+        elif default is not None:
+            r[k] = default
+    return r
 
 class Builder:
     """Builder engine for addons.
@@ -141,18 +158,24 @@ class Builder:
             root_classes = [ (c.xmi_id, c.name) for c in package.get_entities(uml.CClass) ]
             wizard_classes = [] # [ (c.xmi_id, c.name) for c in package.classes ]
             report_classes = [] # [ (c.xmi_id, c.name) for c in package.classes ]
-            view_files = [ '%s_view.xml' % name for xml_id, name in root_classes ]
-            menu_files = [ '%s_menuitem.xml' % package.name ]
-            group_files = [ '%s_group.xml' % package.name ]
-            workflow_files = [ '%s_workflow.xml' % name for xml_id, name in root_classes if len(self.model[xml_id].statemachines)>0 ]
+            view_files = [ 'view/%s_view.xml' % name for xml_id, name in root_classes ]
+            menu_files = [ 'view/%s_menuitem.xml' % package.name ]
+            group_files = [ 'security/%s_group.xml' % package.name ]
+            workflow_files = [ 'workflow/%s_workflow.xml' % name for xml_id, name in root_classes if len(self.model[xml_id].statemachines)>0 ]
             app_files = [ '%s_app.xml' % package.name ]
+            security_files = [ 'security/ir.model.access.csv' ]
             # Calcula dependencias
             dependencies = set([ self.model[ass].name for ass in self.model.iterclass(uml.CPackage) ]) \
                     - set(['res', 'ir', package.name])
             # Construyo los tags
             tags = {
-                'escape': cgi.escape,
+                'stereotype_dict': stereotype_dict,
+                'names': names,
+                'escape': escape,
+                'quote': lambda s: escape(s, {'"':'&quot;', "'":'&quot;'}),
+                'doublequote': lambda s: escape(s, {"'":'"'}),
                 'uml': uml,
+                'PACKAGE': package,
                 'YEAR': str(date.today().year),
                 'MODULE_NAME': package.name,
                 'MODULE_LABEL': ptag.get('label', package.name),
@@ -189,7 +212,7 @@ class Builder:
                     'depends': list(dependencies),
                     'init_xml': [],
                     'demo_xml': [],
-                    'update_xml': group_files + view_files + menu_files + workflow_files,
+                    'update_xml': group_files + view_files + menu_files + workflow_files + security_files,
                     'test': [],
                     'active': False,
                     'installable': True,
@@ -204,16 +227,22 @@ class Builder:
                                                           '*PACKAGE_*'))
 
             # Generate menu file
-            source_code = os.path.join(source, 'PACKAGE_menuitem.xml')
-            target_code = os.path.join(target, '%s_menuitem.xml' % package.name)
+            source_code = os.path.join(source, 'view/PACKAGE_menuitem.xml')
+            target_code = os.path.join(target, 'view/%s_menuitem.xml' % package.name)
             shutil.copy(source_code, target_code)
             self.update(tags, target_code)
 
             # Generate groups file
-            source_code = os.path.join(source, 'PACKAGE_group.xml')
-            target_code = os.path.join(target, '%s_group.xml' % package.name)
+            source_code = os.path.join(source, 'security/PACKAGE_group.xml')
+            target_code = os.path.join(target, 'security/%s_group.xml' % package.name)
             shutil.copy(source_code, target_code)
             self.update(tags, target_code)
+
+            # Security file
+            #source_code = os.path.join(source, 'security/ir.model.access.csv')
+            #target_code = os.path.join(target, 'security/ir.model.access.csv')
+            #shutil.copy(source_code, target_code)
+            #self.update(tags, target_code)
 
             # Proceso el template basico sobre los archivos copiados.
             for root, dirs, files in os.walk(target):
@@ -261,18 +290,17 @@ class Builder:
                 self.update(tags, target_code)
 
                 # Generate view file
-                source_code = os.path.join(source, 'CLASS_view.xml')
-                target_code = os.path.join(target, '%s_view.xml' % name)
+                source_code = os.path.join(source, 'view/CLASS_view.xml')
+                target_code = os.path.join(target, 'view/%s_view.xml' % name)
                 shutil.copy(source_code, target_code)
                 self.update(tags, target_code)
+
                 # Generate workflow file
-                if len(cclass.statemachines) > 0:
-                    source_code = os.path.join(source, 'CLASS_workflow.xml')
-                    target_code = os.path.join(target, '%s_workflow.xml' % name)
+                if len(list(cclass.iter_over_inhereted_attrs('statemachines'))) > 0:
+                    source_code = os.path.join(source, 'workflow/CLASS_workflow.xml')
+                    target_code = os.path.join(target, 'workflow/%s_workflow.xml' % name)
                     shutil.copy(source_code, target_code)
                     self.update(tags, target_code)
-                # TODO: Generate access rules.
-                # TODO: Creaate groups.
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
 

@@ -24,6 +24,7 @@ import sys, os
 import argparse
 from xmi2oerp.model import Model
 from xmi2oerp.builder import Builder
+from xmi2oerp.validation import Validator
 import logging
 
 _loglevel = [ logging.ERROR, logging.INFO, logging.DEBUG ]
@@ -35,6 +36,9 @@ def convert(func, infile, target, logfile, loglevel, remove):
     logging.basicConfig(stream=logfile, level=_loglevel[loglevel])
     logging.info('Starting.')
     model = Model(infile)
+    if not Validator(model).run():
+        logging.info('Cant validate model. Stop building.\n')
+        return False
     builder = Builder(target, model)
     if remove: builder.reset()
     builder.build(logfile=logfile)

@@ -560,6 +560,7 @@ class Model:
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Actor'):
                 if stop: import pdb; pdb.set_trace()
                 cactor = self._create(uml.CActor, elem)
+                self._append_obj(cpackage, 'entities', cactor)
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Actor'):
                 if stop: import pdb; pdb.set_trace()
@@ -965,6 +966,7 @@ class Model:
                 r += "\t<Tag: %s, ID: %s> -\n" % (elem.tag, kind == 'description' and elem.attrib['xmi.id'] or '')
             r += "\tError: %s\n" % m
             r += "\tLine: %s\n" % sys.exc_traceback.tb_lineno
+            r += "\tBreadcrumbs: %s\n" % ';'.join([ getattr(self.get(xmi_id, xmi_id),'name', xmi_id) for xmi_id in owner ])
             import traceback
             import StringIO
             sout = StringIO.StringIO()

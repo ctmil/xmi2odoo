@@ -1,10 +1,12 @@
 ! Test files: XMI files with one class
 
-TODO: Agregar tag action: que hace el menu.
-TODO: Agregar tag view: dice que tipo de accion hace (form, tree, search, etc.)
-TODO: Agregar tag category: indica a que categoria de aplicación pertenece el modulo.
-TODO: Agregar tag trigger_model: Para transiciones ver: http://forum.openerp.com/forum/topic23980.html
-TODO: Agregar tag trigger_expre_id: Para transiciones ver: http://forum.openerp.com/forum/topic23980.html
+-TODO: Agregar tag action: que hace el menu.
+-TODO: Agregar tag view: dice que tipo de accion hace (form, tree, search, etc.)
+-TODO: Agregar tag category: indica a que categoria de aplicación pertenece el modulo.
+-TODO: Agregar tag trigger_model: Para transiciones ver: http://forum.openerp.com/forum/topic23980.html
+-TODO: Agregar tag trigger_expre_id: Para transiciones ver: http://forum.openerp.com/forum/topic23980.html
+-TODO: Agregar tag module_groups: Para indicar que grupos tienen acceso a un campo.
+-TODO: Agregar tag view_groups: Para indicar que el campo es visible para esos grupos.
 
 ---
 TODO: Implementar sub-flujos.
