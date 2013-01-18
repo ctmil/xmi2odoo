@@ -161,7 +161,7 @@ class Builder:
             view_files = [ 'view/%s_view.xml' % name for xml_id, name in root_classes ]
             menu_files = [ 'view/%s_menuitem.xml' % package.name ]
             group_files = [ 'security/%s_group.xml' % package.name ]
-            workflow_files = [ 'workflow/%s_workflow.xml' % name for xml_id, name in root_classes if len(list(self.model[xml_id].get_inhereted_attr(statemachines)))>0 ]
+            workflow_files = [ 'workflow/%s_workflow.xml' % name for xml_id, name in root_classes if len(list(self.model[xml_id].get_inhereted_attr('statemachines')))>0 ]
             app_files = [ '%s_app.xml' % package.name ]
             security_files = [ 'security/ir.model.access.csv' ]
             # Calcula dependencias
