@@ -41,7 +41,7 @@ ${LICENSE_HEADER}\
             <field name="arch" type="xml">
                 <form string="${CLASS_LABEL}" version="7.0">
                     <header>
-{%                  for sm in CLASS.statemachines %}\
+{%                  for sm in CLASS.iter_over_inhereted_attrs('statemachines') %}\
 {%                    for t in [ t for t in set(sm.list_triggers()) ] %}\
                         <button name="sgn_${t.name}"
 {%                          if 'class' in t.tag %}\
