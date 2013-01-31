@@ -886,6 +886,9 @@ class CStateMachine(CEntity):
             if type(s) is CSimpleState:
                 yield s
 
+    def list_ordered_states(self):
+        return CBaseState.BFS(self.initial_states(), self.final_states())
+
     def initial_states(self):
         return [ s for s in self.list_states() if s.is_initial() ]
 
@@ -954,12 +957,38 @@ class CBaseState(CEntity):
 
     def is_initial(self):
         return max([ getattr(s, 'kind', '') == 'initial'
-                    for s in self.prev_states() ])
+                    for s in self.prev_states() ] + [ False ])
     
     def is_final(self):
         return max([ type(s) is CFinalState
-                    for s in self.next_states() ])
-    
+                    for s in self.next_states() ] + [ False ])
+
+    class BFS:
+        def __init__(self, begin_states, final_states):
+            self._revised = set(final_states)
+            self._states = set(begin_states)
+            self._final_states = set(final_states)
+            self._final = False
+
+        def __iter__(self):
+            return self
+
+        def next(self):
+            if len(self._states) > 0:
+                s = self._states.pop()
+                self._revised.add(s)
+                return s
+            elif not self._final:
+                self._states = set(itertools.chain(*[ s.next_states() for s in self._revised ])) - self._revised
+                self._states = [ s for s in self._states if type(s) is CSimpleState ]
+                if len(self._states) == 0:
+                    self._final = True
+                    self._states = self._final_states
+                s = self._states.pop()
+                self._revised.add(s)
+                return s
+            else:
+                raise StopIteration
 
 class CFinalState(CBaseState):
     """Final State class.

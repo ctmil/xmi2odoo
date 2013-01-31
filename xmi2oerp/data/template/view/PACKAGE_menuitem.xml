@@ -5,6 +5,23 @@ ${LICENSE_HEADER}
 <openerp>
     <data>
 {%  for menu in MENUES %}\
+{%    def model(s='.') %}${menu.relateds(uml.CClass)[0].package.name}${s}${menu.relateds(uml.CClass)[0].name}{% end %}\
+{%    if 'action' not in menu.tag and len(list(menu.relateds(uml.CClass))) == 1 %}\
+        <record id="action_${model('_')}_${menu.name}" model="ir.actions.act_window">
+            <field name="name">${escape(menu.tag.get('label', menu.name))}</field>
+            <field name="res_model">${model()}</field>
+            <field name="view_type">${menu.tag.get('view_type', 'form')}</field>
+            <field name="view_mode">${menu.tag.get('view_mode', 'tree,form')}</field>
+            <field name="search_view_id" ref="view_${model('_')}_filter"/>
+{%          if 'context' in menu.tag %}\
+            <field name="context">${menu.tag['context']}</field>
+{%          end %}\
+{%          if 'domain' in menu.tag %}\
+            <field name="domain">${menu.tag['domain']}</field>
+{%          end %}\
+        </record>
+{%    end %}\
+
         <menuitem
             name="${escape(menu.tag.get('label', '<No label>'))}"
             id="menu_${menu.name}"
@@ -13,7 +30,7 @@ ${LICENSE_HEADER}
             action="${menu.tag['action']}"
 {%      end %}\
 {%      if 'action' not in menu.tag and len(list(menu.relateds(uml.CClass))) == 1 %}\
-            action="action_${menu.relateds(uml.CClass)[0].package.name}_${menu.relateds(uml.CClass)[0].name}_${menu.tag.get('view','form')}"
+            action="action_${model('_')}_${menu.name}"
 {%      end %}\
 {%      if len(list(menu.prevs(uml.CUseCase))) > 0 %}\
             parent="menu_${menu.prevs(uml.CUseCase)[0].name}"
@@ -22,6 +39,7 @@ ${LICENSE_HEADER}
             groups="${','.join([ 'group_%s' % actor.name for actor in menu.prev_leafs(uml.CActor)])}"
 {%      end %}\
             />
+
 {%  end %}\
     </data>
 </openerp>

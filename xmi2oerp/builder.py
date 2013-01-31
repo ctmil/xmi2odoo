@@ -90,7 +90,8 @@ class Builder:
         while items:
             r.extend(items)
             items = set(itertools.chain(*[ i.nexts(uml.CUseCase) for i in items ]))
-        assert(len(menues) == len(r))
+        if len(menues) != len(r):
+            raise RuntimeError, 'Unlinked menues.'
         return r
 
     def sort_by_gen(self, entities):
@@ -161,7 +162,7 @@ class Builder:
             view_files = [ 'view/%s_view.xml' % name for xml_id, name in root_classes ]
             menu_files = [ 'view/%s_menuitem.xml' % package.name ]
             group_files = [ 'security/%s_group.xml' % package.name ]
-            workflow_files = [ 'workflow/%s_workflow.xml' % name for xml_id, name in root_classes if len(list(self.model[xml_id].get_inhereted_attr('statemachines')))>0 ]
+            workflow_files = [ 'workflow/%s_workflow.xml' % name for xml_id, name in root_classes if len(list(self.model[xml_id].iter_over_inhereted_attrs('statemachines'))[0:1])>0 ]
             app_files = [ '%s_app.xml' % package.name ]
             security_files = [ 'security/ir.model.access.csv' ]
             # Calcula dependencias
@@ -238,12 +239,6 @@ class Builder:
             shutil.copy(source_code, target_code)
             self.update(tags, target_code)
 
-            # Security file
-            #source_code = os.path.join(source, 'security/ir.model.access.csv')
-            #target_code = os.path.join(target, 'security/ir.model.access.csv')
-            #shutil.copy(source_code, target_code)
-            #self.update(tags, target_code)
-
             # Proceso el template basico sobre los archivos copiados.
             for root, dirs, files in os.walk(target):
                 for f in files:
@@ -283,6 +278,7 @@ class Builder:
                     'MENU_SEQUENCE': cclass.tag.get('menu_sequence', '100'),
                     'STEREOTYPES': [ s.name for s in cclass.stereotypes ]
                     })
+
                 # Generate class file
                 source_code = os.path.join(source, 'CLASS.py')
                 target_code = os.path.join(target, '%s.py' % name)
@@ -296,7 +292,7 @@ class Builder:
                 self.update(tags, target_code)
 
                 # Generate workflow file
-                if len(list(cclass.iter_over_inhereted_attrs('statemachines'))) > 0:
+                if len(list(cclass.iter_over_inhereted_attrs('statemachines'))[0:1]) > 0:
                     source_code = os.path.join(source, 'workflow/CLASS_workflow.xml')
                     target_code = os.path.join(target, 'workflow/%s_workflow.xml' % name)
                     shutil.copy(source_code, target_code)

@@ -41,21 +41,27 @@ ${LICENSE_HEADER}\
             <field name="arch" type="xml">
                 <form string="${CLASS_LABEL}" version="7.0">
                     <header>
-{%                  for sm in CLASS.iter_over_inhereted_attrs('statemachines') %}\
-{%                    for t in [ t for t in set(sm.list_triggers()) ] %}\
-                        <button name="sgn_${t.name}"
-{%                          if 'class' in t.tag %}\
-                            class="${t.tag['class']}"
+{%                  for sm in list(CLASS.iter_over_inhereted_attrs('statemachines'))[0:1] %}\
+{%                    for tri in [ t for t in set(sm.list_triggers()) ] %}\
+{%                      for state in [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ][0:1] %}\
+                        <button name="action_wfk_set_${state.name}"
+                            type="object"
+{%                      end %}\
+{%                      if not [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ] %}\
+                        <button name="sgn_${tri.name}"
+{%                      end %}\
+{%                          if 'class' in tri.tag %}\
+                            class="${tri.tag['class']}"
 {%                          end %}\
-{%                          if 'type' in t.tag %}\
-                            type="${t.tag['type']}"
+{%                          if 'type' in tri.tag %}\
+                            type="${tri.tag['type']}"
 {%                          end %}\
-                            states="${','.join([ s.name for s in set(t.list_states_from(sm)) ])}"
-                            string="${t.tag['label']}"
-{%                          if 'groups' in t.tag %}\
-                            groups="${t.tag['groups']}"
+                            states="${','.join([ s.name for s in set(tri.list_states_from(sm)) ])}"
+                            string="${tri.tag['label']}"
+{%                          if 'groups' in tri.tag %}\
+                            groups="${tri.tag['groups']}"
 {%                          end %}\
-{%                          if max([ tra.is_stereotype('default') for tra in t.sm_transitions(sm)]) %}\
+{%                          if [ tra for tra in tri.sm_transitions(sm) if tra.is_stereotype('default') ] %}\
                             class="oe_highlight"
 {%                          end %}\
                             />
@@ -136,10 +142,6 @@ ${LICENSE_HEADER}\
 {%          end %}\
         </record>
 
-        <!-- TREEWINDOWACTION -->
-
-        <!-- FORMWINDOWACTION -->
-{% end %}
     </data>
 </openerp>
 <!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4

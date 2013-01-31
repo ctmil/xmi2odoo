@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 ${LICENSE_HEADER}
 
+import netsvc
 from osv import osv, fields
 
 class ${CLASS_NAME}(osv.osv):
@@ -97,6 +98,9 @@ class ${CLASS_NAME}(osv.osv):
 {%      if col.tag.get('default', None) is not None %}\
         '${col.name}': ${col.tag['default']},
 {%      end %}\
+{%      if col.is_stereotype('context') %}\
+        '${col.name}': lambda self, cr, uid, context=None: context and context.get('${col.name}', ${repr(col.tag.get('default',False))}),
+{%      end %}\
 {%  end %}\
     }
 
@@ -104,6 +108,21 @@ class ${CLASS_NAME}(osv.osv):
     def ${op.name}(self, cr, uid, ids{% for par in op.parameters %}, ${par.name}{% end %}):
         pass
 {%      end %}
+
+{%  for sm in CLASS.statemachines %}\
+{%      for state in set([ tra.state_to for tra in sm.middle_transitions() if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final())]) %}\
+    def action_wfk_set_${state.name}(self, cr, uid, ids, *args):
+        self.write(cr, uid, ids, {'state':'${state.name}'})
+        wf_service = netsvc.LocalService("workflow")
+        for obj_id in ids:
+            wf_service.trg_delete(uid, '${CLASS_MODULE}.${CLASS_NAME}', obj_id, cr)
+            wf_service.trg_create(uid, '${CLASS_MODULE}.${CLASS_NAME}', obj_id, cr)
+        return True
+
+{%      end %}\
+{%  end %}\
+{% end %}\
+
 ${CLASS_NAME}()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

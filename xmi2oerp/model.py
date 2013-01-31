@@ -10,7 +10,7 @@
 #    published by the Free Software Foundation, either version 3 of the
 #    License, or (at your option) any later version.
 #
-#    This program is d['xmi.id','name']istributed in the hope that it will be useful,
+#    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU Affero General Public License for more details.
@@ -28,7 +28,7 @@ import pkg_resources, os, sys
 import uml
 import logging
 
-_lines_to_stop = [ ] # 10926 ] # 15760 ]
+_lines_to_stop = [ ] # 20679 ] # 10926 ] # 15760 ]
 
 class FileWrapper:
      def __init__(self, source, filename=None):
@@ -538,6 +538,10 @@ class Model:
             if (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Package'):
                 if stop: import pdb; pdb.set_trace()
                 cpackage = self._create(uml.CPackage, elem, extra_params=[cmodel])
+
+            if (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Package'):
+                if stop: import pdb; pdb.set_trace()
+                cpackage = None
 
 # UseCase
             elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}UseCase'):
