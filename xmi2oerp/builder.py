@@ -227,6 +227,13 @@ class Builder:
                             ignore=shutil.ignore_patterns('*CLASS*',
                                                           '*PACKAGE_*'))
 
+            # Rename python files from .py_ to .py.
+            for root, dirs, files in os.walk(target):
+                for f in files:
+                    if f[-4:] == '.py_':
+                        # Renombrar este archivo
+                        os.rename(os.path.join(root, f), os.path.join(root, f[:-4]+'.py'))
+
             # Generate menu file
             source_code = os.path.join(source, 'view/PACKAGE_menuitem.xml')
             target_code = os.path.join(target, 'view/%s_menuitem.xml' % package.name)
@@ -280,7 +287,7 @@ class Builder:
                     })
 
                 # Generate class file
-                source_code = os.path.join(source, 'CLASS.py')
+                source_code = os.path.join(source, 'CLASS.py_')
                 target_code = os.path.join(target, '%s.py' % name)
                 shutil.copy(source_code, target_code)
                 self.update(tags, target_code)
