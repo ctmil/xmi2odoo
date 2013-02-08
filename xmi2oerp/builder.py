@@ -148,18 +148,22 @@ class Builder:
         return result
 
     def build(self, logfile=sys.stderr):
+        logging.info("Starting Building")
         # Por cada paquete generar un directorio de addon.
         for k in self.model.iterclass(uml.CPackage):
             package = self.model[k]
             # Si el paquete es externo no lo construyo.
             if package.is_stereotype('external'):
+                logging.debug("Ignoring external package %s" % package.name)
                 continue
+            logging.debug("Building package %s" % package.name)
             # Configuro las variables y tags para este paquete
             ptag = package.tag
             root_classes = [ (c.xmi_id, c.name) for c in package.get_entities(uml.CClass) ]
             wizard_classes = [] # [ (c.xmi_id, c.name) for c in package.classes ]
             report_classes = [] # [ (c.xmi_id, c.name) for c in package.classes ]
-            view_files = [ 'view/%s_view.xml' % name for xml_id, name in root_classes ]
+            #view_files = [ 'view/%s_view.xml' % name for xml_id, name in root_classes ]
+            view_files = [ "view/%s_view.xml" % n for n in self.sort_classes(package.get_entities(uml.CClass)) ]
             menu_files = [ 'view/%s_menuitem.xml' % package.name ]
             group_files = [ 'security/%s_group.xml' % package.name ]
             workflow_files = [ 'workflow/%s_workflow.xml' % name for xml_id, name in root_classes if len(list(self.model[xml_id].iter_over_inhereted_attrs('statemachines'))[0:1])>0 ]
@@ -258,7 +262,7 @@ class Builder:
                 if len(cclass.child_of) > 0:
                     generalization = cclass.child_of[0]
                     parent = generalization.parent
-                    extend_parent = generalization.is_stereotype('extend')
+                    extend_parent = generalization.is_extend
                 else:
                     parent = None
                     extend_parent = False
@@ -283,7 +287,7 @@ class Builder:
                         ]+[None]
                     )[0],
                     'MENU_SEQUENCE': cclass.tag.get('menu_sequence', '100'),
-                    'STEREOTYPES': [ s.name for s in cclass.stereotypes ]
+                    'STEREOTYPES': [ s.name for s in cclass.stereotypes ],
                     })
 
                 # Generate class file

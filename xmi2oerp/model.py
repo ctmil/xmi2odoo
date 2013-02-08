@@ -28,7 +28,7 @@ import pkg_resources, os, sys
 import uml
 import logging
 
-_lines_to_stop = [ ] # 20679 ] # 10926 ] # 15760 ]
+_lines_to_stop = [ ]
 
 class FileWrapper:
      def __init__(self, source, filename=None):
@@ -283,8 +283,8 @@ class Model:
     False
     """
 
-    def __init__(self, url=None, debug=False):
-        self.engine = create_engine('sqlite:///:memory:', echo=debug)
+    def __init__(self, url=None, debug=False, db=':memory:'):
+        self.engine = create_engine('sqlite:///%s' % db, echo=debug)
         uml.Base.metadata.create_all(self.engine)
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
@@ -344,6 +344,8 @@ class Model:
         self._postprocessing_create, self._postprocessing_append, self._postprocessing_set = self._load_stack.pop()
 
     def _create(self, eclass, elem, mask=(False, False), attribs=['xmi.id','name'], booleans=[], extra_params=[], package=None):
+        if package is None:
+            logging.warning("Object without package associated")
         params = [ elem.attrib.get(k) for k in attribs ]
         params.extend(extra_params)
         for i in booleans:

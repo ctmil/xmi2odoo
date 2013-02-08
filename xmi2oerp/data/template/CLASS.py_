@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 ${LICENSE_HEADER}
+{% def model(s='.') %}${CLASS.oerp_id(s, False)}{% end %}\
+{% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
 
 import netsvc
 from osv import osv, fields
 
-class ${CLASS_NAME}(osv.osv):
-    """
-    ${CLASS_DOCUMENTATION}\
-    """
-    _name = '${CLASS_MODULE}.${CLASS_NAME}'
-    _description = '${CLASS_LABEL}'
+class ${CLASS.name}(osv.osv):
+    """${CLASS.get('documentation', '')}"""
+    _name = '${emodel()}'
+    _description = '${CLASS.get('documentation',CLASS.name)[:64]}'
 {%  if len(CLASS.child_of)>0 %}\
     _inherit = [ ${','.join(['\'%s.%s\'' % (gen.parent.package.name, gen.parent.name) for gen in CLASS.child_of])} ]
 {%  end %}\
@@ -21,33 +21,41 @@ class ${CLASS_NAME}(osv.osv):
 {%      end %}\
     _columns = {
 {%  for col in CLASS_ATTRIBUTES %}\
+{%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
 {%      def name(prefix='', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
-{%      def label %}${col.tag.get('label',name('[',']'))}{%end%}\
-{%      def digits %}{% if 'digits' in col.tag %}, digits=${col.tag['digits']}{%end%}{%end%}\
-{%      def size %}{% if 'size' in col.tag %}, size=${col.tag['size']}{%end%}{%end%}\
-{%      def required  %}{% if col.is_stereotype('required')  %}, required=True{%end %}{%end%}\
-{%      def readonly  %}{% if col.is_stereotype('readonly')  %}, readonly=True{%end %}{%end%}\
-{%      def select    %}{% if col.is_stereotype('select')    %}, select=True{%end   %}{%end%}\
-{%      def store     %}{% if col.is_stereotype('store')     %}, store=True{%end    %}{%end%}\
-{%      def translate %}{% if col.is_stereotype('translatable') %}, translate=True{%end%}{%end%}\
-{%      def invisible %}{% if col.is_stereotype('invisible') %}, invisible=True{%end%}{%end%}\
-{%      def groups    %}{% if 'module_groups' in col.tag or 'groups' in col.tag %}, groups='${','.join([col.tag.get('module_groups',''), col.tag.get('groups','')])}'{%end%}{%end%}\
-{%      def options   %}${required()}${readonly()}${select()}${store()}${invisible()}${translate()}${groups()}{%end%}\
+{%      def string %}{% if 'label' in col.tag %}${sep()}string='${col.tag['label']}'{%end%}{%end%}\
+{%      def help %}{% if 'documentation' in col.tag %}${sep()}help='${col.tag['documentation']}'{%end%}{%end%}\
+{%      def ondelete %}{% if 'ondelete' in col.tag %}${sep()}ondelete=${col.tag['ondelete']}{%end%}{%end%}\
+{%      def digits %}{% if 'digits' in col.tag %}${sep()}digits=${col.tag['digits']}{%end%}{%end%}\
+{%      def size %}{% if 'size' in col.tag %}${sep()}size=${col.tag['size']}{%end%}{%end%}\
+{%      def states %}{% if 'states' in col.tag %}${sep()}states=${col.tag['states']}{%end%}{%end%}\
+{%      def context %}{% if 'context' in col.tag %}${sep()}context=${col.tag['context']}{%end%}{%end%}\
+{%      def domain %}{% if 'domain' in col.tag %}${sep()}domain=${col.tag['domain']}{%end%}{%end%}\
+{%      def on_change %}{% if 'on_change' in col.tag %}${sep()}domain=${col.tag['on_change']}{%end%}{%end%}\
+{%      def change_default  %}{% if col.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
+{%      def readonly  %}{% if col.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
+{%      def required  %}{% if col.is_stereotype('required')  %}${sep()}required=True{%end %}{%end%}\
+{%      def select    %}{% if col.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
+{%      def store     %}{% if col.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
+{%      def translate %}{% if col.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
+{%      def invisible %}{% if col.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
+{%      def groups    %}{% if 'module_groups' in col.tag or 'groups' in col.tag %}${sep()} groups='${','.join([col.tag.get('module_groups',''), col.tag.get('groups','')])}'{%end%}{%end%}\
+{%      def options   %}${string()}${change_default()}${help()}${ondelete()}${readonly()}${required()}${size()}${states()}${store()}${translate()}${groups()}${context()}${domain()}${invisible()}${on_change()}${select()}{%end%}\
 {%      choose col.datatype.name %}\
         \
-{%          when 'Boolean'   %}'${name()}': fields.boolean('${label()}'${options()}), {% end %}\
-{%          when 'Integer'   %}'${name()}': fields.integer('${label()}'${options()}), {% end %}\
-{%          when 'Float'     %}'${name()}': fields.float('${label()}'${digits()}${options()}), {% end %}\
-{%          when 'Char'      %}'${name()}': fields.char('${label()}'${size()}${options()}), {% end %}\
-{%          when 'Text'      %}'${name()}': fields.text('${label()}'${options()}), {% end %}\
-{%          when 'Date'      %}'${name()}': fields.date('${label()}'${options()}), {% end %}\
-{%          when 'Datetime'  %}'${name()}': fields.datetime('${label()}'${options()}), {% end %}\
-{%          when 'Binary'    %}'${name()}': fields.binary('${label()}'${options()}), {% end %}\
-{%          when 'HTML'      %}'${name()}': fields.html('${label()}'${options()}), {% end %}\
+{%          when 'Boolean'   %}'${name()}': fields.boolean(${options()}), {% end %}\
+{%          when 'Integer'   %}'${name()}': fields.integer(${options()}), {% end %}\
+{%          when 'Float'     %}'${name()}': fields.float(${digits()}${options()}), {% end %}\
+{%          when 'Char'      %}'${name()}': fields.char(${options()}), {% end %}\
+{%          when 'Text'      %}'${name()}': fields.text(${options()}), {% end %}\
+{%          when 'Date'      %}'${name()}': fields.date(${options()}), {% end %}\
+{%          when 'Datetime'  %}'${name()}': fields.datetime(${options()}), {% end %}\
+{%          when 'Binary'    %}'${name()}': fields.binary(${options()}), {% end %}\
+{%          when 'HTML'      %}'${name()}': fields.html(${options()}), {% end %}\
 {%          otherwise        %}'${name()}': \
 {%            choose col.datatype.entityclass %}\
-{%            when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()])}, '${label()}'${options()}), {% end %}\
-{%            when 'cclass' %}fields.many2one('${col.datatype.oerp_id()}', '${label()}'${options()}), {% end %}\
+{%            when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()])}, ${options()}), {% end %}\
+{%            when 'cclass' %}fields.many2one('${col.datatype.oerp_id()}', ${options()}), {% end %}\
 {%            end %}\
 {%          end %}\
 {%      end %}
@@ -55,36 +63,48 @@ class ${CLASS_NAME}(osv.osv):
 {%  for sm in CLASS.statemachines %}\
         'state': fields.selection(${repr([ (s.name, s.tag['label']) for s in sm.list_states()])}, "State"),
 {%  end %}\
-{%  for ass in CLASS_ASSOCIATIONS %}\
+{%  for ass in CLASS.all_associations() %}\
+{%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
 {%      def actual_id %}${"%s_id" % CLASS_NAME}{%end%}\
 {%      def other_id %}${"%s_id" % ass.participant.name.replace('.','_')}{%end%}\
 {%      def name(prefix='', suffix='') %}${prefix}${ass.name if ass.name not in [ None, ''] else other_id() }${suffix}{%end%}\
-{%      def label %}${ass.tag.get('label', name('[',']'))}{%end%}\
 {%      def oerp_id %}${ass.participant.oerp_id()}{%end%}\
 {%      def other_module %}${ass.participant.package.name}{%end%}\
 {%      def other_obj %}${ass.participant.name}{%end%}\
 {%      def other_name %}${actual_id() if ass.swap[0].name in [None, ''] else ass.swap[0].name}{%end%}\
 {%      def relational_obj %}${'%s_%s_rel' % (MODULE_NAME, '_'.join([ e.name or '_' for e in ass.association.ends]))}{%end%}\
-{%      def ondelete  %}{% if 'ondelete' in ass.tag %}, ondelete='${col.tag["ondelete"]}'{%end%}{%end%}\
-{%      def composite %}{% if ass.aggregation == 'composite' %}, ondelete='cascade'{%end%}{%end%}\
-{%      def required  %}{% if ass.is_stereotype('required')  %}, required=True{%end %}{%end%}\
-{%      def readonly  %}{% if ass.is_stereotype('readonly')  %}, readonly=True{%end %}{%end%}\
-{%      def select    %}{% if ass.is_stereotype('select')    %}, select=True{%end   %}{%end%}\
-{%      def store     %}{% if ass.is_stereotype('store')     %}, store=True{%end    %}{%end%}\
-{%      def invisible %}{% if ass.is_stereotype('invisible') %}, invisible=True{%end%}{%end%}\
-{%      def options   %}${composite()}${required()}${readonly()}${select()}${store()}${invisible()}{%end%}\
+{%      def change_default  %}{% if ass.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
+{%      def composite %}{% if ass.aggregation == 'composite' %}${sep()}ondelete='cascade'{%end%}{%end%}\
+{%      def mult1 %}{% if ass.swap[0].multiplicityrange > 0 and not ass.is_stereotype('required') %}${sep()}required=True{%end%}{%end%}\
+{%      def string %}{% if 'label' in ass.tag %}${sep()}string='${quote(ass.tag['label'])}'{%end%}{%end%}\
+{%      def help %}{% if 'documentation' in ass.tag %}${sep()}help='${quote(ass.tag['documentation'])}'{%end%}{%end%}\
+{%      def ondelete %}{% if 'ondelete' in ass.tag %}${sep()}ondelete=${ass.tag['ondelete']}{%end%}{%end%}\
+{%      def digits %}{% if 'digits' in ass.tag %}${sep()}digits=${ass.tag['digits']}{%end%}{%end%}\
+{%      def size %}{% if 'size' in ass.tag %}${sep()}size=${ass.tag['size']}{%end%}{%end%}\
+{%      def states %}{% if 'states' in ass.tag %}${sep()}states=${ass.tag['states']}{%end%}{%end%}\
+{%      def context %}{% if 'context' in ass.tag %}${sep()}context=${ass.tag['context']}{%end%}{%end%}\
+{%      def domain %}{% if 'domain' in ass.tag %}${sep()}domain=${ass.tag['domain']}{%end%}{%end%}\
+{%      def on_change %}{% if 'on_change' in ass.tag %}${sep()}domain=${ass.tag['on_change']}{%end%}{%end%}\
+{%      def readonly  %}{% if ass.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
+{%      def required  %}{% if ass.is_stereotype('required')  %}${sep()}required=True{%end %}{%end%}\
+{%      def select    %}{% if ass.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
+{%      def store     %}{% if ass.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
+{%      def translate %}{% if ass.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
+{%      def invisible %}{% if ass.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
+{%      def groups    %}{% if 'module_groups' in ass.tag or 'groups' in ass.tag %}${sep()}groups='${','.join([ass.tag.get('module_groups',''), ass.tag.get('groups','')])}'{%end%}{%end%}\
+{%      def options   %}${string()}${change_default()}${help()}${ondelete()}${readonly()}${required()}${size()}${states()}${store()}${translate()}${groups()}${context()}${domain()}${invisible()}${on_change()}${select()}${composite()}${mult1()}{%end%}\
 {%      choose ass.multiplicity %}\
         \
-{%          when 'one2one'   %}'${name()}': fields.many2one('${oerp_id()}', '${label()}'${options()}), {% end %}\
-{%          when 'many2one'  %}'${name()}': fields.many2one('${oerp_id()}', '${label()}'${options()}), {% end %}\
-{%          when 'one2many'  %}'${name()}': fields.one2many('${oerp_id()}', '${other_name()}', '${label()}'${options()}), {% end %}\
-{%          when 'many2many' %}'${name()}': fields.many2many('${oerp_id()}', '${relational_obj()}', '${name()}', '${other_name()}', '${label()}'${options()}), {% end %}\
+{%          when 'one2one'   %}'${name()}': fields.many2one('${oerp_id()}', ${options()}), {% end %}\
+{%          when 'many2one'  %}'${name()}': fields.many2one('${oerp_id()}', ${options()}), {% end %}\
+{%          when 'one2many'  %}'${name()}': fields.one2many('${oerp_id()}', '${other_name()}', ${options()}), {% end %}\
+{%          when 'many2many' %}'${name()}': fields.many2many('${oerp_id()}', '${relational_obj()}', '${name()}', '${other_name()}', ${options()}), {% end %}\
 {%          when 'related'   %}'${name()}': fields.related(
                     ${"'%s'" % "','".join(ass.tag['related_by'].split(','))},
                     ${"'%s'" % ass.tag['related_to']},
                     type='${getattr(getattr(ass.participant.member_by_name(ass.tag["related_to"]), "datatype", None),"oerp_type","<Not defined>")}',
                     relation='${oerp_id()}',
-                    string='${label()}'${options()}
+                    ${options()}
                     ),{% end %}\
 {%      end %}
 {%  end %}\
@@ -123,6 +143,6 @@ class ${CLASS_NAME}(osv.osv):
 {%  end %}\
 {% end %}\
 
-${CLASS_NAME}()
+${CLASS.name}()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

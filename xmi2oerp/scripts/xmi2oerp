@@ -29,19 +29,30 @@ import logging
 
 _loglevel = [ logging.ERROR, logging.INFO, logging.DEBUG ]
 
-def convert(func, infile, target, logfile, loglevel, remove):
+def convert(func, infile, dbfile, target, logfile, loglevel, remove):
     """
     Convert XMI file to a set of OpenERP modules.
     """
     logging.basicConfig(stream=logfile, level=_loglevel[loglevel])
     logging.info('Starting.')
-    model = Model(infile)
+
+    if infile and dbfile and os.path.exists(dbfile):
+        os.remove(dbfile)
+
+    if dbfile is None:
+        dbfile = ':memory:'
+
+    model = Model(infile, db=dbfile)
+
     if not Validator(model).run():
         logging.info('Cant validate model. Stop building.\n')
         return False
-    builder = Builder(target, model)
-    if remove: builder.reset()
-    builder.build(logfile=logfile)
+
+    if target and os.path.exists(target):
+        builder = Builder(target, model)
+        if remove: builder.reset()
+        builder.build(logfile=logfile)
+
     logging.info('End.\n')
 
 def main():
@@ -52,11 +63,15 @@ def main():
 
     parser.add_argument('--infile', '-i',
                         type=argparse.FileType('r'), nargs='?',
-                        default=sys.stdin,
+                        default=None,
                         help='XMI input file')
+    parser.add_argument('--dbfile', '-d',
+                        type=str, nargs='?',
+                        default=None,
+                        help='database file')
     parser.add_argument('--target', '-t',
                         type=str, nargs='?',
-                        default=os.getcwd(),
+                        default=None,
                         help='Target directory of openerp modules')
     parser.add_argument('--logfile', '-l',
                         type=argparse.FileType('w'), nargs='?',

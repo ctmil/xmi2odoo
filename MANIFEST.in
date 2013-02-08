@@ -1,0 +1,1 @@
+recursive-include xmi2oerp/data *.txt *.py_ *.xmi *.xml *.csv README

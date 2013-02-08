@@ -2,15 +2,92 @@
 <!--
 ${LICENSE_HEADER}\
 -->
-{% def model(s='.') %}${CLASS_MODULE}${s}${CLASS_NAME}{% end %}\
+{% def model(s='.') %}${CLASS.oerp_id(s, False)}{% end %}\
+{% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
+{% def pmodel(s='.') %}${CLASS.oerp_id(s, False, True)}{% end %}\
+<!-- ${ model()  } -->
+<!-- ${ emodel() } -->
+<!-- ${ pmodel() } -->
 <openerp>
     <data>
-{% if ('%s.%s' % (CLASS.package.name, CLASS.name) != CLASS.oerp_id('.')) %}
-        <!-- INHERITED -->
-{% end %}
-{% if ('%s.%s' % (CLASS.package.name, CLASS.name) == CLASS.oerp_id('.')) %}
+{% if CLASS.oerp_id('-', False) != CLASS.oerp_id('-', False, True) %}
+{%  def view_filter_id() %}view_${model('_')}_filter{% end %}\
+{%  def view_form_id()   %}view_${model('_')}_form{%   end %}\
+{%  def view_tree_id()   %}view_${model('_')}_tree{%   end %}\
+        <!-- INHERITED SEARCH -->
+        <record id="${view_filter_id()}" model="ir.ui.view">
+            <field name="name">${model()}.select</field>
+            <field name="model">${emodel()}</field>
+            <field name="inherit_id" ref="${ CLASS.parent().get('view_search_id', 'view_'+CLASS.oerp_id('_', False, True)+'_filter')}"/>
+            <field name="arch" type="xml">
+                <field name="${(lambda a : a and a[-1].name or 'name')(list(iter(CLASS.parent().all_attributes(stereotype='search'))))}" position="after">
+{%                  for col in CLASS.all_attributes(stereotype='search', parents=False) %}\
+                        <field name="${col.name}"
+{%                    if 'view_groups' in col.tag or 'groups' in col.tag %}\
+                            groups="${','.join([col.tag.get('view_groups',''),col.tag.get('groups','')])}"
+{%                    end %}\
+                            />
+{%                  end %}\
+{%                  for ass in CLASS.all_associations(stereotype='search', parents=False) %}\
+                        <field name="${ass.name}"
+{%                    if 'view_groups' in ass.tag or 'groups' in ass.tag %}\
+                            groups="${','.join([ass.tag.get('view_groups',''),ass.tag.get('groups','')])}"
+{%                    end %}\
+                            />
+{%                  end %}\
+                </field>
+            </field>
+        </record>
+ 
+        <!-- INHERITED FORM -->
+        <record id="${view_form_id()}" model="ir.ui.view">
+            <field name="name">${model()}.form</field>
+            <field name="model">${emodel()}</field>
+            <field name="inherit_id" ref="${ CLASS.parent().get('view_form_id', 'view_'+CLASS.oerp_id('_', False, True)+'_form')}"/>
+            <field name="arch" type="xml">
+                <field name="${(lambda a : a and a[-1].name or 'name')(list(CLASS.parent().all_attributes(stereotype='form')))}" position="after">
+{%                  for col in CLASS.all_attributes(stereotype='form', parents=False) %}\
+                        <field name="${col.name}"
+{%                    if 'view_groups' in col.tag or 'groups' in col.tag %}\
+                            groups="${','.join([col.tag.get('view_groups',''),col.tag.get('groups','')])}"
+{%                    end %}\
+                            />
+{%                  end %}\
+{%                  for ass in CLASS.all_associations(stereotype='form', parents=False) %}\
+                        <field name="${ass.name}"
+{%                    if 'view_groups' in ass.tag or 'groups' in ass.tag %}\
+                            groups="${','.join([ass.tag.get('view_groups',''),ass.tag.get('groups','')])}"
+{%                    end %}\
+                            />
+{%                  end %}\
+                </field>
+            </field>
+        </record>
+
+        <!-- INHERITED TREE -->
+        <record id="${view_tree_id()}" model="ir.ui.view">
+            <field name="name">${model()}.tree</field>
+            <field name="model">${emodel()}</field>
+            <field name="inherit_id" ref="${ CLASS.parent().get('view_tree_id', 'view_'+CLASS.oerp_id('_', False, True)+'_tree')}"/>
+            <field name="arch" type="xml">
+                <field name="${(lambda a : a and a[-1].name or 'name')(list(CLASS.parent().all_attributes(stereotype='tree')))}" position="after">
+{%                  for col in CLASS.all_attributes(stereotype='tree', parents=False) %}\
+                    <field name="${col.name}"/>
+{%                  end %}\
+{%                  for ass in CLASS.all_associations(stereotype='tree', parents=False) %}\
+                    <field name="${ass.name}"/>
+{%                  end %}\
+                </field>
+            </field>
+        </record>
+
+{% end %}\
+{% if CLASS.oerp_id('-', False) == CLASS.oerp_id('-', False, True) %}
+{%  def view_filter_id() %}view_${model('_')}_filter{% end %}\
+{%  def view_form_id() %}view_${model('_')}_form{% end %}\
+{%  def view_tree_id() %}view_${model('_')}_tree{% end %}\
         <!-- SEARCHVIEW -->
-        <record id="view_${model('_')}_filter" model="ir.ui.view">
+        <record id="${view_filter_id()}" model="ir.ui.view">
             <field name="name">${model()}.select</field>
             <field name="model">${model()}</field>
             <field name="arch" type="xml">
@@ -34,8 +111,7 @@ ${LICENSE_HEADER}\
         </record>
 
         <!-- FORMVIEW -->
-
-        <record id="view_${model('_')}_form" model="ir.ui.view">
+        <record id="${view_form_id()}" model="ir.ui.view">
             <field name="name">${model()}.form</field>
             <field name="model">${model()}</field>
             <field name="arch" type="xml">
@@ -89,19 +165,20 @@ ${LICENSE_HEADER}\
 {%                  end %}\
                      </group>
                     </sheet>
-{% if CLASS.is_child_of('mail.thread') %}
+
+{%      if CLASS.is_child_of('mail.thread') %}\
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>
                         <field name="message_ids" widget="mail_thread"/>
                     </div>
-{% end %}
+{%      end %}\
                 </form>
             </field>
         </record>
 
         <!-- TREEVIEW -->
 
-        <record id="view_${model('_')}_tree" model="ir.ui.view">
+        <record id="${view_tree_id()}" model="ir.ui.view">
             <field name="name">${model()}.tree</field>
             <field name="model">${model()}</field>
             <field name="arch" type="xml">
@@ -129,14 +206,16 @@ ${LICENSE_HEADER}\
                 </tree>
             </field>
         </record>
+{% end %}\
 
         <!-- WINDOWACTION -->
         <record id="action_${model('_')}_form" model="ir.actions.act_window">
             <field name="name">${CLASS_LABEL}</field>
-            <field name="res_model">${model()}</field>
+            <field name="res_model">${emodel()}</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-            <field name="search_view_id" ref="view_${model('_')}_filter"/>
+            <field name="view_id" ref="${view_tree_id()}"/>
+            <field name="search_view_id" ref="${view_filter_id()}"/>
 {%          if CLASS_DOCUMENTATION is not None %}\
             <field name="help">${CLASS_DOCUMENTATION}</field>
 {%          end %}\

@@ -195,6 +195,7 @@ class CEntity(Base):
         return '%s%s%s' % (package, sep, self.name)
 
     def is_stereotype(self, stereotype):
+        if stereotype is None: return True
         st = [ st.name for st in self.stereotypes if st.name == stereotype]
         return len(st) == 1
 
@@ -234,11 +235,14 @@ class CEntity(Base):
         else:
             return []
 
-    def parents(self):
-        return [ gen.parent for gen in self.child_of ]
+    def parent(self, package=None, pid=0):
+        return self.parents(package=package)[pid]
 
-    def childs(self):
-        return [ gen.child for gen in self.parent_of ]
+    def parents(self, package=None):
+        return [ gen.parent for gen in self.child_of if package is None or gen.parent.package == package]
+
+    def childs(self, package=None):
+        return [ gen.child for gen in self.parent_of if package is None or gen.parent.package == package]
 
     def is_child_of(self, oerp_id):
         oerp_ids = [ '%s.%s' % (gen.parent.package.name, gen.parent.name) for gen in self.child_of ]
@@ -275,6 +279,24 @@ class CEntity(Base):
         for parent in self.parents():
             for item in parent.iter_over_inhereted_attrs(attrs):
                 yield item
+
+    def __getattr__(self, name):
+        if 'is_' == name[:3]:
+            return self.is_stereotype(name[3:])
+        raise AttributeError
+
+    def __getitem__(self, name):
+        tag = self.tag
+        if name in tag:
+            return tag[name]
+        raise KeyError
+
+    def get(self, name, default=None):
+        tag = self.tag
+        if name in tag:
+            return tag[name]
+        else:
+            return default
 
 class CUseCase(CEntity):
     """CUseCase class.
@@ -345,18 +367,16 @@ class CDataType(CEntity):
     def oerp_type(self):
         return _oerp_type[self.name]
 
-    def all_attributes(self, stereotype=None):
-        r = itertools.chain([ m for m in self.members if type(m) is CAttribute ],
-                            *[ gen.parent.all_attributes() for gen in self.child_of ])
-        if stereotype is not None:
-            r = itertools.ifilter(lambda x: x.is_stereotype(stereotype), r)
+    def all_attributes(self, stereotype=None, parents=True, ctype=None):
+        if ctype is None: ctype = CAttribute
+        r = itertools.chain([ m for m in self.members if type(m) is ctype and m.is_stereotype(stereotype) ],
+                            *[ gen.parent.all_attributes(stereotype, parents) for gen in self.child_of if parents])
         return r
 
-    def all_associations(self, stereotype=None):
-        r = itertools.chain([ ass.swap[0] for ass in self.associations ],
-                            *[ gen.parent.all_associations() for gen in self.child_of ])
-        if stereotype is not None:
-            r = itertools.ifilter(lambda x: x.is_stereotype(stereotype), r)
+    def all_associations(self, stereotype=None, parents=True, ctype=None):
+        if ctype is None: ctype = CClass
+        r = itertools.chain([ ass.swap[0] for ass in self.associations if type(ass.swap[0]) is ctype and ass.is_stereotype(stereotype)],
+                            *[ gen.parent.all_associations(stereotype, parents) for gen in self.child_of if parents])
         return r
 
 class CEnumerationLiteral(CEntity):
@@ -503,12 +523,15 @@ class CClass(CDataType):
                 return i
         return None
 
-    def oerp_id(self, sep='.'):
-        if len(self.child_of) > 0:
-            generalization = self.child_of[0]
+    def oerp_id(self, sep='.', check_extend=True, return_parent=False, ignore=['ir.needaction_mixin','mail.thread']):
+        child_of = [ gen for gen in self.child_of if gen.parent.oerp_id() not in ignore ]
+        if len(child_of) > 0:
+            generalization = child_of[0]
             parent = generalization.parent
             extend_parent = generalization.is_stereotype('extend')
-            if extend_parent:
+            if check_extend and extend_parent:
+                return sep.join([parent.package.name, parent.name])
+            if return_parent:
                 return sep.join([parent.package.name, parent.name])
         return sep.join([self.package.name, self.name])
 
