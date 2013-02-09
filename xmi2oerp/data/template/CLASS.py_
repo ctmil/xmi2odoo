@@ -75,7 +75,7 @@ class ${CLASS.name}(osv.osv):
 {%      def relational_obj %}${'%s_%s_rel' % (MODULE_NAME, '_'.join([ e.name or '_' for e in ass.association.ends]))}{%end%}\
 {%      def change_default  %}{% if ass.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
 {%      def composite %}{% if ass.aggregation == 'composite' %}${sep()}ondelete='cascade'{%end%}{%end%}\
-{%      def mult1 %}{% if ass.swap[0].multiplicityrange > 0 and not ass.is_stereotype('required') %}${sep()}required=True{%end%}{%end%}\
+{%      def mult1 %}{% if (eval(ass.multiplicityrange) or (0,0))[0] > 0 and not ass.is_stereotype('required') %}${sep()}required=True{%end%}{%end%}\
 {%      def string %}{% if 'label' in ass.tag %}${sep()}string='${quote(ass.tag['label'])}'{%end%}{%end%}\
 {%      def help %}{% if 'documentation' in ass.tag %}${sep()}help='${quote(ass.tag['documentation'])}'{%end%}{%end%}\
 {%      def ondelete %}{% if 'ondelete' in ass.tag %}${sep()}ondelete=${ass.tag['ondelete']}{%end%}{%end%}\

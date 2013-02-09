@@ -10,7 +10,7 @@ ${LICENSE_HEADER}\
 <!-- ${ pmodel() } -->
 <openerp>
     <data>
-{% if CLASS.oerp_id('-', False) != CLASS.oerp_id('-', False, True) %}
+{% if CLASS.oerp_id('-', False) != CLASS.oerp_id('-', False, True) and not CLASS.child_of[0].is_stereotype('disjoin_view') %}
 {%  def view_filter_id() %}view_${model('_')}_filter{% end %}\
 {%  def view_form_id()   %}view_${model('_')}_form{%   end %}\
 {%  def view_tree_id()   %}view_${model('_')}_tree{%   end %}\
@@ -82,14 +82,14 @@ ${LICENSE_HEADER}\
         </record>
 
 {% end %}\
-{% if CLASS.oerp_id('-', False) == CLASS.oerp_id('-', False, True) %}
+{% if CLASS.oerp_id('-', False) == CLASS.oerp_id('-', False, True) or CLASS.child_of[0].is_stereotype('disjoin_view') %}
 {%  def view_filter_id() %}view_${model('_')}_filter{% end %}\
 {%  def view_form_id() %}view_${model('_')}_form{% end %}\
 {%  def view_tree_id() %}view_${model('_')}_tree{% end %}\
         <!-- SEARCHVIEW -->
         <record id="${view_filter_id()}" model="ir.ui.view">
             <field name="name">${model()}.select</field>
-            <field name="model">${model()}</field>
+            <field name="model">${emodel()}</field>
             <field name="arch" type="xml">
                 <search string="${CLASS_LABEL}" version="7.0">
 {%                  for col in CLASS.all_attributes(stereotype='search') %}\
@@ -113,7 +113,7 @@ ${LICENSE_HEADER}\
         <!-- FORMVIEW -->
         <record id="${view_form_id()}" model="ir.ui.view">
             <field name="name">${model()}.form</field>
-            <field name="model">${model()}</field>
+            <field name="model">${emodel()}</field>
             <field name="arch" type="xml">
                 <form string="${CLASS_LABEL}" version="7.0">
                     <header>
@@ -180,7 +180,7 @@ ${LICENSE_HEADER}\
 
         <record id="${view_tree_id()}" model="ir.ui.view">
             <field name="name">${model()}.tree</field>
-            <field name="model">${model()}</field>
+            <field name="model">${emodel()}</field>
             <field name="arch" type="xml">
                 <tree string="${CLASS_LABEL}"
 {%                  if CLASS.is_child_of('ir.needaction_mixin') %}\

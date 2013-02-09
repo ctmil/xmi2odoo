@@ -155,6 +155,8 @@ class CEntity(Base):
 
     __tablename__ = 'centity'
 
+    __sequence__ = 0
+
     id = Column(Integer, Sequence('entity_id_seq'), primary_key=True)
     xmi_id = Column(String, unique=True)
     name = Column(String)
@@ -298,6 +300,12 @@ class CEntity(Base):
         else:
             return default
 
+    def debug(self, name=None):
+        print "D:", self.name
+        if name is None or self.name==name:
+            import pdb; pdb.set_trace()
+        return True
+
 class CUseCase(CEntity):
     """CUseCase class.
 
@@ -367,17 +375,27 @@ class CDataType(CEntity):
     def oerp_type(self):
         return _oerp_type[self.name]
 
-    def all_attributes(self, stereotype=None, parents=True, ctype=None):
+    def all_attributes(self, stereotype=None, parents=True, ctype=None, sort=True):
         if ctype is None: ctype = CAttribute
-        r = itertools.chain([ m for m in self.members if type(m) is ctype and m.is_stereotype(stereotype) ],
-                            *[ gen.parent.all_attributes(stereotype, parents) for gen in self.child_of if parents])
-        return r
+        r = list(itertools.chain([ (m, m.id) for m in self.members
+                             if type(m) is ctype and m.is_stereotype(stereotype) ],
+                            *[ gen.parent.all_attributes(stereotype, parents, ctype, sort=False) for gen in self.child_of if parents]))
+        if sort:
+            s = sorted(r,key=lambda k: k[1])
+            return s and zip(*s)[0] or []
+        else:
+            return r
 
-    def all_associations(self, stereotype=None, parents=True, ctype=None):
+    def all_associations(self, stereotype=None, parents=True, ctype=None, sort=True):
         if ctype is None: ctype = CClass
-        r = itertools.chain([ ass.swap[0] for ass in self.associations if type(ass.swap[0]) is ctype and ass.is_stereotype(stereotype)],
-                            *[ gen.parent.all_associations(stereotype, parents) for gen in self.child_of if parents])
-        return r
+        r = list(itertools.chain([ (ass.swap[0], ass.id) for ass in self.associations
+                             if type(ass.swap[0].participant) is ctype and ass.swap[0].is_stereotype(stereotype)],
+                            *[ gen.parent.all_associations(stereotype, parents, ctype, sort=False) for gen in self.child_of if parents]))
+        if sort:
+            s = sorted(r,key=lambda k: k[1])
+            return s and zip(*s)[0] or []
+        else:
+            return r
 
 class CEnumerationLiteral(CEntity):
     """CEnumerationLiteral class.
