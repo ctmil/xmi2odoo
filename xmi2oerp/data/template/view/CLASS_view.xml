@@ -20,7 +20,8 @@ ${LICENSE_HEADER}\
             <field name="model">${emodel()}</field>
             <field name="inherit_id" ref="${ CLASS.parent().get('view_search_id', 'view_'+CLASS.oerp_id('_', False, True)+'_filter')}"/>
             <field name="arch" type="xml">
-                <field name="${(lambda a : a and a[-1].name or 'name')(list(iter(CLASS.parent().all_attributes(stereotype='search'))))}" position="after">
+                <!--field name="${(lambda a : a and a[-1].name or 'name')(list(iter(CLASS.parent().all_attributes(stereotype='search'))))}" position="after"-->
+                <search position="inside">
 {%                  for col in CLASS.all_attributes(stereotype='search', parents=False) %}\
                         <field name="${col.name}"
 {%                    if 'view_groups' in col.tag or 'groups' in col.tag %}\
@@ -35,7 +36,8 @@ ${LICENSE_HEADER}\
 {%                    end %}\
                             />
 {%                  end %}\
-                </field>
+                </search>
+                <!--/field-->
             </field>
         </record>
  
@@ -45,7 +47,8 @@ ${LICENSE_HEADER}\
             <field name="model">${emodel()}</field>
             <field name="inherit_id" ref="${ CLASS.parent().get('view_form_id', 'view_'+CLASS.oerp_id('_', False, True)+'_form')}"/>
             <field name="arch" type="xml">
-                <field name="${(lambda a : a and a[-1].name or 'name')(list(CLASS.parent().all_attributes(stereotype='form')))}" position="after">
+                <!--field name="${(lambda a : a and a[-1].name or 'name')(list(CLASS.parent().all_attributes(stereotype='form')))}" position="after"-->
+                <group position="inside">
 {%                  for col in CLASS.all_attributes(stereotype='form', parents=False) %}\
                         <field name="${col.name}"
 {%                    if 'view_groups' in col.tag or 'groups' in col.tag %}\
@@ -60,7 +63,8 @@ ${LICENSE_HEADER}\
 {%                    end %}\
                             />
 {%                  end %}\
-                </field>
+                </group>
+                <!--/field-->
             </field>
         </record>
 

@@ -103,6 +103,7 @@ from sqlalchemy import Sequence
 from sqlalchemy.schema import Table
 import re
 import itertools
+import time
 import logging
 
 Base = declarative_base()
@@ -155,14 +156,13 @@ class CEntity(Base):
 
     __tablename__ = 'centity'
 
-    __sequence__ = 0
-
     id = Column(Integer, Sequence('entity_id_seq'), primary_key=True)
     xmi_id = Column(String, unique=True)
     name = Column(String)
     entityclass = Column('type', String(50))
     default_tagvalues = Column(PickleType)
     package_id = Column(Integer, ForeignKey('cpackage.id', use_alter=True, name='ent_package_id'))
+    order = Column(Integer)
 
     tagvalues = relationship('CTaggedValue',
                              primaryjoin='CTaggedValue.owner_id==CEntity.id',
@@ -250,7 +250,7 @@ class CEntity(Base):
         oerp_ids = [ '%s.%s' % (gen.parent.package.name, gen.parent.name) for gen in self.child_of ]
         return (oerp_id in oerp_ids) or max([ gen.parent.is_child_of(oerp_id) for gen in self.child_of ] + [False])
 
-    def __init__(self, xmi_id, name, package=None, default_tagvalues={}):
+    def __init__(self, xmi_id, name, package=None, order=None, default_tagvalues={}):
         super(CEntity, self).__init__()
         if type(self).__normalize_name__ and name is None:
             logging.warning('Creating %s without name' % xmi_id)
@@ -264,6 +264,7 @@ class CEntity(Base):
         self.name = name
         self.default_tagvalues = default_tagvalues.copy()
         self.package = package
+        self.order = order
 
     def __repr__(self):
         return "<CEntity(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -367,7 +368,6 @@ class CDataType(CEntity):
         'polymorphic_identity': 'cdatatype'
     }
 
-
     def __repr__(self):
         return "<CDataType(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
@@ -377,7 +377,7 @@ class CDataType(CEntity):
 
     def all_attributes(self, stereotype=None, parents=True, ctype=None, sort=True):
         if ctype is None: ctype = CAttribute
-        r = list(itertools.chain([ (m, m.id) for m in self.members
+        r = list(itertools.chain([ (m, m.order) for m in self.members
                              if type(m) is ctype and m.is_stereotype(stereotype) ],
                             *[ gen.parent.all_attributes(stereotype, parents, ctype, sort=False) for gen in self.child_of if parents]))
         if sort:
@@ -388,7 +388,7 @@ class CDataType(CEntity):
 
     def all_associations(self, stereotype=None, parents=True, ctype=None, sort=True):
         if ctype is None: ctype = CClass
-        r = list(itertools.chain([ (ass.swap[0], ass.id) for ass in self.associations
+        r = list(itertools.chain([ (ass.swap[0], ass.order) for ass in self.associations
                              if type(ass.swap[0].participant) is ctype and ass.swap[0].is_stereotype(stereotype)],
                             *[ gen.parent.all_associations(stereotype, parents, ctype, sort=False) for gen in self.child_of if parents]))
         if sort:
@@ -437,8 +437,8 @@ class CEnumeration(CDataType):
 
     __normalize_name__ = False
 
-    def __init__(self, xmi_id, name, literals=[], package=None):
-        super(CEnumeration, self).__init__(xmi_id, name, package=package) 
+    def __init__(self, xmi_id, name, literals=[], order=None, package=None):
+        super(CEnumeration, self).__init__(xmi_id, name, order=order, package=package) 
         self.literals = literals
 
     def __repr__(self):
@@ -454,7 +454,7 @@ class CEnumeration(CDataType):
 
     @property 
     def oerp_type(self):
-        return 'enumeration'
+        return 'selection'
 
 class CModel(CEntity):
     """Model class.
@@ -499,8 +499,8 @@ class CPackage(CEntity):
                          primaryjoin=(model_id==CModel.id),
                          backref=backref('packages', order_by=id))
 
-    def __init__(self, xmi_id, name, model=None, package=None):
-        super(CPackage, self).__init__(xmi_id, name, package=package) 
+    def __init__(self, xmi_id, name, model=None, order=None, package=None):
+        super(CPackage, self).__init__(xmi_id, name, order=order, package=package) 
         self.model = model
 
     def __repr__(self):
@@ -528,8 +528,8 @@ class CClass(CDataType):
 
     __normalize_name__ = True
 
-    def __init__(self, xmi_id, name, package=None):
-        super(CClass, self).__init__(xmi_id, name, package=package)
+    def __init__(self, xmi_id, name, order=None, package=None):
+        super(CClass, self).__init__(xmi_id, name, order=order, package=package)
 
     def __repr__(self):
         return "<CClass(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -575,8 +575,8 @@ class CMember(CEntity):
                              primaryjoin=(member_of_id==CClass.id),
                              backref=backref('members', order_by=id))
 
-    def __init__(self, xmi_id, name, member_of=None, package=None):
-        super(CMember, self).__init__(xmi_id, name, package=package) 
+    def __init__(self, xmi_id, name, member_of=None, order=None, package=None):
+        super(CMember, self).__init__(xmi_id, name, order=order, package=package) 
         self.member_of = member_of
 
     def __repr__(self):
@@ -608,8 +608,8 @@ class CAttribute(CMember):
     datatype = relationship('CDataType',
                              backref=backref('attributes', order_by=id))
 
-    def __init__(self, xmi_id, name, datatype, member_of=None, size=None, package=None):
-        super(CAttribute, self).__init__(xmi_id, name, member_of=member_of, package=package) 
+    def __init__(self, xmi_id, name, datatype, member_of=None, size=None, order=None, package=None):
+        super(CAttribute, self).__init__(xmi_id, name, member_of=member_of, order=order, package=package) 
         self.datatype = datatype
         self.size = size
 
@@ -640,13 +640,11 @@ class CParameter(CEntity):
     :param xmi_id: XMI identity of the data type.
     :param name: Atribute name.
     :param datatype: Datatype of this parameter.
-    :param order: Order of this parameter.
     :param kind: Define if this parameter if an input or output parameter.
     :param operation: Operation owner of this parameter.
     :type xmi_id: str
     :type name: str
     :type datatype: CDatatype
-    :type order: int
     :type kind: [ 'input', 'return' ]
     :type operation: COperation
     """
@@ -656,7 +654,6 @@ class CParameter(CEntity):
     id = Column(Integer, ForeignKey('centity.id'), primary_key=True)
     datatype_id = Column(Integer, ForeignKey('cdatatype.id'))
     operation_id = Column(Integer, ForeignKey('coperation.id'))
-    order = Column(Integer)
     kind = Column(String)
 
     __mapper_args__ = { 'polymorphic_identity': 'cparameter' }
@@ -668,11 +665,10 @@ class CParameter(CEntity):
                               primaryjoin=(operation_id==COperation.id),
                               backref=backref('parameters', order_by=id))
 
-    def __init__(self, xmi_id, name, datatype, order, kind, operation=None, package=None):
-        super(CParameter, self).__init__(xmi_id, name, package=package) 
+    def __init__(self, xmi_id, name, datatype, kind, operation=None, order=None, package=None):
+        super(CParameter, self).__init__(xmi_id, name, order=order, package=package) 
         self.operation = operation
         self.datatype = datatype
-        self.order = order
         self.kind = kind
 
     def __repr__(self):
@@ -725,8 +721,8 @@ class CTaggedValue(CEntity):
                              primaryjoin=(tagdefinition_id==CTagDefinition.id),
                              backref=backref('values', order_by=CTagDefinition.id))
 
-    def __init__(self, xmi_id, tag, value, owner=None, package=None):
-        super(CTaggedValue, self).__init__(xmi_id, None, package=package)
+    def __init__(self, xmi_id, tag, value, owner=None, order=None, package=None):
+        super(CTaggedValue, self).__init__(xmi_id, None, order=order, package=package)
         self.tagdefinition = tag
         self.value = value
         self.owner = owner
@@ -756,8 +752,8 @@ class CAssociation(CEntity):
 
     __mapper_args__ = { 'polymorphic_identity': 'cassociation' }
 
-    def __init__(self, xmi_id, name, ends=[], package=None):
-        super(CAssociation, self).__init__(xmi_id, name, package=package)
+    def __init__(self, xmi_id, name, ends=[], order=None, package=None):
+        super(CAssociation, self).__init__(xmi_id, name, order=order, package=package)
         self.ends = ends
 
     def __repr__(self):
@@ -794,8 +790,8 @@ class CAssociationEnd(CEntity):
                              primaryjoin=(participant_id==CEntity.id),
                              backref=backref('associations', order_by=CEntity.id))
 
-    def __init__(self, xmi_id, name, isNavigable=False, aggregation=None, participant=None, multiplicityrange=None, association=None, package=None):
-        super(CAssociationEnd, self).__init__(xmi_id, name, package=package)
+    def __init__(self, xmi_id, name, isNavigable=False, aggregation=None, participant=None, multiplicityrange=None, association=None, order=None, package=None):
+        super(CAssociationEnd, self).__init__(xmi_id, name, order=order, package=package)
         self.isNavigable = isNavigable
         self.aggregation = aggregation
         self.participant = participant
@@ -856,8 +852,8 @@ class CGeneralization(CEntity):
         'inherit_condition': id == CEntity.id,
     }
 
-    def __init__(self, xmi_id, parent, child, package=None):
-        super(CGeneralization, self).__init__(xmi_id, None, package=package)
+    def __init__(self, xmi_id, parent, child, order=None, package=None):
+        super(CGeneralization, self).__init__(xmi_id, None, order=order, package=package)
         self.parent = parent
         self.child = child
 
@@ -887,8 +883,8 @@ class CStereotype(CEntity):
 
     entities = relationship('CEntity', secondary=stereotypes, backref=backref('stereotypes'))
 
-    def __init__(self, xmi_id, name, ends=[], package=None):
-        super(CStereotype, self).__init__(xmi_id, name, package=package)
+    def __init__(self, xmi_id, name, ends=[], order=None, package=None):
+        super(CStereotype, self).__init__(xmi_id, name, order=order, package=package)
 
     def __repr__(self):
         return "<CStereotype(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -915,8 +911,8 @@ class CStateMachine(CEntity):
 
     __normalize_name__ = True
 
-    def __init__(self, xmi_id, name, context, package=None):
-        super(CStateMachine, self).__init__(xmi_id, name, package=package)
+    def __init__(self, xmi_id, name, context, order=None, package=None):
+        super(CStateMachine, self).__init__(xmi_id, name, order=order, package=package)
         self.context = context
 
     def __repr__(self):
@@ -980,8 +976,8 @@ class CBaseState(CEntity):
 
     __normalize_name__ = True
 
-    def __init__(self, xmi_id, name, statemachine, state_of=None, package=None):
-        super(CBaseState, self).__init__(xmi_id, name, package=package)
+    def __init__(self, xmi_id, name, statemachine, state_of=None, order=None, package=None):
+        super(CBaseState, self).__init__(xmi_id, name, order=order, package=package)
         self.statemachine = statemachine
         self.state_of = state_of
 
@@ -1048,8 +1044,8 @@ class CFinalState(CBaseState):
 
     __normalize_name__ = False
 
-    def __init__(self, xmi_id, name, statemachine, state_of=None, package=None):
-        super(CFinalState, self).__init__(xmi_id, name, statemachine, state_of=state_of, package=package)
+    def __init__(self, xmi_id, name, statemachine, state_of=None, order=None, package=None):
+        super(CFinalState, self).__init__(xmi_id, name, statemachine, state_of=state_of, order=order, package=package)
 
     def __repr__(self):
         return "<CFinalState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -1071,8 +1067,8 @@ class CSimpleState(CBaseState):
 
     __normalize_name__ = True
 
-    def __init__(self, xmi_id, name, statemachine, state_of=None, package=None):
-        super(CSimpleState, self).__init__(xmi_id, name, statemachine, state_of=state_of, package=package)
+    def __init__(self, xmi_id, name, statemachine, state_of=None, order=None, package=None):
+        super(CSimpleState, self).__init__(xmi_id, name, statemachine, state_of=state_of, order=order, package=package)
 
     def __repr__(self):
         return "<CSimpleState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -1095,8 +1091,8 @@ class CPseudostate(CBaseState):
 
     __normalize_name__ = False
 
-    def __init__(self, xmi_id, name, kind, statemachine, state_of=None, package=None):
-        super(CPseudostate, self).__init__(xmi_id, name, statemachine, state_of=state_of, package=package)
+    def __init__(self, xmi_id, name, kind, statemachine, state_of=None, order=None, package=None):
+        super(CPseudostate, self).__init__(xmi_id, name, statemachine, state_of=state_of, order=order, package=package)
         self.kind = kind
 
     def __repr__(self):
@@ -1119,8 +1115,8 @@ class CCompositeState(CBaseState):
 
     __normalize_name__ = True
 
-    def __init__(self, xmi_id, name, statemachine, state_of=None, package=None):
-        super(CCompositeState, self).__init__(xmi_id, name, statemachine, state_of=state_of, package=package)
+    def __init__(self, xmi_id, name, statemachine, state_of=None, order=None, package=None):
+        super(CCompositeState, self).__init__(xmi_id, name, statemachine, state_of=state_of, order=order, package=package)
 
     def __repr__(self):
         return "<CCompositeState(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
@@ -1166,8 +1162,8 @@ class CBooleanExpression(CExpression):
 
     __normalize_name__ = False
 
-    def __init__(self, xmi_id, name, language, body, package=None):
-        super(CBooleanExpression, self).__init__(xmi_id, name, package=package)
+    def __init__(self, xmi_id, name, language, body, order=None, package=None):
+        super(CBooleanExpression, self).__init__(xmi_id, name, order=order, package=package)
         self.language = language
         self.body = body
 
@@ -1197,8 +1193,8 @@ class CGuard(CEntity):
 
     __normalize_name__ = False
 
-    def __init__(self, xmi_id, name, expression, package=None):
-        super(CGuard, self).__init__(xmi_id, name, package=package)
+    def __init__(self, xmi_id, name, expression, order=None, package=None):
+        super(CGuard, self).__init__(xmi_id, name, order=order, package=package)
         self.expression = expression
 
     def __repr__(self):
@@ -1247,8 +1243,8 @@ class CCallAction(CAction):
 
     __normalize_name__ = False
 
-    def __init__(self, xmi_id, name, operation, package=None):
-        super(CCallAction, self).__init__(xmi_id, name, package=package)
+    def __init__(self, xmi_id, name, operation, order=None, package=None):
+        super(CCallAction, self).__init__(xmi_id, name, order=order, package=package)
         self.operation = operation
 
     def __repr__(self):
@@ -1316,8 +1312,8 @@ class CCallEvent(CEvent):
 
     __normalize_name__ = True
 
-    def __init__(self, xmi_id, name, operation, package=None):
-        super(CCallEvent, self).__init__(xmi_id, name, package=package)
+    def __init__(self, xmi_id, name, operation, order=None, package=None):
+        super(CCallEvent, self).__init__(xmi_id, name, order=order, package=package)
         self.operation = operation
 
     def __repr__(self):
@@ -1368,8 +1364,8 @@ class CSignalEvent(CEvent):
 
     __normalize_name__ = True
 
-    def __init__(self, xmi_id, name, signal, package=None):
-        super(CSignalEvent, self).__init__(xmi_id, name, operation, package=package)
+    def __init__(self, xmi_id, name, signal, order=None, package=None):
+        super(CSignalEvent, self).__init__(xmi_id, name, operation, order=order, package=package)
         self.signal = signal
 
     def __repr__(self):
@@ -1417,8 +1413,8 @@ class CTransition(CEntity):
 
     __normalize_name__ = False
 
-    def __init__(self, xmi_id, name, statemachine, state_from, state_to, guard=None, effect=None, trigger=None, package=None):
-        super(CTransition, self).__init__(xmi_id, name, package=package)
+    def __init__(self, xmi_id, name, statemachine, state_from, state_to, guard=None, effect=None, trigger=None, order=None, package=None):
+        super(CTransition, self).__init__(xmi_id, name, order=order, package=package)
         self.statemachine = statemachine
         self.state_from = state_from
         self.state_to = state_to

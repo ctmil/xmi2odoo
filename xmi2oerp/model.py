@@ -27,8 +27,10 @@ from sqlalchemy.orm import sessionmaker
 import pkg_resources, os, sys
 import uml
 import logging
+import time
+import md5
 
-_lines_to_stop = [ ]
+_lines_to_stop = eval(os.environ.get('STOP','[]'))
 
 class FileWrapper:
      def __init__(self, source, filename=None):
@@ -294,21 +296,37 @@ class Model:
         self._postprocessing_append = []
         self._postprocessing_set = []
         self._infiles = []
+        self._order = 0
         if url != None:
             self.load(url)
 
     def _c_load(self, url):
+        querypaths = lambda filename: \
+                [os.path.join(os.path.expanduser('~'), '.xmi2oerp', 'profiles', filename),
+                 pkg_resources.resource_filename(__name__, os.path.join('data', filename)) ]
         if 'http://argouml.org/user-profiles/' in url:
             filename = url.split('/')[-1]
-            querypaths = [ os.path.join(os.path.expanduser('~'), '.xmi2oerp', 'profiles', filename),
-                           pkg_resources.resource_filename(__name__, os.path.join('data', filename)) ]
             try:
-                to_read = [ os.path.exists(fn) for fn in querypaths ].index(True)
-                iofile = open(querypaths[to_read])
+                to_read = [ os.path.exists(fn) for fn in querypaths(filename) ].index(True)
+                iofile = open(querypaths(filename)[to_read])
             except:
                 raise RuntimeError, 'File not found. Search paths: %s' % querypaths
         else:
-            iofile = urlopen(url)
+            code = md5.md5(url)
+            filename = code.hexdigest()
+            to_read = [ os.path.exists(fn) for fn in querypaths(filename) ]
+            if not any(to_read):
+                # Descargo el archivo de la red
+                if not os.path.exists(querypaths('')[0]):
+                    os.makedirs(querypaths('')[0])
+                srcProfile = urlopen(url)
+                dstProfile = open(querypaths(filename)[0], 'w')
+                dstProfile.write(srcProfile.read())
+                dstProfile.close()
+                srcProfile.close()
+            # Verifico que exista el archivo nuevamente
+            to_read = [ os.path.exists(fn) for fn in querypaths(filename) ]
+            iofile = open(querypaths(filename)[to_read.index(True)])
         return iofile
 
     def __contains__(self, xmi_id):
@@ -343,7 +361,12 @@ class Model:
     def _pop_load_stack(self):
         self._postprocessing_create, self._postprocessing_append, self._postprocessing_set = self._load_stack.pop()
 
-    def _create(self, eclass, elem, mask=(False, False), attribs=['xmi.id','name'], booleans=[], extra_params=[], package=None):
+    def _create(self, eclass, elem, mask=(False, False), attribs=['xmi.id','name'], booleans=[], extra_params=[], order=None, package=None):
+        if order is None:
+            order = self._order
+            self._order += 1
+        else:
+            import pdb; pdb.set_trace()
         if package is None:
             logging.warning("Object without package associated")
         params = [ elem.attrib.get(k) for k in attribs ]
@@ -352,10 +375,10 @@ class Model:
             params[i] = params[i] in ['true','1','TRUE']
         typemap = maskstr(mask, params)
         if any(typemap):
-            self._postprocessing_create.append((eclass, params, typemap, package))
+            self._postprocessing_create.append((eclass, params, typemap, order, package))
             obj = params[0]
         else:
-            obj = eclass(*params, package=package)
+            obj = eclass(*params, order=order, package=package)
             self.session.add(obj)
         if obj is None:
             import pdb; pdb.set_trace()
@@ -363,23 +386,23 @@ class Model:
 
     def _do_postprocessing_create(self):
         postprocessing_create = self._postprocessing_create
-        allobjs = set(params[0] for theclass, params, querymask, package in postprocessing_create) | \
+        allobjs = set(params[0] for eclass, params, typemask, order, package in postprocessing_create) | \
                 set(self.iterclass(uml.CEntity)) 
         needsolve = set()
 
         while postprocessing_create and len(needsolve - allobjs) == 0:
-            theclass, params, querymask, package = postprocessing_create.pop(0)
+            eclass, params, typemask, order, package = postprocessing_create.pop(0)
 
-            querymask = [ type(v) is str and q for v,q in zip(params, querymask) ]
-            newparams = [ (q and self.get(p, NotResolved)) or p for p, q in zip(params, querymask) ]
+            typemask = [ type(v) is str and q for v,q in zip(params, typemask) ]
+            newparams = [ (q and self.get(p, NotResolved)) or p for p, q in zip(params, typemask) ]
             needsolve |= set( v for i,v in zip(newparams, params) if i is NotResolved )
 
-            if NotResolved in [ m and p for p,m in zip(newparams, querymask) ]:
-                postprocessing_create.append((theclass, params, querymask, package))
+            if NotResolved in [ m and p for p,m in zip(newparams, typemask) ]:
+                postprocessing_create.append((eclass, params, typemask, order, package))
             else:
                 if newparams[0] in needsolve:
                     needsolve.remove(newparams[0])
-                newobj = theclass(*newparams, package=package)
+                newobj = eclass(*newparams, order=order, package=package)
                 self.session.add(newobj)
 
         if len(needsolve - allobjs) != 0:
@@ -636,7 +659,6 @@ class Model:
                 if cclass is None or cdatatype is None:
                     raise RuntimeError, "The attribute %s.%s has not type." % (cclass if type(cclass) is str else cclass.name, elem.attrib['name']) 
                 cattribute = self._create(uml.CAttribute, elem, mask=(False, False, True, True), extra_params=[cdatatype, cclass])
-                #self._append_obj(cclass, 'members', cattribute)
 
 # Members: Operation
 
@@ -672,11 +694,11 @@ class Model:
 
             elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}TagDefinition'):
                 if stop: import pdb; pdb.set_trace()
-                tagdefinition = self._get_ref(elem) 
+                tagdefinition = self._get_ref(elem)
 
             elif (kind, event, elem.tag) == ('externalref', 'start', '{org.omg.xmi.namespace.UML}TagDefinition'):
                 if stop: import pdb; pdb.set_trace()
-                tagdefinition = self._get_xref(elem) 
+                tagdefinition = self._get_xref(elem)
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}TaggedValue'):
                 if stop: import pdb; pdb.set_trace()
