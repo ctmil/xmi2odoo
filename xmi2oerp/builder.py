@@ -70,8 +70,7 @@ class Builder:
             tmpl = NewTextTemplate(stmpl.read())
         stream = tmpl.generate(**tags)
         with open(filename, 'w') as out:
-            out.write(stream.render())
-        pass
+                out.write(stream.render())
 
     def reset(self):
         """
@@ -86,7 +85,7 @@ class Builder:
         if len(menues)==0:
             return []
         r = []
-        items = menues[0].prev_leafs(uml.CUseCase, uml.CUseCase)
+        items = list(menues[0].prev_leafs(uml.CUseCase, uml.CUseCase))
         while items:
             r.extend(items)
             items = set(itertools.chain(*[ i.nexts(uml.CUseCase) for i in items ]))

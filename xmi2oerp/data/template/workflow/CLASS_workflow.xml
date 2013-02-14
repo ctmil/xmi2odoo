@@ -2,10 +2,20 @@
 <!--
 ${LICENSE_HEADER}\
 -->
+{% def model(s='.')  %}${CLASS.oerp_id(s, False)}{% end %}\
+{% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
+{% def pmodel(s='.') %}${CLASS.oerp_id(s, False, True)}{% end %}\
+<!-- ${ model()  } -->
+<!-- ${ emodel() } -->
+<!-- ${ pmodel() } -->
 <openerp>
     <data>
-{% for sm in list(CLASS.iter_over_inhereted_attrs('statemachines'))[0:1] %}\
-{% def wkfname() %}${CLASS.name}_wkf{% end %}\
+{% for sm in list(CLASS.statemachines) %}\
+{% def wkfname() %}${CLASS.name}_${sm.name}_wkf{% end %}\
+{% def wkfguard(u=' and ') %}True${u}{% end %}\
+{% if CLASS.oerp_id('-', False) != CLASS.oerp_id('-') and CLASS.has_member('type', uml.CAttribute) %}\
+{%    def wkfguard(u=' and ') %}type=="${ model() }"${u}{% end %}\
+{% end %}\
         <!-- Workflow -->
 
         <record id="${wkfname()}" model="workflow">
@@ -46,8 +56,11 @@ ${LICENSE_HEADER}\
 {%     if t.trigger is not None %}\
             <field name="signal">sgn_${t.trigger.name}</field>
 {%     end %}\
+{%     if t.guard is None %}\
+            <field name="condition">${wkfguard('')}</field>
+{%     end %}\
 {%     if t.guard is not None %}\
-            <field name="condition">${t.guard.body}</field>
+            <field name="condition">${wkfguard(' and ')}${t.guard.body}</field>
 {%     end %}\
 {%     if 'trigger_model' in t.tag %}\
             <field name="trigger_model">${t.tag['trigger_model']}</field>

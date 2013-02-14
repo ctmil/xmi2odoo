@@ -269,12 +269,23 @@ class CEntity(Base):
     def __repr__(self):
         return "<CEntity(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
+    def has_member(self, name, cclass = None):
+        cclass = cclass or CMember
+        for mem in self.members:
+            if mem.name == name and type(mem) == cclass:
+                return True
+        for parent in self.parents():
+            if parent.has_member(name, cclass):
+                return True
+        return False
+
     def get_inhereted_attr(self, attrs):
         r = getattr(self, attrs, None) 
         if r is not None:
             return r
         for parent in self.parents():
             return parent.get_inhereted_attrs(attrs)
+        return None
 
     def iter_over_inhereted_attrs(self, attrs):
         for value in getattr(self, attrs, []):

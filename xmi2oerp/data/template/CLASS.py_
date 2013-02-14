@@ -4,6 +4,7 @@ ${LICENSE_HEADER}
 {% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
 
 import netsvc
+import re
 from osv import osv, fields
 
 class ${CLASS.name}(osv.osv):
@@ -18,7 +19,18 @@ class ${CLASS.name}(osv.osv):
     def ${op.name}(self, cr, uid, ids{% for par in op.parameters %}, ${par.name}{% end %}):
         pass
 
-{%      end %}\
+{% end %}\
+{%  for sm in CLASS.statemachines[:1] %}\
+    def _get_states(self, cr, uid, ids, context=None):
+        context = context or {}
+        name = context.get('type', '${model()}')
+        cr.execute("SELECT act.name FROM wkf_activity AS act JOIN wkf ON act.wkf_id=wkf.id WHERE wkf.name='${CLASS.oerp_id()}.${sm.name}'");
+        re_clean_name = re.compile('\W|^(?=\d)')
+        states = [ (re_clean_name.sub('_', name).lower(), name) for (name,) in cr.fetchall() ]
+        return states
+        #return ${repr([ (s.name, s.tag['label']) for s in sm.list_states()])}
+
+{% end %}\
     _columns = {
 {%  for col in CLASS_ATTRIBUTES %}\
 {%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
@@ -60,8 +72,8 @@ class ${CLASS.name}(osv.osv):
 {%          end %}\
 {%      end %}
 {%  end %}\
-{%  for sm in CLASS.statemachines %}\
-        'state': fields.selection(${repr([ (s.name, s.tag['label']) for s in sm.list_states()])}, "State"),
+{%  for sm in CLASS.statemachines[:1] %}\
+        'state': fields.selection(_get_states, "State"),
 {%  end %}\
 {%  for ass in CLASS.all_associations() %}\
 {%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
