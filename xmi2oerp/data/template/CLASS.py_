@@ -10,9 +10,12 @@ from osv import osv, fields
 class ${CLASS.name}(osv.osv):
     """${CLASS.get('documentation', '')}"""
     _name = '${emodel()}'
+{%  if not CLASS.is_extended() %}\
     _description = '${CLASS.get('documentation',CLASS.name)[:64]}'
+{%  end %}\
 {%  if len(CLASS.child_of)>0 %}\
-    _inherit = [ ${','.join(['\'%s.%s\'' % (gen.parent.package.name, gen.parent.name) for gen in CLASS.child_of])} ]
+    _inherits = { ${','.join(['\'%s\':\'%s_id\'' % (parent.oerp_id('.'), parent.oerp_id('_')) for parent in CLASS.parents(not_stereotypes=['prototype','extend']) ])} }
+    _inherit = [ ${','.join(['\'%s\'' % (parent.oerp_id('.'),) for parent in CLASS.parents(stereotypes=['prototype','extend'])])} ]
 {%  end %}\
 
 {%  for op in CLASS_PRIVATE_OPERATIONS %}\
@@ -20,19 +23,21 @@ class ${CLASS.name}(osv.osv):
         pass
 
 {% end %}\
-{%  for sm in CLASS.statemachines[:1] %}\
-    def _get_states(self, cr, uid, ids, context=None):
-        context = context or {}
-        name = context.get('type', '${model()}')
-        cr.execute("SELECT act.name FROM wkf_activity AS act JOIN wkf ON act.wkf_id=wkf.id WHERE wkf.name='${CLASS.oerp_id()}.${sm.name}'");
-        re_clean_name = re.compile('\W|^(?=\d)')
-        states = [ (re_clean_name.sub('_', name).lower(), name) for (name,) in cr.fetchall() ]
-        return states
-        #return ${repr([ (s.name, s.tag['label']) for s in sm.list_states()])}
+    _states_ = [
+{%     for sm in CLASS.get_statemachines(not_stereotypes=['extend','prototype']) %}\
+        # State machine: ${sm.name}
+{%      for s in sm.list_ordered_states() %}\
+        ('${s.name}','${s['label']}'),
+{%      end %}\
+{%     end %}\
+    ]
 
 {% end %}\
     _columns = {
-{%  for col in CLASS_ATTRIBUTES %}\
+{%  for parent in CLASS.parents(not_stereotypes=['prototype','extend']) %}\
+        '${parent.oerp_id('_')}_id': fields.many2one('${parent.oerp_id('.')}', "${parent.get('label', parent.name)}", ondelete="cascade", required=True, help="${parent.get('documentation','')}"),
+{%  end %}\
+{%  for col in CLASS.all_attributes(parents=False) %}\
 {%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
 {%      def name(prefix='', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
 {%      def string %}{% if 'label' in col.tag %}${sep()}string='${col.tag['label']}'{%end%}{%end%}\
@@ -46,7 +51,7 @@ class ${CLASS.name}(osv.osv):
 {%      def on_change %}{% if 'on_change' in col.tag %}${sep()}domain=${col.tag['on_change']}{%end%}{%end%}\
 {%      def change_default  %}{% if col.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
 {%      def readonly  %}{% if col.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
-{%      def required  %}{% if col.is_stereotype('required')  %}${sep()}required=True{%end %}{%end%}\
+{%      def required  %}{% if col.is_stereotype('required') and not CLASS.is_extended() %}${sep()}required=True{%end %}{%end%}\
 {%      def select    %}{% if col.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
 {%      def store     %}{% if col.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
 {%      def translate %}{% if col.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
@@ -72,10 +77,10 @@ class ${CLASS.name}(osv.osv):
 {%          end %}\
 {%      end %}
 {%  end %}\
-{%  for sm in CLASS.statemachines[:1] %}\
-        'state': fields.selection(_get_states, "State"),
+{%  if list(CLASS.get_statemachines(not_stereotypes=['extend','prototype'])) %}\
+        'state': fields.selection(_states_, "State"),
 {%  end %}\
-{%  for ass in CLASS.all_associations() %}\
+{%  for ass in CLASS.all_associations(parents=False) %}\
 {%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
 {%      def actual_id %}${"%s_id" % CLASS_NAME}{%end%}\
 {%      def other_id %}${"%s_id" % ass.participant.name.replace('.','_')}{%end%}\
@@ -98,7 +103,7 @@ class ${CLASS.name}(osv.osv):
 {%      def domain %}{% if 'domain' in ass.tag %}${sep()}domain=${ass.tag['domain']}{%end%}{%end%}\
 {%      def on_change %}{% if 'on_change' in ass.tag %}${sep()}domain=${ass.tag['on_change']}{%end%}{%end%}\
 {%      def readonly  %}{% if ass.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
-{%      def required  %}{% if ass.is_stereotype('required')  %}${sep()}required=True{%end %}{%end%}\
+{%      def required  %}{% if ass.is_stereotype('required') and not CLASS.is_extended() %}${sep()}required=True{%end %}{%end%}\
 {%      def select    %}{% if ass.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
 {%      def store     %}{% if ass.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
 {%      def translate %}{% if ass.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
@@ -138,10 +143,10 @@ class ${CLASS.name}(osv.osv):
 
 {%  for op in CLASS_PUBLIC_OPERATIONS %}\
     def ${op.name}(self, cr, uid, ids{% for par in op.parameters %}, ${par.name}{% end %}):
-        pass
-{%      end %}
+        raise NotImplementedError
 
-{%  for sm in CLASS.statemachines %}\
+{%      end %}\
+{%  for sm in CLASS.get_statemachines(not_stereotypes=['extend','prototype']) %}\
 {%      for state in set([ tra.state_to for tra in sm.middle_transitions() if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final())]) %}\
     def action_wfk_set_${state.name}(self, cr, uid, ids, *args):
         self.write(cr, uid, ids, {'state':'${state.name}'})

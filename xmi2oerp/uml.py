@@ -240,8 +240,18 @@ class CEntity(Base):
     def parent(self, package=None, pid=0):
         return self.parents(package=package)[pid]
 
-    def parents(self, package=None):
-        return [ gen.parent for gen in self.child_of if package is None or gen.parent.package == package]
+    def parents(self, package=None, stereotypes=None, not_stereotypes=None, ignore=[]):
+        f_package = lambda gen: gen.parent.package == package if package else True
+        f_stereotype = lambda gen: any(gen.is_stereotype(s) for s in stereotypes) if stereotypes else True
+        f_not_stereotype = lambda gen: not any(gen.is_stereotype(s) for s in not_stereotypes) if not_stereotypes else True
+        return [ gen.parent for gen in self.child_of
+                if f_package(gen)
+                   and f_stereotype(gen)
+                   and f_not_stereotype(gen)
+                   and gen.parent.oerp_id() not in ignore ]
+
+    def get_statemachines(self, *args, **dargs):
+        return self.statemachines if self.statemachines else itertools.chain(*[ p.get_statemachines(*args, **dargs) for p in self.parents(*args, **dargs) ])
 
     def childs(self, package=None):
         return [ gen.child for gen in self.parent_of if package is None or gen.parent.package == package]
@@ -551,6 +561,10 @@ class CClass(CDataType):
             if i.name == name:
                 return i
         return None
+
+    def is_extended(self, ignore=['ir.needaction_mixin','mail.thread']):
+        extensions = [ gen.is_stereotype('extend') for gen in self.child_of if gen.parent.oerp_id() not in ignore ]
+        return any(extensions)
 
     def oerp_id(self, sep='.', check_extend=True, return_parent=False, ignore=['ir.needaction_mixin','mail.thread']):
         child_of = [ gen for gen in self.child_of if gen.parent.oerp_id() not in ignore ]
@@ -929,7 +943,7 @@ class CStateMachine(CEntity):
     def __repr__(self):
         return "<CStateMachine(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
-    def list_states(self):
+    def list_states(self, sort=True):
         for s in self.states:
             if type(s) is CSimpleState:
                 yield s

@@ -10,7 +10,7 @@ ${LICENSE_HEADER}\
 <!-- ${ pmodel() } -->
 <openerp>
     <data>
-{% for sm in list(CLASS.statemachines) %}\
+{% for sm in CLASS.get_statemachines(not_stereotypes=['extend','prototype']) %}\
 {% def wkfname() %}${CLASS.name}_${sm.name}_wkf{% end %}\
 {% def wkfguard(u=' and ') %}True${u}{% end %}\
 {% if CLASS.oerp_id('-', False) != CLASS.oerp_id('-') and CLASS.has_member('type', uml.CAttribute) %}\
