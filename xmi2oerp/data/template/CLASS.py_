@@ -138,6 +138,11 @@ class ${CLASS.name}(osv.osv):
 {%      if col.is_stereotype('context') %}\
         '${col.name}': lambda self, cr, uid, context=None: context and context.get('${col.name}', ${repr(col.tag.get('default',False))}),
 {%      end %}\
+{%  for ass in CLASS.all_associations(parents=False) %}\
+{%      if ass.is_stereotype('context') %}\
+        '${ass.name}': lambda self, cr, uid, context=None: context and context.get('${ass.name}', ${repr(ass.tag.get('default',False))}),
+{%      end %}\
+{%      end %}\
 {%  end %}\
     }
 
