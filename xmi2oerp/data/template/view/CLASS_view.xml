@@ -23,15 +23,15 @@ ${LICENSE_HEADER}\
                 <search position="inside">
 {%                  for col in CLASS.all_attributes(stereotype='search', parents=False) %}\
                         <field name="${col.name}"
-{%                    if 'view_groups' in col.tag or 'groups' in col.tag %}\
-                            groups="${','.join([col.tag.get('view_groups',''),col.tag.get('groups','')])}"
+{%                    if 'search_groups' in col.tag or 'groups' in col.tag %}\
+                            groups="${','.join([col.tag.get('search_groups',''),col.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
 {%                  for ass in CLASS.all_associations(stereotype='search', parents=False) %}\
                         <field name="${ass.name}"
-{%                    if 'view_groups' in ass.tag or 'groups' in ass.tag %}\
-                            groups="${','.join([ass.tag.get('view_groups',''),ass.tag.get('groups','')])}"
+{%                    if 'search_groups' in ass.tag or 'groups' in ass.tag %}\
+                            groups="${','.join([ass.tag.get('search_groups',''),ass.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
@@ -48,15 +48,15 @@ ${LICENSE_HEADER}\
                 <group position="inside">
 {%                  for col in CLASS.all_attributes(stereotype='form', parents=False) %}\
                         <field name="${col.name}"
-{%                    if 'view_groups' in col.tag or 'groups' in col.tag %}\
-                            groups="${','.join([col.tag.get('view_groups',''),col.tag.get('groups','')])}"
+{%                    if 'form_groups' in col.tag or 'groups' in col.tag %}\
+                            groups="${','.join([col.tag.get('form_groups',''),col.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
 {%                  for ass in CLASS.all_associations(stereotype='form', parents=False) %}\
                         <field name="${ass.name}"
-{%                    if 'view_groups' in ass.tag or 'groups' in ass.tag %}\
-                            groups="${','.join([ass.tag.get('view_groups',''),ass.tag.get('groups','')])}"
+{%                    if 'form_groups' in ass.tag or 'groups' in ass.tag %}\
+                            groups="${','.join([ass.tag.get('form_groups',''),ass.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
@@ -94,15 +94,15 @@ ${LICENSE_HEADER}\
                 <search string="${CLASS_LABEL}" version="7.0">
 {%                  for col in CLASS.all_attributes(stereotype='search') %}\
                         <field name="${col.name}"
-{%                    if 'view_groups' in col.tag or 'groups' in col.tag %}\
-                            groups="${','.join([col.tag.get('view_groups',''),col.tag.get('groups','')])}"
+{%                    if 'form_groups' in col.tag or 'groups' in col.tag %}\
+                            groups="${','.join([col.tag.get('form_groups',''),col.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
 {%                  for ass in CLASS.all_associations(stereotype='search') %}\
                         <field name="${ass.name}"
-{%                    if 'view_groups' in ass.tag or 'groups' in ass.tag %}\
-                            groups="${','.join([ass.tag.get('view_groups',''),ass.tag.get('groups','')])}"
+{%                    if 'form_groups' in ass.tag or 'groups' in ass.tag %}\
+                            groups="${','.join([ass.tag.get('form_groups',''),ass.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
@@ -151,21 +151,111 @@ ${LICENSE_HEADER}\
                      <group>
 {%                  for col in CLASS.all_attributes(stereotype='form') %}\
                         <field name="${col.name}"
-{%                    if 'view_groups' in col.tag or 'groups' in col.tag %}\
-                            groups="${','.join([col.tag.get('view_groups',''),col.tag.get('groups','')])}"
+{%                    if 'form_select' in col.tag %}\
+                            select="${col.tag['form_select']}"
 {%                    end %}\
-{%                    if CLASS.is_extended() and col.is_stereotype('required') %}\
-                            required="True"
+{%                    if 'form_colspan' in col.tag %}\
+                            colspan="${col.tag['form_colspan']}"
+{%                    end %}\
+{%                    if 'form_readonly' in col.tag %}\
+                            readonly="${col.tag['form_readonly']}"
+{%                    end %}\
+{%                    if 'form_required' in col.tag %}\
+                            required="${col.tag['form_required']}"
+{%                    end %}\
+{%                    if 'form_nolabel' in col.tag %}\
+                            nolabel="${col.tag['form_nolabel']}"
+{%                    end %}\
+{%                    if col.is_stereotype('hidden') %}\
+                            invisible="True"
+{%                    end %}\
+{%                    if not col.is_stereotype('hidden') and 'form_invisible' in col.tag %}\
+                            invisible="${col.tag['form_invisible']}"
+{%                    end %}\
+{%                    if 'form_password' in col.tag %}\
+                            password="${col.tag['form_password']}"
+{%                    end %}\
+{%                    if 'form_string' in col.tag %}\
+                            string="${col.tag['form_string']}"
+{%                    end %}\
+{%                    if 'form_domain' in col.tag %}\
+                            domain="${col.tag['form_domain']}"
+{%                    end %}\
+{%                    if 'form_widget' in col.tag %}\
+                            widget="${col.tag['form_widget']}"
+{%                    end %}\
+{%                    if 'form_mode' in col.tag %}\
+                            mode="${col.tag['form_mode']}"
+{%                    end %}\
+{%                    if 'form_on_change' in col.tag %}\
+                            on_change="${col.tag['form_on_change']}"
+{%                    end %}\
+{%                    if 'form_attrs' in col.tag %}\
+                            attrs="${col.tag['form_attrs']}"
+{%                    end %}\
+{%                    if 'form_eval' in col.tag %}\
+                            eval="${col.tag['form_eval']}"
+{%                    end %}\
+{%                    if 'form_default_focus' in col.tag %}\
+                            default_focus="${col.tag['form_default_focus']}"
+{%                    end %}\
+{%                    if 'form_groups' in col.tag or 'groups' in col.tag %}\
+                            groups="${','.join([col.tag.get('form_groups',''),col.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
 {%                  for ass in CLASS.all_associations(stereotype='form') %}\
-                        <field name="${ass.name}"
-{%                    if 'view_groups' in ass.tag or 'groups' in ass.tag %}\
-                            groups="${','.join([ass.tag.get('view_groups',''),ass.tag.get('groups','')])}"
+                    <field name="${ass.name}"
+{%                    if 'form_select' in ass.tag %}\
+                            select="${ass.tag['form_select']}"
 {%                    end %}\
-{%                    if CLASS.is_extended() and ass.is_stereotype('required') %}\
-                            required="True"
+{%                    if 'form_colspan' in ass.tag %}\
+                            colspan="${ass.tag['form_colspan']}"
+{%                    end %}\
+{%                    if 'form_readonly' in ass.tag %}\
+                            readonly="${ass.tag['form_readonly']}"
+{%                    end %}\
+{%                    if 'form_required' in ass.tag %}\
+                            required="${ass.tag['form_required']}"
+{%                    end %}\
+{%                    if 'form_nolabel' in ass.tag %}\
+                            nolabel="${ass.tag['form_nolabel']}"
+{%                    end %}\
+{%                    if ass.is_stereotype('hidden') %}\
+                            invisible="True"
+{%                    end %}\
+{%                    if not ass.is_stereotype('hidden') and 'form_invisible' in ass.tag %}\
+                            invisible="${ass.tag['form_invisible']}"
+{%                    end %}\
+{%                    if 'form_password' in ass.tag %}\
+                            password="${ass.tag['form_password']}"
+{%                    end %}\
+{%                    if 'form_string' in ass.tag %}\
+                            string="${ass.tag['form_string']}"
+{%                    end %}\
+{%                    if 'form_domain' in ass.tag %}\
+                            domain="${ass.tag['form_domain']}"
+{%                    end %}\
+{%                    if 'form_widget' in ass.tag %}\
+                            widget="${ass.tag['form_widget']}"
+{%                    end %}\
+{%                    if 'form_mode' in ass.tag %}\
+                            mode="${ass.tag['form_mode']}"
+{%                    end %}\
+{%                    if 'form_on_change' in ass.tag %}\
+                            on_change="${ass.tag['form_on_change']}"
+{%                    end %}\
+{%                    if 'form_attrs' in ass.tag %}\
+                            attrs="${ass.tag['form_attrs']}"
+{%                    end %}\
+{%                    if 'form_eval' in ass.tag %}\
+                            eval="${ass.tag['form_eval']}"
+{%                    end %}\
+{%                    if 'form_default_focus' in ass.tag %}\
+                            default_focus="${ass.tag['form_default_focus']}"
+{%                    end %}\
+{%                    if 'form_groups' in ass.tag or 'groups' in ass.tag %}\
+                            groups="${','.join([ass.tag.get('form_groups',''),ass.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
@@ -187,13 +277,22 @@ ${LICENSE_HEADER}\
         <record id="${view_tree_id()}" model="ir.ui.view">
             <field name="name">${model()}.tree</field>
             <field name="model">${emodel()}</field>
+{%          for col in [ col for col in CLASS.all_attributes(stereotype='tree') if col.is_stereotype('field_parent')] %}\
+            <field name="field_parent">${col.name}</field>
+{%          end %}\
             <field name="arch" type="xml">
                 <tree string="${CLASS_LABEL}"
 {%                  if CLASS.is_child_of('ir.needaction_mixin') %}\
                     fonts="bold:message_unread==True" 
 {%                  end %}\
+{%                  if 'tree_colors' in CLASS.tag %}\
+                    colors="${CLASS.tag['tree_colors']}"
+{%                  end %}\
+{%                  if CLASS.is_stereotype('tree_toolbar') %}\
+                    toolbar="1"
+{%                  end %}\
 {%                  for sm in [ sm for sm in CLASS.statemachines ] %}\
-{% def colors() %}grey:state=='cancelled';blue:state in ${repr(tuple(names(sm.initial_states())))};black:state in ${repr(tuple(set(names(sm.middle_states()))-set(names(sm.stereotype_states('exceptional')))))}; red:state in ${repr(tuple(names(sm.stereotype_states('exceptional'))))}{% end %}\
+{%                       def colors() %}grey:state=='cancelled';blue:state in ${repr(tuple(names(sm.initial_states())))};black:state in ${repr(tuple(set(names(sm.middle_states()))-set(names(sm.stereotype_states('exceptional')))))}; red:state in ${repr(tuple(names(sm.stereotype_states('exceptional'))))}{% end %}\
                     colors="${colors()}"
 {%                  end %}\
                     >
@@ -201,10 +300,21 @@ ${LICENSE_HEADER}\
                     <field name="message_unread" invisible="1"/>
 {%                  end %}\
 {%                  for col in CLASS.all_attributes(stereotype='tree') %}\
-                    <field name="${col.name}"/>
+                    <field name="${col.name}"
+{%                    if 'tree_widget' in col.tag %}\
+                            widget="${col.tag['tree_widget']}"
+{%                    end %}\
+{%                    if col.is_stereotype('hidden') %}\
+                            invisible="True"
+{%                    end %}\
+{%                    if not col.is_stereotype('hidden') and 'tree_invisible' in col.tag %}\
+                            invisible="${col.tag['tree_invisible']}"
+{%                    end %}\
+                        />
 {%                  end %}\
 {%                  for ass in CLASS.all_associations(stereotype='tree') %}\
-                    <field name="${ass.name}"/>
+                    <field name="${ass.name}"
+                        />
 {%                  end %}\
 {%                  for sm in [ sm for sm in CLASS.statemachines ] %}\
                     <field name="state"/>

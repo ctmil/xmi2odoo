@@ -671,11 +671,11 @@ class Model:
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Parameter'):
                 if stop: import pdb; pdb.set_trace()
-                if 'coperation' in globals():
+                if 'coperation' in locals():
                     cparameter = self._create(uml.CParameter, elem,
-                                              mask=(False, False, False, False, False, True),
+                                              mask=(False, False, False, False, True),
                                               attribs=['xmi.id', 'name'],
-                                              extra_params=[None, None, None, coperation])
+                                              extra_params=[None, None, coperation])
                 else:
                     """
                     Could be a TemplateParameter

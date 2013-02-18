@@ -1,5 +1,5 @@
 <?xml version = '1.0' encoding = 'UTF-8' ?>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Fri Feb 15 10:49:52 ART 2013'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Mon Feb 18 12:13:47 ART 2013'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.34(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -70,6 +70,7 @@
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1C'
               isSpecification = 'false'>
@@ -600,6 +601,7 @@
         <UML:Stereotype xmi.id = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EE1'
           name = 'context' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EE2'
@@ -636,6 +638,314 @@
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Generalization</UML:Stereotype.baseClass>
         </UML:Stereotype>
+        <UML:TagDefinition xmi.id = '127-0-1-1--3588a9e:13cead26784:-8000:0000000000000F2E'
+          name = 'digits' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--3588a9e:13cead26784:-8000:0000000000000F30'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--3588a9e:13cead26784:-8000:0000000000000F2F'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--3588a9e:13cead26784:-8000:0000000000000F31'
+          name = 'states' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--3588a9e:13cead26784:-8000:0000000000000F33'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--3588a9e:13cead26784:-8000:0000000000000F32'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--3588a9e:13cead26784:-8000:0000000000000F34'
+          name = 'form_on_change' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--3588a9e:13cead26784:-8000:0000000000000F36'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--3588a9e:13cead26784:-8000:0000000000000F35'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:Stereotype xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C84'
+          name = 'field_parent' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+        </UML:Stereotype>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C85'
+          name = 'tree_colors' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C87'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C86'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:Stereotype xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C88'
+          name = 'advance_select' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+        </UML:Stereotype>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C89'
+          name = 'form_groups' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C8B'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C8A'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C8C'
+          name = 'groups' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C8E'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C8D'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C8F'
+          name = 'tree_widget' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C91'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C90'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C92'
+          name = 'form_widget' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C94'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C93'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C95'
+          name = 'form_attrs' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C97'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C96'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C98'
+          name = 'form_invisible' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C9A'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C99'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C9B'
+          name = 'form_required' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C9D'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C9C'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C9E'
+          name = 'tree_attrs' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CA0'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C9F'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CA1'
+          name = 'tree_groups' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CA3'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CA2'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CA4'
+          name = 'tree_invisible' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CA6'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CA5'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CA7'
+          name = 'tree_on_change' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CA9'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CA8'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CAA'
+          name = 'tree_required' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CAC'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CAB'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CAD'
+          name = 'form_string' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CAF'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CAE'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CB0'
+          name = 'tree_string' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CB2'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CB1'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CB3'
+          name = 'form_password' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CB5'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CB4'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CB6'
+          name = 'tree_password' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CB8'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CB7'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CB9'
+          name = 'form_select' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CBB'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CBA'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CBC'
+          name = 'form_colspan' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CBE'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CBD'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CBF'
+          name = 'form_readonly' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CC1'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CC0'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CC2'
+          name = 'form_domain' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CC4'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CC3'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CC5'
+          name = 'form_nolabel' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CC7'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CC6'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CC8'
+          name = 'form_eval' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CCA'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CC9'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CCB'
+          name = 'form_default_focus' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CCD'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000CCC'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
       </UML:Namespace.ownedElement>
     </UML:Model>
   </XMI.content>

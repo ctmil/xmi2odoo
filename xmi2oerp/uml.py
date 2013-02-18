@@ -116,7 +116,7 @@ def is_valid_name(s):
     return type(s) is str and re_valid_name.match(s) is not None
 
 def clean_name(s, replace='_'):
-    #s = 'untitle' if type(s) is not str else s
+    s = 'untitle' if type(s) is not str else s
     return re_clean_name.sub(replace, s).lower()
 
 _oerp_type = {
@@ -196,10 +196,10 @@ class CEntity(Base):
             package = self.package.name
         return '%s%s%s' % (package, sep, self.name)
 
-    def is_stereotype(self, stereotype):
-        if stereotype is None: return True
-        st = [ st.name for st in self.stereotypes if st.name == stereotype]
-        return len(st) == 1
+    def is_stereotype(self, *stereotypes):
+        if stereotypes in (tuple(), (None,)): return True
+        st = [ st.name in stereotypes for st in self.stereotypes]
+        return any(st)
 
     def relateds(self, ctype=None):
         ctype = CEntity if ctype is None else ctype

@@ -102,13 +102,13 @@ class ${CLASS.name}(osv.osv):
 {%      def context %}{% if 'context' in ass.tag %}${sep()}context=${ass.tag['context']}{%end%}{%end%}\
 {%      def domain %}{% if 'domain' in ass.tag %}${sep()}domain=${ass.tag['domain']}{%end%}{%end%}\
 {%      def on_change %}{% if 'on_change' in ass.tag %}${sep()}domain=${ass.tag['on_change']}{%end%}{%end%}\
+{%      def groups    %}{% if 'module_groups' in ass.tag or 'groups' in ass.tag %}${sep()}groups='${','.join([ass.tag.get('module_groups',''), ass.tag.get('groups','')])}'{%end%}{%end%}\
 {%      def readonly  %}{% if ass.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
 {%      def required  %}{% if ass.is_stereotype('required') and not CLASS.is_extended() %}${sep()}required=True{%end %}{%end%}\
 {%      def select    %}{% if ass.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
 {%      def store     %}{% if ass.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
 {%      def translate %}{% if ass.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
-{%      def invisible %}{% if ass.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
-{%      def groups    %}{% if 'module_groups' in ass.tag or 'groups' in ass.tag %}${sep()}groups='${','.join([ass.tag.get('module_groups',''), ass.tag.get('groups','')])}'{%end%}{%end%}\
+{%      def invisible %}{% if ass.is_stereotype('hidden') %}${sep()}invisible=True{%end%}{%end%}\
 {%      def options   %}${string()}${change_default()}${help()}${ondelete()}${readonly()}${required()}${size()}${states()}${store()}${translate()}${groups()}${context()}${domain()}${invisible()}${on_change()}${select()}${composite()}${mult1()}{%end%}\
 {%      choose ass.multiplicity %}\
         \
@@ -132,22 +132,22 @@ class ${CLASS.name}(osv.osv):
         'state': '${','.join([ s.name for s in sm.list_states() if s.is_initial() ])}',
 {%  end %}\
 {%  for col in CLASS_ATTRIBUTES %}\
-{%      if col.tag.get('default', None) is not None %}\
+{%      if col.tag.get('default') %}\
         '${col.name}': ${col.tag['default']},
 {%      end %}\
 {%      if col.is_stereotype('context') %}\
         '${col.name}': lambda self, cr, uid, context=None: context and context.get('${col.name}', ${repr(col.tag.get('default',False))}),
 {%      end %}\
+{%  end %}\
 {%  for ass in CLASS.all_associations(parents=False) %}\
 {%      if ass.is_stereotype('context') %}\
         '${ass.name}': lambda self, cr, uid, context=None: context and context.get('${ass.name}', ${repr(ass.tag.get('default',False))}),
-{%      end %}\
 {%      end %}\
 {%  end %}\
     }
 
 {%  for op in CLASS_PUBLIC_OPERATIONS %}\
-    def ${op.name}(self, cr, uid, ids{% for par in op.parameters %}, ${par.name}{% end %}):
+    def ${op.name}(self, cr, uid{% if not 'onchange_' in op.name %}, ids{% end %}{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}):
         raise NotImplementedError
 
 {%      end %}\
