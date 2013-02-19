@@ -481,7 +481,10 @@ class Model:
         :type umlclass: Children of uml.CEntity or himself
         :type filter: Filter Relations
         """
-        for k in self.session.query(umlclass).filter(filter):
+        q = self.session.query(umlclass)
+        if filter:
+            q = q.filter(filter)
+        for k in q:
             yield k.xmi_id
 
     def iterkeys(self):
