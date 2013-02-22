@@ -562,6 +562,12 @@ class CClass(CDataType):
                 return i
         return None
 
+    def association_by_name(self, name):
+        """ Return an association by name. """
+        for i in self.associations:
+            if i.swap[0].name == name:
+                return i.swap[0]
+
     def is_extended(self, ignore=['ir.needaction_mixin','mail.thread']):
         extensions = [ gen.is_stereotype('extend') for gen in self.child_of if gen.parent.oerp_id() not in ignore ]
         return any(extensions)

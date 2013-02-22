@@ -3,8 +3,8 @@ ${LICENSE_HEADER}
 {% def model(s='.') %}${CLASS.oerp_id(s, False)}{% end %}\
 {% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
 
-import netsvc
 import re
+import netsvc
 from osv import osv, fields
 
 class ${CLASS.name}(osv.osv):
@@ -119,7 +119,7 @@ class ${CLASS.name}(osv.osv):
 {%          when 'related'   %}'${name()}': fields.related(
                     ${"'%s'" % "','".join(ass.tag['related_by'].split(','))},
                     ${"'%s'" % ass.tag['related_to']},
-                    type='${getattr(getattr(ass.participant.member_by_name(ass.tag["related_to"]), "datatype", None),"oerp_type","<Not defined>")}',
+                    type='${getattr(getattr(ass.participant.member_by_name(ass.tag["related_to"]), "datatype", None),"oerp_type",getattr(ass.participant.association_by_name(ass.tag["related_to"]), "multiplicity","<Not defined>"))}',
                     relation='${oerp_id()}',
                     ${options()}
                     ),{% end %}\
@@ -132,25 +132,31 @@ class ${CLASS.name}(osv.osv):
         'state': '${','.join([ s.name for s in sm.list_states() if s.is_initial() ])}',
 {%  end %}\
 {%  for col in CLASS_ATTRIBUTES %}\
-{%      if col.tag.get('default') %}\
+{%      if col.tag.get('default') and not col.is_stereotype('context') %}\
         '${col.name}': ${col.tag['default']},
 {%      end %}\
 {%      if col.is_stereotype('context') %}\
-        '${col.name}': lambda self, cr, uid, context=None: context and context.get('${col.name}', ${repr(col.tag.get('default',False))}),
+        '${col.name}': lambda self, cr, uid, context=None: context and context.get('${col.name}', ${col.tag.get('default','False')}),
 {%      end %}\
 {%  end %}\
 {%  for ass in CLASS.all_associations(parents=False) %}\
 {%      if ass.is_stereotype('context') %}\
-        '${ass.name}': lambda self, cr, uid, context=None: context and context.get('${ass.name}', ${repr(ass.tag.get('default',False))}),
+        '${ass.name}': lambda self, cr, uid, context=None: context and context.get('${ass.name}', ${ass.tag.get('default','False')}),
 {%      end %}\
 {%  end %}\
     }
 
-{%  for op in CLASS_PUBLIC_OPERATIONS %}\
-    def ${op.name}(self, cr, uid{% if not 'onchange_' in op.name %}, ids{% end %}{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}):
+{%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation ] %}\
+    def ${op.name}(self, cr, uid{% if not 'x_' in op.name %}, ids{% end %}{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}):
+{%    if op.member_of.name == CLASS.name %}\
         raise NotImplementedError
+{%  end %}\
+{%    if op.member_of.name != CLASS.name %}\
+        member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
+        return member(cr, uid{% if not 'x_' in op.name %}, ids{% end %}{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %})
+{%  end %}\
 
-{%      end %}\
+{%  end %}\
 {%  for sm in CLASS.get_statemachines(not_stereotypes=['extend','prototype']) %}\
 {%      for state in set([ tra.state_to for tra in sm.middle_transitions() if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final())]) %}\
     def action_wfk_set_${state.name}(self, cr, uid, ids, *args):
