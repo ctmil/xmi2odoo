@@ -687,6 +687,14 @@ class Model:
 
 # Tags
 
+            elif (kind, event, elem.tag) == ('plain', 'start', '{org.omg.xmi.namespace.UML}TaggedValue.dataValue'):
+                if stop: import pdb; pdb.set_trace()
+                tagvalue = elem.text or ''
+
+            elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}TaggedValue.dataValue'):
+                if stop: import pdb; pdb.set_trace()
+                tagvalue = max(tagvalue, elem.text)
+
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}TagDefinition'):
                 if stop: import pdb; pdb.set_trace()
                 ctagdefinition = self._create(uml.CTagDefinition, elem)
@@ -701,11 +709,12 @@ class Model:
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}TaggedValue'):
                 if stop: import pdb; pdb.set_trace()
-                tagvalue = elem.text or ''
+                tagvalue = max(tagvalue, elem.text or '')
                 if len(owner) > 1:
                     ctaggedvalue = self._create(uml.CTaggedValue, elem,
                                                 mask=(False, True, False, True), attribs=['xmi.id'],
-                                                extra_params=[tagdefinition, tagvalue.strip(), owner[-1]])
+                                                extra_params=[tagdefinition, tagvalue.strip() , owner[-1]])
+                del tagvalue
 
 # Associations
 
