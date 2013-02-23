@@ -687,10 +687,6 @@ class Model:
 
 # Tags
 
-            elif (kind, event, elem.tag) == ('plain', 'start', '{org.omg.xmi.namespace.UML}TaggedValue.dataValue'):
-                if stop: import pdb; pdb.set_trace()
-                tagvalue = elem.text if elem.text is not None else ''
-
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}TagDefinition'):
                 if stop: import pdb; pdb.set_trace()
                 ctagdefinition = self._create(uml.CTagDefinition, elem)
@@ -705,6 +701,7 @@ class Model:
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}TaggedValue'):
                 if stop: import pdb; pdb.set_trace()
+                tagvalue = elem.text or ''
                 if len(owner) > 1:
                     ctaggedvalue = self._create(uml.CTaggedValue, elem,
                                                 mask=(False, True, False, True), attribs=['xmi.id'],
