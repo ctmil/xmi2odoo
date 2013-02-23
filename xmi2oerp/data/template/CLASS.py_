@@ -147,7 +147,7 @@ class ${CLASS.name}(osv.osv):
     }
 
 {%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation ] %}\
-    def ${op.name}(self, cr, uid{% if not 'x_' in op.name %}, ids{% end %}{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}):
+    def ${op.name}(self, cr, uid{% if not 'x_' in op.name %}, ids{% end %}{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None):
         """${op.tag.get('documentation','')}"""
 {%    if op.member_of.name == CLASS.name %}\
         raise NotImplementedError
