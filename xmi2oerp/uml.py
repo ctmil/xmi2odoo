@@ -201,6 +201,11 @@ class CEntity(Base):
         st = [ st.name in stereotypes for st in self.stereotypes]
         return any(st)
 
+    def not_is_stereotype(self, *stereotypes):
+        if stereotypes in (tuple(), (None,)): return True
+        st = [ st.name in stereotypes for st in self.stereotypes]
+        return not any(st)
+
     def relateds(self, ctype=None):
         ctype = CEntity if ctype is None else ctype
         return [ ass.swap[0].participant for ass in self.associations if isinstance(ass.swap[0].participant, ctype) ]
@@ -240,14 +245,12 @@ class CEntity(Base):
     def parent(self, package=None, pid=0):
         return self.parents(package=package)[pid]
 
-    def parents(self, package=None, stereotypes=None, not_stereotypes=None, ignore=[]):
+    def parents(self, package=None, stereotypes=[], no_stereotypes=[], ignore=[]):
         f_package = lambda gen: gen.parent.package == package if package else True
-        f_stereotype = lambda gen: any(gen.is_stereotype(s) for s in stereotypes) if stereotypes else True
-        f_not_stereotype = lambda gen: not any(gen.is_stereotype(s) for s in not_stereotypes) if not_stereotypes else True
         return [ gen.parent for gen in self.child_of
                 if f_package(gen)
-                   and f_stereotype(gen)
-                   and f_not_stereotype(gen)
+                   and gen.is_stereotype(*stereotypes)
+                   and gen.not_is_stereotype(*no_stereotypes)
                    and gen.parent.oerp_id() not in ignore ]
 
     def get_statemachines(self, *args, **dargs):
@@ -396,22 +399,25 @@ class CDataType(CEntity):
     def oerp_type(self):
         return _oerp_type[self.name]
 
-    def all_attributes(self, stereotype=None, parents=True, ctype=None, sort=True):
+    def all_attributes(self, stereotypes=[], no_stereotypes=[], parents=True, ctype=None, sort=True):
         if ctype is None: ctype = CAttribute
         r = list(itertools.chain([ (m, m.order) for m in self.members
-                             if type(m) is ctype and m.is_stereotype(stereotype) ],
-                            *[ gen.parent.all_attributes(stereotype, parents, ctype, sort=False) for gen in self.child_of if parents]))
+                             if type(m) is ctype and m.is_stereotype(*stereotypes) and m.not_is_stereotype(*no_stereotypes) ],
+                            *[ gen.parent.all_attributes(stereotypes, no_stereotypes, parents, ctype, sort=False) for gen in self.child_of if parents]))
         if sort:
             s = sorted(r,key=lambda k: k[1])
             return s and zip(*s)[0] or []
         else:
             return r
 
-    def all_associations(self, stereotype=None, parents=True, ctype=None, sort=True):
+    def all_associations(self, stereotypes=[], no_stereotypes=[], parents=True, ctype=None, sort=True):
         if ctype is None: ctype = CClass
         r = list(itertools.chain([ (ass.swap[0], ass.order) for ass in self.associations
-                             if type(ass.swap[0].participant) is ctype and ass.swap[0].is_stereotype(stereotype)],
-                            *[ gen.parent.all_associations(stereotype, parents, ctype, sort=False) for gen in self.child_of if parents]))
+                             if type(ass.swap[0].participant) is ctype and
+                                  ass.swap[0].is_stereotype(*stereotypes) and
+                                  ass.swap[0].not_is_stereotype(*no_stereotypes)
+                                 ],
+                            *[ gen.parent.all_associations(stereotypes, no_stereotypes, parents, ctype, sort=False) for gen in self.child_of if parents]))
         if sort:
             s = sorted(r,key=lambda k: k[1])
             return s and zip(*s)[0] or []
@@ -987,10 +993,10 @@ class CStateMachine(CEntity):
             if type(t.state_from) is CSimpleState and type(t.state_to) is CSimpleState:
                 yield t
 
-    def list_triggers(self, stereotype=None):
+    def list_triggers(self, stereotype=[]):
         for t in self.transitions:
             tt = t.trigger
-            if tt is None or (stereotype is not None and not tt.is_stereotype(stereotype)):
+            if tt is None or (stereotype is not None and not tt.is_stereotype(*stereotype)):
                 continue
             yield tt
 

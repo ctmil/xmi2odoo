@@ -10,7 +10,7 @@ ${LICENSE_HEADER}\
 <!-- ${ pmodel() } -->
 <openerp>
     <data>
-{% for sm in CLASS.get_statemachines(not_stereotypes=['extend','prototype']) %}\
+{% for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
 {% def wkfname() %}${CLASS.name}_${sm.name}_wkf{% end %}\
 {% def wkfguard(u=' and ') %}True${u}{% end %}\
 {% if CLASS.oerp_id('-', False) != CLASS.oerp_id('-') and CLASS.has_member('type', uml.CAttribute) %}\
@@ -27,7 +27,7 @@ ${LICENSE_HEADER}\
         <!-- Activities -->
 
 {%   for s in sm.list_ordered_states() %}\
-        <record id="a_${CLASS.id}_${s.id}" model="workflow.activity">
+        <record id="a_${CLASS.xmi_id[-4:]}_${s.xmi_id[-4:]}" model="workflow.activity">
             <field name="wkf_id" ref="${wkfname()}"/>
 {%     if s.is_initial() %}\
             <field name="flow_start">True</field>
@@ -50,9 +50,9 @@ ${LICENSE_HEADER}\
         <!-- Transitions -->
 
 {%   for t in sm.middle_transitions() %}\
-        <record id="t_${CLASS.id}_${t.id}" model="workflow.transition">
-            <field name="act_from" ref="a_${CLASS.id}_${t.state_from.id}"/>
-            <field name="act_to" ref="a_${CLASS.id}_${t.state_to.id}"/>
+        <record id="t_${CLASS.xmi_id[-4:]}_${t.xmi_id[-4:]}" model="workflow.transition">
+            <field name="act_from" ref="a_${CLASS.xmi_id[-4:]}_${t.state_from.xmi_id[-4:]}"/>
+            <field name="act_to" ref="a_${CLASS.xmi_id[-4:]}_${t.state_to.xmi_id[-4:]}"/>
 {%     if t.trigger is not None %}\
             <field name="signal">sgn_${t.trigger.name}</field>
 {%     end %}\

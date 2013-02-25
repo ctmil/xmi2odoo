@@ -10,7 +10,7 @@ ${LICENSE_HEADER}\
 <!-- ${ pmodel() } -->
 <openerp>
     <data>
-{% if CLASS.parents(not_stereotypes=['disjoin_view'], ignore=['mail.thread','ir.needaction_mixin']) %}
+{% if CLASS.parents(no_stereotypes=['disjoin_view'], ignore=['mail.thread','ir.needaction_mixin']) %}
 {%  def view_filter_id() %}view_${model('_')}_filter{% end %}\
 {%  def view_form_id()   %}view_${model('_')}_form{%   end %}\
 {%  def view_tree_id()   %}view_${model('_')}_tree{%   end %}\
@@ -21,14 +21,14 @@ ${LICENSE_HEADER}\
             <field name="inherit_id" ref="${ CLASS.parent().get('view_search_id', 'view_'+CLASS.oerp_id('_', False, True)+'_filter')}"/>
             <field name="arch" type="xml">
                 <search position="inside">
-{%                  for col in CLASS.all_attributes(stereotype='search', parents=False) %}\
+{%                  for col in CLASS.all_attributes(stereotypes=['search'], parents=False) %}\
                         <field name="${col.name}"
 {%                    if 'search_groups' in col.tag or 'groups' in col.tag %}\
                             groups="${','.join([col.tag.get('search_groups',''),col.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotype='search', parents=False) %}\
+{%                  for ass in CLASS.all_associations(stereotypes=['search'], parents=False) %}\
                         <field name="${ass.name}"
 {%                    if 'search_groups' in ass.tag or 'groups' in ass.tag %}\
                             groups="${','.join([ass.tag.get('search_groups',''),ass.tag.get('groups','')])}"
@@ -46,14 +46,14 @@ ${LICENSE_HEADER}\
             <field name="inherit_id" ref="${ CLASS.parent().get('view_form_id', 'view_'+CLASS.oerp_id('_', False, True)+'_form')}"/>
             <field name="arch" type="xml">
                 <group position="inside">
-{%                  for col in CLASS.all_attributes(stereotype='form', parents=False) %}\
+{%                  for col in CLASS.all_attributes(stereotypes=['form'], parents=False) %}\
                         <field name="${col.name}"
 {%                    if 'form_groups' in col.tag or 'groups' in col.tag %}\
                             groups="${','.join([col.tag.get('form_groups',''),col.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotype='form', parents=False) %}\
+{%                  for ass in CLASS.all_associations(stereotypes=['form'], parents=False) %}\
                         <field name="${ass.name}"
 {%                    if 'form_groups' in ass.tag or 'groups' in ass.tag %}\
                             groups="${','.join([ass.tag.get('form_groups',''),ass.tag.get('groups','')])}"
@@ -71,10 +71,10 @@ ${LICENSE_HEADER}\
             <field name="inherit_id" ref="${ CLASS.parent().get('view_tree_id', 'view_'+CLASS.oerp_id('_', False, True)+'_tree')}"/>
             <field name="arch" type="xml">
                 <tree position="inside">
-{%                  for col in CLASS.all_attributes(stereotype='tree', parents=False) %}\
+{%                  for col in CLASS.all_attributes(stereotypes=['tree'], parents=False) %}\
                     <field name="${col.name}"/>
 {%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotype='tree', parents=False) %}\
+{%                  for ass in CLASS.all_associations(stereotypes=['tree'], parents=False) %}\
                     <field name="${ass.name}"/>
 {%                  end %}\
                 </tree>
@@ -92,14 +92,14 @@ ${LICENSE_HEADER}\
             <field name="model">${emodel()}</field>
             <field name="arch" type="xml">
                 <search string="${CLASS_LABEL}" version="7.0">
-{%                  for col in CLASS.all_attributes(stereotype='search') %}\
+{%                  for col in CLASS.all_attributes(stereotypes=['search']) %}\
                         <field name="${col.name}"
 {%                    if 'form_groups' in col.tag or 'groups' in col.tag %}\
                             groups="${','.join([col.tag.get('form_groups',''),col.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotype='search') %}\
+{%                  for ass in CLASS.all_associations(stereotypes=['search']) %}\
                         <field name="${ass.name}"
 {%                    if 'form_groups' in ass.tag or 'groups' in ass.tag %}\
                             groups="${','.join([ass.tag.get('form_groups',''),ass.tag.get('groups','')])}"
@@ -117,7 +117,7 @@ ${LICENSE_HEADER}\
             <field name="arch" type="xml">
                 <form string="${CLASS_LABEL}" version="7.0">
                     <header>
-{%                  for sm in CLASS.get_statemachines(not_stereotypes=['extend','prototype']) %}\
+{%                  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
 {%                    for tri in [ t for t in sm.list_ordered_triggers() ] %}\
 {%                      for state in [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ][0:1] %}\
                         <button name="action_wfk_set_${state.name}"
@@ -149,7 +149,7 @@ ${LICENSE_HEADER}\
                     </header>
                     <sheet string="${CLASS_LABEL}">
                      <group>
-{%                  for col in CLASS.all_attributes(stereotype='form') %}\
+{%                  for col in CLASS.all_attributes(stereotypes=['form']) %}\
                         <field name="${col.name}"
 {%                    if 'form_select' in col.tag %}\
                             select="${col.tag['form_select']}"
@@ -204,7 +204,7 @@ ${LICENSE_HEADER}\
 {%                    end %}\
                             />
 {%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotype='form') %}\
+{%                  for ass in CLASS.all_associations(stereotypes=['form']) %}\
                     <field name="${ass.name}"
 {%                    if 'form_select' in ass.tag %}\
                             select="${ass.tag['form_select']}"
@@ -277,7 +277,7 @@ ${LICENSE_HEADER}\
         <record id="${view_tree_id()}" model="ir.ui.view">
             <field name="name">${model()}.tree</field>
             <field name="model">${emodel()}</field>
-{%          for col in [ col for col in CLASS.all_attributes(stereotype='tree') if col.is_stereotype('field_parent')] %}\
+{%          for col in [ col for col in CLASS.all_attributes(stereotypes=['tree']) if col.is_stereotype('field_parent')] %}\
             <field name="field_parent">${col.name}</field>
 {%          end %}\
             <field name="arch" type="xml">
@@ -299,7 +299,7 @@ ${LICENSE_HEADER}\
 {%                  if CLASS.is_child_of('ir.needaction_mixin') %}\
                     <field name="message_unread" invisible="1"/>
 {%                  end %}\
-{%                  for col in CLASS.all_attributes(stereotype='tree') %}\
+{%                  for col in CLASS.all_attributes(stereotypes=['tree']) %}\
                     <field name="${col.name}"
 {%                    if 'tree_widget' in col.tag %}\
                             widget="${col.tag['tree_widget']}"
@@ -312,7 +312,7 @@ ${LICENSE_HEADER}\
 {%                    end %}\
                         />
 {%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotype='tree') %}\
+{%                  for ass in CLASS.all_associations(stereotypes=['tree']) %}\
                     <field name="${ass.name}"
                         />
 {%                  end %}\
