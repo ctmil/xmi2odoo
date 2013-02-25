@@ -88,7 +88,7 @@ class Builder:
         items = list(menues[0].prev_leafs(uml.CUseCase, uml.CUseCase))
         while items:
             r.extend(items)
-            items = set(itertools.chain(*[ i.nexts(uml.CUseCase) for i in items ]))
+            items = sorted(set(itertools.chain(*[ i.nexts(uml.CUseCase) for i in items ])), key=lambda a: a.name)
         if len(menues) != len(r):
             raise RuntimeError, 'Unlinked menues.'
         return r

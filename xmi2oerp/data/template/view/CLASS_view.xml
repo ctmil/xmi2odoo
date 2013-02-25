@@ -132,7 +132,7 @@ ${LICENSE_HEADER}\
 {%                          if 'type' in tri.tag %}\
                             type="${tri.tag['type']}"
 {%                          end %}\
-                            states="${','.join([ s.name for s in set(tri.list_states_from(sm)) ])}"
+                            states="${','.join(sorted([ s.name for s in set(tri.list_states_from(sm)) ]))}"
                             string="${tri.tag['label']}"
 {%                          if 'groups' in tri.tag %}\
                             groups="${tri.tag['groups']}"
