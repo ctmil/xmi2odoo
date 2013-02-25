@@ -949,13 +949,26 @@ class CStateMachine(CEntity):
     def __repr__(self):
         return "<CStateMachine(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
-    def list_states(self, sort=True):
+    def list_states(self, ctype=None):
+        ctype = ctype or CSimpleState
         for s in self.states:
-            if type(s) is CSimpleState:
+            if type(s) is ctype:
                 yield s
 
-    def list_ordered_states(self):
-        return CBaseState.BFS(self.initial_states(), self.final_states())
+    def list_ordered_states(self, ctype=None):
+        def take(S, D=[]):
+            """
+            Ordena estados en general, priorizando los por defecto.
+            """
+            if S == []:
+                return D
+            else:
+                s = S.pop(0)
+                N = sorted(s.next_states(stereotypes=['default']), key=lambda a: a.name)
+                return take(N + filter(lambda ns: ns not in N + D,S),
+                            filter(lambda ns: ns != s, D) + [s])
+
+        return take(self.initial_states() + self.middle_states() + self.final_states())
 
     def initial_states(self):
         return [ s for s in self.list_states() if s.is_initial() ]
@@ -980,6 +993,14 @@ class CStateMachine(CEntity):
             if tt is None or (stereotype is not None and not tt.is_stereotype(stereotype)):
                 continue
             yield tt
+
+    def list_ordered_triggers(self):
+        S = self.list_ordered_states()
+        ST = sorted([ t for t in self.transitions if t.trigger is not None ], key=lambda t: S.index(t.state_to)*S.index(t.state_from))
+        seen = set()
+        seen_add = seen.add
+        TT = [ x.trigger for x in reversed(ST) if x.trigger.name not in seen and not seen_add(x.trigger.name)]
+        return [ t for t in reversed(TT) ]
 
 class CBaseState(CEntity):
     """Simple State class.
@@ -1031,6 +1052,27 @@ class CBaseState(CEntity):
         return max([ type(s) is CFinalState
                     for s in self.next_states() ] + [ False ])
 
+    def is_default(self):
+        return any(t.is_stereotype('default') for t in self.transition_in)
+
+    def prev_states(self, stereotypes=tuple()):
+        for t in self.in_transitions:
+            if t.is_stereotype(*stereotypes):
+                yield t.state_from
+
+    def next_states(self, stereotypes=tuple()):
+        for t in self.out_transitions:
+            if t.is_stereotype(*stereotypes):
+                yield t.state_to
+
+    def is_initial(self):
+        return max([ getattr(s, 'kind', '') == 'initial'
+                    for s in self.prev_states() ] + [ False ])
+    
+    def is_final(self):
+        return max([ type(s) is CFinalState
+                    for s in self.next_states() ] + [ False ])
+
     class BFS:
         def __init__(self, begin_states, final_states):
             self._revised = set(final_states)
@@ -1047,8 +1089,16 @@ class CBaseState(CEntity):
                 self._revised.add(s)
                 return s
             elif not self._final:
-                self._states = set(itertools.chain(*[ s.next_states() for s in self._revised ])) - self._revised
-                self._states = [ s for s in self._states if type(s) is CSimpleState ]
+                states = set(itertools.chain(*[ s.next_states() for s in self._revised ])) - self._revised
+                default_states = [ s for s in states
+                                  if type(s) is CSimpleState and
+                                    any(t.is_stereotype('default') for t in s.in_transitions)]
+                default_states.sort(key=lambda a: s.name)
+                nodefault_states = [ s for s in states
+                                    if type(s) is CSimpleState and
+                                     all(not t.is_stereotype('default') for t in s.in_transitions)]
+                nodefault_states.sort(key=lambda a: s.name)
+                self._states = default_states + nodefault_states
                 if len(self._states) == 0:
                     self._final = True
                     self._states = self._final_states

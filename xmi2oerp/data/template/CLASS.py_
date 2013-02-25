@@ -35,13 +35,13 @@ class ${CLASS.name}(osv.osv):
 {% end %}\
     _columns = {
 {%  for parent in CLASS.parents(not_stereotypes=['prototype','extend']) %}\
-        '${parent.oerp_id('_')}_id': fields.many2one('${parent.oerp_id('.')}', "${parent.get('label', parent.name)}", ondelete="cascade", required=True, help="${parent.get('documentation','')}"),
+        '${parent.oerp_id('_')}_id': fields.many2one('${parent.oerp_id('.')}', '${parent.get('label', parent.name)}', ondelete='cascade', required=True, help=u"""${quote(parent.get('documentation',''))}"""),
 {%  end %}\
 {%  for col in CLASS.all_attributes(parents=False) %}\
 {%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
 {%      def name(prefix='', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
 {%      def string %}{% if 'label' in col.tag %}${sep()}string='${col.tag['label']}'{%end%}{%end%}\
-{%      def help %}{% if 'documentation' in col.tag %}${sep()}help='${col.tag['documentation']}'{%end%}{%end%}\
+{%      def help %}{% if 'documentation' in col.tag %}${sep()}help=u"""${quote(col.tag['documentation'])}"""{%end%}{%end%}\
 {%      def ondelete %}{% if 'ondelete' in col.tag %}${sep()}ondelete=${col.tag['ondelete']}{%end%}{%end%}\
 {%      def digits %}{% if 'digits' in col.tag %}${sep()}digits=${col.tag['digits']}{%end%}{%end%}\
 {%      def size %}{% if 'size' in col.tag %}${sep()}size=${col.tag['size']}{%end%}{%end%}\
@@ -94,7 +94,7 @@ class ${CLASS.name}(osv.osv):
 {%      def composite %}{% if ass.aggregation == 'composite' %}${sep()}ondelete='cascade'{%end%}{%end%}\
 {%      def mult1 %}{% if (eval(ass.multiplicityrange) or (0,0))[0] > 0 and not ass.is_stereotype('required') %}${sep()}required=True{%end%}{%end%}\
 {%      def string %}{% if 'label' in ass.tag %}${sep()}string='${quote(ass.tag['label'])}'{%end%}{%end%}\
-{%      def help %}{% if 'documentation' in ass.tag %}${sep()}help='${quote(ass.tag['documentation'])}'{%end%}{%end%}\
+{%      def help %}{% if 'documentation' in ass.tag %}${sep()}help=u"""${quote(ass.tag['documentation'])}"""{%end%}{%end%}\
 {%      def ondelete %}{% if 'ondelete' in ass.tag %}${sep()}ondelete=${ass.tag['ondelete']}{%end%}{%end%}\
 {%      def digits %}{% if 'digits' in ass.tag %}${sep()}digits=${ass.tag['digits']}{%end%}{%end%}\
 {%      def size %}{% if 'size' in ass.tag %}${sep()}size=${ass.tag['size']}{%end%}{%end%}\
