@@ -82,7 +82,7 @@ class ${CLASS.name}(osv.osv):
 {%  end %}\
 {%  for col in CLASS.all_attributes(parents=False, stereotypes=['property']) %}\
 {%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
-{%      def name(prefix='', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
+{%      def name(prefix='property_', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
 {%      def string %}{% if 'label' in col.tag %}${sep()}string='${col.tag['label']}'{%end%}{%end%}\
 {%      def help %}{% if 'documentation' in col.tag %}${sep()}help=u"""${quote(col.tag['documentation'])}"""{%end%}{%end%}\
 {%      def ondelete %}{% if 'ondelete' in col.tag %}${sep()}ondelete=${col.tag['ondelete']}{%end%}{%end%}\
@@ -99,14 +99,14 @@ class ${CLASS.name}(osv.osv):
 {%      def store     %}{% if col.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
 {%      def translate %}{% if col.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
 {%      def invisible %}{% if col.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
-{%      def relation  %}${sep()}relation='${col.datatype.name}'{%end%}\
+{%      def relation  %}${sep()}relation='${col.datatype.oerp_id()}'{%end%}\
 {%      def ctype     %}${sep()}type='many2one'{%end%}\
 {%      def method    %}${sep()}method=True{%end%}\
 {%      def view_load %}${sep()}view_load=True{%end%}\
 {%      def group_name%}${sep()}group_name='${CLASS.tag.get('group',CLASS.package.tag['label'])}'{%end%}\
 {%      def groups    %}{% if 'module_groups' in col.tag or 'groups' in col.tag %}${sep()} groups='${','.join([col.tag.get('module_groups',''), col.tag.get('groups','')])}'{%end%}{%end%}\
 {%      def options   %}${string()}${ctype()}${relation()}${method()}${view_load()}${group_name()}${change_default()}${help()}${ondelete()}${readonly()}${required()}${size()}${states()}${store()}${translate()}${groups()}${context()}${domain()}${invisible()}${on_change()}${select()}{%end%}\
-        '${name()}': fields.property('${col.datatype.name}', ${options()}),
+        '${name()}': fields.property('${col.datatype.oerp_id()}', ${options()}),
 {%  end %}\
 {%  if list(CLASS.get_statemachines(no_stereotypes=['extend','prototype'])) %}\
         'state': fields.selection(_states_, "State"),
