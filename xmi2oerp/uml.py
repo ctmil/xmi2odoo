@@ -253,11 +253,16 @@ class CEntity(Base):
                    and gen.not_is_stereotype(*no_stereotypes)
                    and gen.parent.oerp_id() not in ignore ]
 
+    def childs(self, package=None, stereotypes=[], no_stereotypes=[], ignore=[]):
+        f_package = lambda gen: gen.parent.package == package if package else True
+        return [ gen.child for gen in self.parent_of
+                if f_package(gen)
+                   and gen.is_stereotype(*stereotypes)
+                   and gen.not_is_stereotype(*no_stereotypes)
+                   and gen.child.oerp_id() not in ignore ]
+
     def get_statemachines(self, *args, **dargs):
         return self.statemachines if self.statemachines else itertools.chain(*[ p.get_statemachines(*args, **dargs) for p in self.parents(*args, **dargs) ])
-
-    def childs(self, package=None):
-        return [ gen.child for gen in self.parent_of if package is None or gen.parent.package == package]
 
     def is_child_of(self, oerp_id):
         oerp_ids = [ '%s.%s' % (gen.parent.package.name, gen.parent.name) for gen in self.child_of ]

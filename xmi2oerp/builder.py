@@ -164,6 +164,7 @@ class Builder:
             #view_files = [ 'view/%s_view.xml' % name for xml_id, name in root_classes ]
             view_files = [ "view/%s_view.xml" % n for n in self.sort_classes(package.get_entities(uml.CClass)) ]
             menu_files = [ 'view/%s_menuitem.xml' % package.name ]
+            properties_files = [ "data/%s_properties.xml" % n for n in self.sort_classes(package.get_entities(uml.CClass)) ]
             group_files = [ 'security/%s_group.xml' % package.name ]
             workflow_files = [ 'workflow/%s_workflow.xml' % name for xml_id, name in root_classes if len(list(self.model[xml_id].iter_over_inhereted_attrs('statemachines'))[0:1])>0 ]
             app_files = [ '%s_app.xml' % package.name ]
@@ -216,7 +217,7 @@ class Builder:
                     'depends': list(dependencies),
                     'init_xml': [],
                     'demo_xml': [],
-                    'update_xml': group_files + view_files + menu_files + workflow_files + security_files,
+                    'update_xml': group_files + view_files + menu_files + properties_files + workflow_files + security_files,
                     'test': [],
                     'active': False,
                     'installable': True,
@@ -298,6 +299,12 @@ class Builder:
                 # Generate view file
                 source_code = os.path.join(source, 'view/CLASS_view.xml')
                 target_code = os.path.join(target, 'view/%s_view.xml' % name)
+                shutil.copy(source_code, target_code)
+                self.update(tags, target_code)
+
+                # Generate properties file
+                source_code = os.path.join(source, 'data/CLASS_properties.xml')
+                target_code = os.path.join(target, 'data/%s_properties.xml' % name)
                 shutil.copy(source_code, target_code)
                 self.update(tags, target_code)
 

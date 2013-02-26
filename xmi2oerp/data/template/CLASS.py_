@@ -37,6 +37,9 @@ class ${CLASS.name}(osv.osv):
 {%  for parent in CLASS.parents(no_stereotypes=['prototype','extend']) %}\
         '${parent.oerp_id('_')}_id': fields.many2one('${parent.oerp_id('.')}', '${parent.get('label', parent.name)}', ondelete='cascade', required=True, help=u"""${quote(parent.get('documentation',''))}"""),
 {%  end %}\
+{%  for child in CLASS.childs(no_stereotypes=['prototype','extend']) %}\
+        '${child.oerp_id('_')}_id': fields.one2many('${child.oerp_id('.')}', '${CLASS.oerp_id('_')}_id', '${child.oerp_id('.')}_id', '${child.get('label', child.name)}', help=u"""${quote(child.get('documentation',''))}"""),
+{%  end %}\
 {%  for col in CLASS.all_attributes(parents=False, no_stereotypes=['property']) %}\
 {%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
 {%      def name(prefix='', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
@@ -103,7 +106,7 @@ class ${CLASS.name}(osv.osv):
 {%      def group_name%}${sep()}group_name='${CLASS.tag.get('group',CLASS.package.tag['label'])}'{%end%}\
 {%      def groups    %}{% if 'module_groups' in col.tag or 'groups' in col.tag %}${sep()} groups='${','.join([col.tag.get('module_groups',''), col.tag.get('groups','')])}'{%end%}{%end%}\
 {%      def options   %}${string()}${ctype()}${relation()}${method()}${view_load()}${group_name()}${change_default()}${help()}${ondelete()}${readonly()}${required()}${size()}${states()}${store()}${translate()}${groups()}${context()}${domain()}${invisible()}${on_change()}${select()}{%end%}\
-        '${name()}': fields.property(${options()}),
+        '${name()}': fields.property('${col.datatype.name}', ${options()}),
 {%  end %}\
 {%  if list(CLASS.get_statemachines(no_stereotypes=['extend','prototype'])) %}\
         'state': fields.selection(_states_, "State"),

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+ 
+{%  for col in CLASS.all_attributes(parents=False, stereotypes=['property']) %}\
+    <record model="ir.property" id="property_${CLASS.name}_${col.name}">
+        <field name="name">property_${CLASS.name}_${col.name}</field>
+        <field name="fields_id" search="[('model','=','${col.datatype.name}'),
+            ('name','=','property_${CLASS.name}_${col.name}')]"/>
+	    <field name="value" eval="'${col.datatype.name},'+str(list0)"/>
+	</record>
+{%  end %}\
+
+</data>
+</openerp>
+        
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4
+     -->
