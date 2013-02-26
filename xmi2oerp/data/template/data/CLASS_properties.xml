@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openerp>
+<data>
  
 {%  for col in CLASS.all_attributes(parents=False, stereotypes=['property']) %}\
-    <record model="ir.property" id="property_${CLASS.name}_${col.name}">
+    <!--record model="ir.property" id="property_${CLASS.name}_${col.name}">
         <field name="name">property_${CLASS.name}_${col.name}</field>
         <field name="fields_id" search="[('model','=','${col.datatype.name}'),
             ('name','=','property_${CLASS.name}_${col.name}')]"/>
-	    <field name="value" eval="'${col.datatype.name},'+str(list0)"/>
-	</record>
+        <field name="value" eval="'${col.datatype.name},%i' % ${col.tag.get('value',1)}"/>
+	</record-->
 {%  end %}\
 
 </data>
