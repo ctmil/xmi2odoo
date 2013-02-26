@@ -100,7 +100,7 @@ class ${CLASS.name}(osv.osv):
 {%      def translate %}{% if col.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
 {%      def invisible %}{% if col.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
 {%      def relation  %}${sep()}relation='${col.datatype.name}'{%end%}\
-{%      def ctype     %}${sep()}type='one2many'{%end%}\
+{%      def ctype     %}${sep()}type='many2one'{%end%}\
 {%      def method    %}${sep()}method=True{%end%}\
 {%      def view_load %}${sep()}view_load=True{%end%}\
 {%      def group_name%}${sep()}group_name='${CLASS.tag.get('group',CLASS.package.tag['label'])}'{%end%}\
