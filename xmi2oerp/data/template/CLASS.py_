@@ -2,6 +2,56 @@
 ${LICENSE_HEADER}
 {% def model(s='.') %}${CLASS.oerp_id(s, False)}{% end %}\
 {% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
+\
+{% def name(obj, prefix='', suffix='') %}${prefix}${obj.name}${suffix}{%end%}\
+{% def string(obj)         %}{% if 'label' in obj.tag %}${sep()}string='${obj.tag['label']}'{%end%}{%end%}\
+{% def help(obj)           %}{% if 'documentation' in obj.tag %}${sep()}help=u"""${quote(obj.tag['documentation'])}"""{%end%}{%end%}\
+{% def ondelete(obj)       %}{% if 'ondelete' in obj.tag %}${sep()}ondelete=${obj.tag['ondelete']}{%end%}{%end%}\
+{% def digits(obj)         %}{% if 'digits' in obj.tag %}${sep()}digits=${obj.tag['digits']}{%end%}{%end%}\
+{% def size(obj)           %}{% if 'size' in obj.tag %}${sep()}size=${obj.tag['size']}{%end%}{%end%}\
+{% def states(obj)         %}{% if 'states' in obj.tag %}${sep()}states=${obj.tag['states']}{%end%}{%end%}\
+{% def context(obj)        %}{% if 'context' in obj.tag %}${sep()}context=${obj.tag['context']}{%end%}{%end%}\
+{% def domain(obj)         %}{% if 'domain' in obj.tag %}${sep()}domain=${obj.tag['domain']}{%end%}{%end%}\
+{% def on_change(obj)      %}{% if 'on_change' in obj.tag %}${sep()}on_change='${obj.tag['on_change']}'{%end%}{%end%}\
+{% def groups(obj)         %}{% if 'module_groups' in obj.tag or 'groups' in obj.tag %}${sep()} groups='${','.join([obj.tag.get('module_groups',''), obj.tag.get('groups','')])}'{%end%}{%end%}\
+{% def change_default(obj) %}{% if obj.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
+{% def readonly(obj)       %}{% if obj.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
+{% def required(obj)       %}{% if obj.is_stereotype('required') and not CLASS.is_extended() %}${sep()}required=True{%end %}{%end%}\
+{% def select(obj)         %}{% if obj.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
+{% def store(obj)          %}{% if obj.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
+{% def translate(obj)      %}{% if obj.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
+{% def invisible(obj)      %}{% if obj.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
+{% def relation(obj)       %}{% if obj.is_stereotype('property') %}${sep()}relation='${obj.datatype.oerp_id()}'{%end%}{%end%}\
+{% def ctype(obj)          %}{% if obj.is_stereotype('property') %}${sep()}type='many2one'{%end%}{%end%}\
+{% def method(obj)         %}{% if obj.is_stereotype('property') %}${sep()}method=True{%end%}{%end%}\
+{% def view_load(obj)      %}{% if obj.is_stereotype('property') %}${sep()}view_load=True{%end%}{%end%}\
+{% def group_name(obj)     %}{% if obj.is_stereotype('property') %}${sep()}group_name='${CLASS.tag.get('group',CLASS.package.tag['label'])}'{%end%}{%end%}\
+\
+{% def options(obj)        %}\
+{%               def sep() %}{%  def sep() %}, {% end %}{% end %}\
+${               string(obj)}\
+${                 help(obj)}\
+${             ondelete(obj)}\
+${               digits(obj)}\
+${             readonly(obj)}\
+${             required(obj)}\
+${                 size(obj)}\
+${               states(obj)}\
+${              context(obj)}\
+${               domain(obj)}\
+${            on_change(obj)}\
+${               groups(obj)}\
+${       change_default(obj)}\
+${               select(obj)}\
+${                store(obj)}\
+${            translate(obj)}\
+${            invisible(obj)}\
+${                ctype(obj)}\
+${             relation(obj)}\
+${               method(obj)}\
+${            view_load(obj)}\
+${           group_name(obj)}\
+{%end%}\
 
 import re
 import netsvc
@@ -34,83 +84,25 @@ class ${CLASS.name}(osv.osv):
 
 {% end %}\
     _columns = {
-{%  for parent in CLASS.parents(no_stereotypes=['prototype','extend']) %}\
+{%      for parent in CLASS.parents(no_stereotypes=['prototype','extend']) %}\
         '${parent.oerp_id('_')}_id': fields.many2one('${parent.oerp_id('.')}', '${parent.get('label', parent.name)}', ondelete='cascade', required=True, help=u"""${quote(parent.get('documentation',''))}"""),
-{%  end %}\
-{%  for child in CLASS.childs(no_stereotypes=['prototype','extend']) %}\
+{%      end %}\
+{%      for child in CLASS.childs(no_stereotypes=['prototype','extend']) %}\
         '${child.oerp_id('_')}_id': fields.one2many('${child.oerp_id('.')}', '${CLASS.oerp_id('_')}_id', '${child.oerp_id('.')}_id', '${child.get('label', child.name)}', help=u"""${quote(child.get('documentation',''))}"""),
-{%  end %}\
-{%  for col in CLASS.all_attributes(parents=False, no_stereotypes=['property']) %}\
-{%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
-{%      def name(prefix='', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
-{%      def string %}{% if 'label' in col.tag %}${sep()}string='${col.tag['label']}'{%end%}{%end%}\
-{%      def help %}{% if 'documentation' in col.tag %}${sep()}help=u"""${quote(col.tag['documentation'])}"""{%end%}{%end%}\
-{%      def ondelete %}{% if 'ondelete' in col.tag %}${sep()}ondelete=${col.tag['ondelete']}{%end%}{%end%}\
-{%      def digits %}{% if 'digits' in col.tag %}${sep()}digits=${col.tag['digits']}{%end%}{%end%}\
-{%      def size %}{% if 'size' in col.tag %}${sep()}size=${col.tag['size']}{%end%}{%end%}\
-{%      def states %}{% if 'states' in col.tag %}${sep()}states=${col.tag['states']}{%end%}{%end%}\
-{%      def context %}{% if 'context' in col.tag %}${sep()}context=${col.tag['context']}{%end%}{%end%}\
-{%      def domain %}{% if 'domain' in col.tag %}${sep()}domain=${col.tag['domain']}{%end%}{%end%}\
-{%      def on_change %}{% if 'on_change' in col.tag %}${sep()}on_change=${col.tag['on_change']}{%end%}{%end%}\
-{%      def change_default  %}{% if col.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
-{%      def readonly  %}{% if col.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
-{%      def required  %}{% if col.is_stereotype('required') and not CLASS.is_extended() %}${sep()}required=True{%end %}{%end%}\
-{%      def select    %}{% if col.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
-{%      def store     %}{% if col.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
-{%      def translate %}{% if col.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
-{%      def invisible %}{% if col.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
-{%      def groups    %}{% if 'module_groups' in col.tag or 'groups' in col.tag %}${sep()} groups='${','.join([col.tag.get('module_groups',''), col.tag.get('groups','')])}'{%end%}{%end%}\
-{%      def options   %}${string()}${change_default()}${help()}${ondelete()}${readonly()}${required()}${size()}${states()}${store()}${translate()}${groups()}${context()}${domain()}${invisible()}${on_change()}${select()}{%end%}\
-{%      choose col.datatype.name %}\
-        \
-{%          when 'Boolean'   %}'${name()}': fields.boolean(${options()}), {% end %}\
-{%          when 'Integer'   %}'${name()}': fields.integer(${options()}), {% end %}\
-{%          when 'Float'     %}'${name()}': fields.float(${digits()}${options()}), {% end %}\
-{%          when 'Char'      %}'${name()}': fields.char(${options()}), {% end %}\
-{%          when 'Text'      %}'${name()}': fields.text(${options()}), {% end %}\
-{%          when 'Date'      %}'${name()}': fields.date(${options()}), {% end %}\
-{%          when 'Datetime'  %}'${name()}': fields.datetime(${options()}), {% end %}\
-{%          when 'Binary'    %}'${name()}': fields.binary(${options()}), {% end %}\
-{%          when 'HTML'      %}'${name()}': fields.html(${options()}), {% end %}\
-{%          otherwise        %}'${name()}': \
-{%            choose col.datatype.entityclass %}\
-{%            when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()])}, ${options()}), {% end %}\
-{%            when 'cclass' %}fields.many2one('${col.datatype.oerp_id()}', ${options()}), {% end %}\
-{%            end %}\
-{%          end %}\
-{%      end %}
-{%  end %}\
-{%  for col in CLASS.all_attributes(parents=False, stereotypes=['property']) %}\
-{%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
-{%      def name(prefix='property_', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
-{%      def string %}{% if 'label' in col.tag %}${sep()}string='${col.tag['label']}'{%end%}{%end%}\
-{%      def help %}{% if 'documentation' in col.tag %}${sep()}help=u"""${quote(col.tag['documentation'])}"""{%end%}{%end%}\
-{%      def ondelete %}{% if 'ondelete' in col.tag %}${sep()}ondelete=${col.tag['ondelete']}{%end%}{%end%}\
-{%      def digits %}{% if 'digits' in col.tag %}${sep()}digits=${col.tag['digits']}{%end%}{%end%}\
-{%      def size %}{% if 'size' in col.tag %}${sep()}size=${col.tag['size']}{%end%}{%end%}\
-{%      def states %}{% if 'states' in col.tag %}${sep()}states=${col.tag['states']}{%end%}{%end%}\
-{%      def context %}{% if 'context' in col.tag %}${sep()}context=${col.tag['context']}{%end%}{%end%}\
-{%      def domain %}{% if 'domain' in col.tag %}${sep()}domain=${col.tag['domain']}{%end%}{%end%}\
-{%      def on_change %}{% if 'on_change' in col.tag %}${sep()}on_change=${col.tag['on_change']}{%end%}{%end%}\
-{%      def change_default  %}{% if col.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
-{%      def readonly  %}{% if col.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
-{%      def required  %}{% if col.is_stereotype('required') and not CLASS.is_extended() %}${sep()}required=True{%end %}{%end%}\
-{%      def select    %}{% if col.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
-{%      def store     %}{% if col.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
-{%      def translate %}{% if col.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
-{%      def invisible %}{% if col.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
-{%      def relation  %}${sep()}relation='${col.datatype.oerp_id()}'{%end%}\
-{%      def ctype     %}${sep()}type='many2one'{%end%}\
-{%      def method    %}${sep()}method=True{%end%}\
-{%      def view_load %}${sep()}view_load=True{%end%}\
-{%      def group_name%}${sep()}group_name='${CLASS.tag.get('group',CLASS.package.tag['label'])}'{%end%}\
-{%      def groups    %}{% if 'module_groups' in col.tag or 'groups' in col.tag %}${sep()} groups='${','.join([col.tag.get('module_groups',''), col.tag.get('groups','')])}'{%end%}{%end%}\
-{%      def options   %}${string()}${ctype()}${relation()}${method()}${view_load()}${group_name()}${change_default()}${help()}${ondelete()}${readonly()}${required()}${size()}${states()}${store()}${translate()}${groups()}${context()}${domain()}${invisible()}${on_change()}${select()}{%end%}\
-        '${name()}': fields.property('${col.datatype.oerp_id()}', ${options()}),
-{%  end %}\
-{%  if list(CLASS.get_statemachines(no_stereotypes=['extend','prototype'])) %}\
+{%      end %}\
+{%      for col in CLASS.all_attributes(parents=False) %}\
+        '${name(col, prefix='property_' if col.is_stereotype('property') else '')}': \
+{%          if col.datatype.name in datatype %}fields.${datatype[col.datatype.name]}(${options(col)}),{% end %}\
+{%          if col.datatype.name not in datatype %}\
+{%              choose col.datatype.entityclass %}\
+{%                  when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()])}, ${options(col)}),{% end %}\
+{%                  when 'cclass' %}fields.${'property' if col.is_stereotype('property') else 'many2one'}('${col.datatype.oerp_id()}', ${options(col)}),{% end %}\
+{%              end %}\
+{%          end %}
+{%      end %}\
+{%      if list(CLASS.get_statemachines(no_stereotypes=['extend','prototype'])) %}\
         'state': fields.selection(_states_, "State"),
-{%  end %}\
+{%      end %}\
 {%  for ass in CLASS.all_associations(parents=False) %}\
 {%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
 {%      def actual_id %}${"%s_id" % CLASS_NAME}{%end%}\
@@ -132,14 +124,15 @@ class ${CLASS.name}(osv.osv):
 {%      def states %}{% if 'states' in ass.tag %}${sep()}states=${ass.tag['states']}{%end%}{%end%}\
 {%      def context %}{% if 'context' in ass.tag %}${sep()}context=${ass.tag['context']}{%end%}{%end%}\
 {%      def domain %}{% if 'domain' in ass.tag %}${sep()}domain=${ass.tag['domain']}{%end%}{%end%}\
-{%      def on_change %}{% if 'on_change' in ass.tag %}${sep()}on_change=${ass.tag['on_change']}{%end%}{%end%}\
+{%      def change_default  %}{% if ass.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
+{%      def on_change %}{% if 'on_change' in ass.tag %}${sep()}on_change='${ass.tag['on_change']}'{%end%}{%end%}\
 {%      def groups    %}{% if 'module_groups' in ass.tag or 'groups' in ass.tag %}${sep()}groups='${','.join([ass.tag.get('module_groups',''), ass.tag.get('groups','')])}'{%end%}{%end%}\
 {%      def readonly  %}{% if ass.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
 {%      def required  %}{% if ass.is_stereotype('required') and not CLASS.is_extended() %}${sep()}required=True{%end %}{%end%}\
 {%      def select    %}{% if ass.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
 {%      def store     %}{% if ass.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
 {%      def translate %}{% if ass.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
-{%      def invisible %}{% if ass.is_stereotype('hidden') %}${sep()}invisible=True{%end%}{%end%}\
+{%      def invisible %}{% if ass.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
 {%      def options   %}${string()}${change_default()}${help()}${ondelete()}${readonly()}${required()}${size()}${states()}${store()}${translate()}${groups()}${context()}${domain()}${invisible()}${on_change()}${select()}${composite()}${mult1()}{%end%}\
 {%      choose ass.multiplicity %}\
         \
