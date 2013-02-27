@@ -68,9 +68,16 @@ class ${CLASS.name}(osv.osv):
     _inherit = [ ${','.join(['\'%s\'' % (parent.oerp_id('.'),) for parent in CLASS.parents(stereotypes=['prototype','extend'])])} ]
 {%  end %}\
 
-{%  for op in CLASS_PRIVATE_OPERATIONS %}\
-    def ${op.name}(self, cr, uid, ids{% for par in op.parameters %}, ${par.name}{% end %}):
-        pass
+{%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] == '_' ] %}\
+    def ${op.name}(self, cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None):
+        """${op.tag.get('documentation','')}"""
+{%    if op.member_of.name == CLASS.name %}\
+        return False
+{%  end %}\
+{%    if op.member_of.name != CLASS.name %}\
+        member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
+        return member(cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %})
+{%  end %}\
 
 {% end %}\
     _states_ = [
@@ -170,15 +177,15 @@ class ${CLASS.name}(osv.osv):
 {%  end %}\
     }
 
-{%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation ] %}\
-    def ${op.name}(self, cr, uid{% if not 'x_' in op.name %}, ids{% end %}{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None):
+{%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] != '_' ] %}\
+    def ${op.name}(self, cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None):
         """${op.tag.get('documentation','')}"""
 {%    if op.member_of.name == CLASS.name %}\
         raise NotImplementedError
 {%  end %}\
 {%    if op.member_of.name != CLASS.name %}\
         member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
-        return member(cr, uid{% if not 'x_' in op.name %}, ids{% end %}{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %})
+        return member(cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %})
 {%  end %}\
 
 {%  end %}\

@@ -289,8 +289,6 @@ class Builder:
                     'CLASS_DOCUMENTATION': ctag.get('documentation', None),
                     'CLASS_ATTRIBUTES': [ m for m in cclass.members if m.entityclass == 'cattribute' ],
                     'CLASS_ASSOCIATIONS': [ m.swap[0] for m in cclass.associations if type(m.swap[0].participant) is uml.CClass ],
-                    'CLASS_PRIVATE_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' and m.name[0] == '_' ],
-                    'CLASS_PUBLIC_OPERATIONS': [ m for m in cclass.members if m.entityclass == 'coperation' and m.name[0] != '_' ],
                     'MENU_PARENT': cclass.tag.get('menu_parent', None) or (
                         [ass.participant.tag['label']
                          for ass in cclass.associations
