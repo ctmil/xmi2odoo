@@ -13,6 +13,8 @@ ${LICENSE_HEADER}
 {% def context(obj)        %}{% if 'context' in obj.tag %}${sep()}context=${obj.tag['context']}{%end%}{%end%}\
 {% def domain(obj)         %}{% if 'domain' in obj.tag %}${sep()}domain=${obj.tag['domain']}{%end%}{%end%}\
 {% def on_change(obj)      %}{% if 'on_change' in obj.tag %}${sep()}on_change='${obj.tag['on_change']}'{%end%}{%end%}\
+{% def fnct_inv(obj)       %}{% if 'fnct_inv' in obj.tag %}${sep()}fnct_inv='${obj.tag['fnct_inv']}'{%end%}{%end%}\
+{% def fnct_search(obj)    %}{% if 'fnct_search' in obj.tag %}${sep()}fnct_search='${obj.tag['fnct_search']}'{%end%}{%end%}\
 {% def groups(obj)         %}{% if 'module_groups' in obj.tag or 'groups' in obj.tag %}${sep()} groups='${','.join([obj.tag.get('module_groups',''), obj.tag.get('groups','')])}'{%end%}{%end%}\
 {% def change_default(obj) %}{% if obj.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
 {% def readonly(obj)       %}{% if obj.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
@@ -51,6 +53,8 @@ ${             relation(obj)}\
 ${               method(obj)}\
 ${            view_load(obj)}\
 ${           group_name(obj)}\
+${             fnct_inv(obj)}\
+${          fnct_search(obj)}\
 {%end%}\
 
 import re
@@ -99,8 +103,9 @@ class ${CLASS.name}(osv.osv):
 {%      end %}\
 {%      for col in CLASS.all_attributes(parents=False) %}\
         '${name(col, prefix='property_' if col.is_stereotype('property') else '')}': \
-{%          if col.datatype.name in datatype %}fields.${datatype[col.datatype.name]}(${options(col)}),{% end %}\
-{%          if col.datatype.name not in datatype %}\
+{%          if 'fnct' in col.tag %}fields.function(${col.tag['fnct']}, type='${datatype[col.datatype.name]}', arg=None, fnct_inv_arg=None, obj=None, ${options(col)}),{% end %}\
+{%          if 'fnct' not in col.tag and col.datatype.name in datatype %}fields.${datatype[col.datatype.name]}(${options(col)}),{% end %}\
+{%          if 'fnct' not in col.tag and col.datatype.name not in datatype %}\
 {%              choose col.datatype.entityclass %}\
 {%                  when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()])}, ${options(col)}),{% end %}\
 {%                  when 'cclass' %}fields.${'property' if col.is_stereotype('property') else 'many2one'}('${col.datatype.oerp_id()}', ${options(col)}),{% end %}\
