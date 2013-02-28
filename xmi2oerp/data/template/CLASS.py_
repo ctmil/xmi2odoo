@@ -76,7 +76,7 @@ class ${CLASS.name}(osv.osv):
     def ${op.name}(self, cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None):
         """${op.tag.get('documentation','')}"""
 {%    if op.member_of.name == CLASS.name %}\
-        return False
+        raise NotImplementedError
 {%  end %}\
 {%    if op.member_of.name != CLASS.name %}\
         member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
