@@ -291,7 +291,7 @@ ${LICENSE_HEADER}\
 {%                  if CLASS.is_stereotype('tree_toolbar') %}\
                     toolbar="1"
 {%                  end %}\
-{%                  for sm in [ sm for sm in CLASS.statemachines ] %}\
+{%                  for sm in [ sm for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype'])] %}\
 {%                       def colors() %}grey:state=='cancelled';blue:state in ${repr(tuple(names(sm.initial_states())))};black:state in ${repr(tuple(set(names(sm.middle_states()))-set(names(sm.stereotype_states('exceptional')))))}; red:state in ${repr(tuple(names(sm.stereotype_states('exceptional'))))}{% end %}\
                     colors="${colors()}"
 {%                  end %}\
@@ -316,7 +316,7 @@ ${LICENSE_HEADER}\
                     <field name="${ass.name}"
                         />
 {%                  end %}\
-{%                  for sm in [ sm for sm in CLASS.statemachines ] %}\
+{%                  for sm in [ sm for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) ] %}\
                     <field name="state"/>
 {%                  end %}\
                 </tree>
