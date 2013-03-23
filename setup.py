@@ -23,7 +23,7 @@
 from setuptools import setup
 
 setup(name='xmi2oerp',
-      version='1.3.13',
+      version='1.3.14',
       author='Cristian S. Rocha',
       author_email='cristian.rocha@moldeointeractive.com.ar',
       maintainer='Cristian S. Rocha',
