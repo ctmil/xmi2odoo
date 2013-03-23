@@ -63,6 +63,37 @@ from osv import osv, fields
 
 class ${CLASS.name}(osv.osv):
     """${CLASS.get('documentation', '')}"""
+    
+{%  if CLASS.is_stereotype('hierarchical') %}\
+    def name_get(self, cr, uid, ids, context=None):
+        if isinstance(ids, (list, tuple)) and not len(ids):
+            return []
+        if isinstance(ids, (long, int)):
+            ids = [ids]
+        reads = self.read(cr, uid, ids, ['name','parent_id'], context=context)
+        res = []
+        for record in reads:
+            name = record['name']
+            if record['parent_id']:
+                name = record['parent_id'][1]+' / '+name
+            res.append((record['id'], name))
+        return res
+
+    def _name_get_fnc(self, cr, uid, ids, prop, unknow_none, context=None):
+        res = self.name_get(cr, uid, ids, context=context)
+        return dict(res)
+
+    def _check_recursion(self, cr, uid, ids, context=None):
+        level = 100
+        while len(ids):
+            cr.execute('select distinct parent_id from ${CLASS.oerp_id('_')} where id IN %s',(tuple(ids),))
+            ids = filter(None, map(lambda x:x[0], cr.fetchall()))
+            if not level:
+                return False
+            level -= 1
+        return True
+
+{% end %}\
     _name = '${emodel()}'
 {%  if not CLASS.is_extended() %}\
     _description = '${CLASS.get('documentation',CLASS.name)[:64]}'
@@ -84,17 +115,30 @@ class ${CLASS.name}(osv.osv):
 {%  end %}\
 
 {% end %}\
+{% for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
     _states_ = [
-{%     for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
         # State machine: ${sm.name}
 {%      for s in sm.list_ordered_states() %}\
         ('${s.name}','${s['label']}'),
 {%      end %}\
-{%     end %}\
     ]
-
+{% end %}\
+{% if CLASS.is_child_of('mail.thread') %}\
+    _track = {
+{%     for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
+        'state': {
+{%      for s in sm.list_ordered_states() %}\
+            '${CLASS.oerp_id()}_${s.name}': lambda self, cr, uid, obj, ctx=None: obj['state'] == '${s.name}',
+{%      end %}\
+        },
+{%  end %}\
+    }
+{% end %}\
 {% end %}\
     _columns = {
+{%  if CLASS.is_stereotype('hierarchical') %}\
+        'complete_name': fields.function(_name_get_fnc, type="char", string='Name', store=True),
+{%  end %}\
 {%      for parent in CLASS.parents(no_stereotypes=['prototype','extend']) %}\
         '${parent.oerp_id('_')}_id': fields.many2one('${parent.oerp_id('.')}', '${parent.get('label', parent.name)}', ondelete='cascade', required=True, help=u"""${quote(parent.get('documentation',''))}"""),
 {%      end %}\
@@ -182,6 +226,23 @@ class ${CLASS.name}(osv.osv):
 {%  end %}\
     }
 
+{%  if 'order' in CLASS.tag %}\
+    _order = "${CLASS.tag['order']}"
+{%  end %}\
+
+    _constraints = [
+{%  if CLASS.is_stereotype('hierarchical') %}\
+        (_check_recursion, 'Error ! You cannot create recursive ${CLASS.name}.', ['parent_id'])
+{%  end %}\
+{%  if 'constraints' in CLASS.tag %}\
+        ${CLASS.tag['constraints']}
+{%  end %}\
+    ]
+
+{%  if 'sql_constraints' in CLASS.tag %}\
+    _sql_constraints = [ ${CLASS.tag['sql_constraints']} ]
+{%  end %}\
+
 {%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] != '_' ] %}\
     def ${op.name}(self, cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None):
         """${op.tag.get('documentation','')}"""
@@ -207,6 +268,7 @@ class ${CLASS.name}(osv.osv):
 {%      end %}\
 {%  end %}\
 {% end %}\
+
 
 ${CLASS.name}()
 

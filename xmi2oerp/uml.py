@@ -218,13 +218,19 @@ class CEntity(Base):
         ctype = CEntity if ctype is None else ctype
         return [ ass.swap[0].participant for ass in self.associations if ass.swap[0].isNavigable and isinstance(ass.swap[0].participant, ctype) ]
 
-    def prev_leafs(self, ftype=None, ctype=None, i = 10):
+    def prev_leafs(self, ftype=None, ctype=None, i = 10, no_raise=False, remove_inherits=False):
         ftype = CEntity if ftype is None else ftype
         ctype = CEntity if ctype is None else ctype
         if i <= 0:
-            raise RuntimeError, 'prev_leafs loop cant stop'
+            if no_raise:
+                return []
+            else:
+                raise RuntimeError, 'prev_leafs loop cant stop'
         if len(self.prevs(ctype)) > 0:
-            return itertools.chain(*[ entity.prev_leafs(ftype, ctype, i-1) for entity in self.prevs(ctype) ])
+            r = list(itertools.chain(*[ entity.prev_leafs(ftype, ctype, i=i-1, no_raise=no_raise) for entity in self.prevs(ctype) ]))
+            if len(r) > 1 and remove_inherits:
+                r = [ p for p, c in itertools.product(r,r) if (p!=c and p.is_child_of(c.oerp_id())) ]
+            return r
         elif isinstance(self, ftype):
             return [ self ]
         else:
@@ -355,6 +361,20 @@ class CUseCase(CEntity):
 
     __normalize_name__ = True
 
+    def all_associations(self, stereotypes=[], no_stereotypes=[], parents=True, ctype=None, sort=True):
+        if ctype is None: ctype = CClass
+        r = list(itertools.chain([ (ass.swap[0], ass.order) for ass in self.associations
+                             if type(ass.swap[0].participant) is ctype and (
+                                 ( ass.swap[0].is_stereotype(*stereotypes) and ass.swap[0].not_is_stereotype(*no_stereotypes) ) or
+                                 ( ass.swap[0].participant.is_stereotype(*stereotypes) and ass.swap[0].participant.not_is_stereotype(*no_stereotypes) )
+                             ) ],
+                            *[ gen.parent.all_associations(stereotypes, no_stereotypes, parents, ctype, sort=False) for gen in self.child_of if parents]))
+        if sort:
+            s = sorted(r,key=lambda k: k[1])
+            return s and zip(*s)[0] or []
+        else:
+            return r
+
     def __repr__(self):
         return "<CUseCase(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
@@ -418,10 +438,10 @@ class CDataType(CEntity):
     def all_associations(self, stereotypes=[], no_stereotypes=[], parents=True, ctype=None, sort=True):
         if ctype is None: ctype = CClass
         r = list(itertools.chain([ (ass.swap[0], ass.order) for ass in self.associations
-                             if type(ass.swap[0].participant) is ctype and
-                                  ass.swap[0].is_stereotype(*stereotypes) and
-                                  ass.swap[0].not_is_stereotype(*no_stereotypes)
-                                 ],
+                             if type(ass.swap[0].participant) is ctype and (
+                                 ( ass.swap[0].is_stereotype(*stereotypes) and ass.swap[0].not_is_stereotype(*no_stereotypes) ) or
+                                 ( ass.swap[0].participant.is_stereotype(*stereotypes) and ass.swap[0].participant.not_is_stereotype(*no_stereotypes) )
+                             ) ],
                             *[ gen.parent.all_associations(stereotypes, no_stereotypes, parents, ctype, sort=False) for gen in self.child_of if parents]))
         if sort:
             s = sorted(r,key=lambda k: k[1])

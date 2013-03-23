@@ -90,6 +90,8 @@ class Builder:
             r.extend(items)
             items = sorted(set(itertools.chain(*[ i.nexts(uml.CUseCase) for i in items ])), key=lambda a: a.name)
         if len(menues) != len(r):
+            logging.error('Unlinked menues.\nMenues: %s\nSorted: %s\nDiff: %s' %
+                          ([m.name for m in menues], [m.name for m in r], [ m.name for m in set(r)-set(menues)]))
             raise RuntimeError, 'Unlinked menues.'
         return r
 
@@ -165,6 +167,7 @@ class Builder:
             view_files = [ "view/%s_view.xml" % n for n in self.sort_classes(package.get_entities(uml.CClass)) ]
             menu_files = [ 'view/%s_menuitem.xml' % package.name ]
             properties_files = [ "data/%s_properties.xml" % n for n in self.sort_classes(package.get_entities(uml.CClass)) ]
+            track_files = [ "data/%s_track.xml" % n for n in self.sort_classes(package.get_entities(uml.CClass)) ]
             group_files = [ 'security/%s_group.xml' % package.name ]
             workflow_files = [ 'workflow/%s_workflow.xml' % name for xml_id, name in root_classes if len(list(self.model[xml_id].iter_over_inhereted_attrs('statemachines'))[0:1])>0 ]
             app_files = [ '%s_app.xml' % package.name ]
@@ -195,7 +198,7 @@ class Builder:
                 'YEAR': str(date.today().year),
                 'MODULE_NAME': package.name,
                 'MODULE_LABEL': ptag.get('label', package.name),
-                'MODULE_SHORT_DESCRIPTION': ptag.get('documentation','\n').split('\n')[0],
+                'MODULE_SHORT_DESCRIPTION': ptag.get('label','\n').split('\n')[0],
                 'MODULE_DESCRIPTION': ptag.get('documentation', 'No documented'),
                 'MODULE_AUTHOR': ptag.get('author', 'No author.'),
                 'MODULE_AUTHOR_EMAIL': ptag.get('email','No email'),
@@ -228,7 +231,7 @@ class Builder:
                     'depends': list(dependencies),
                     'init_xml': [],
                     'demo_xml': [],
-                    'update_xml': group_files + view_files + menu_files + properties_files + workflow_files + security_files,
+                    'update_xml': group_files + view_files + menu_files + properties_files + track_files + workflow_files + security_files,
                     'test': [],
                     'active': False,
                     'installable': True,
@@ -297,6 +300,7 @@ class Builder:
                     )[0],
                     'MENU_SEQUENCE': cclass.tag.get('menu_sequence', '100'),
                     'STEREOTYPES': [ s.name for s in cclass.stereotypes ],
+                    'tree_types': lambda c: [ '' ] + (any(c.all_associations(ctype=uml.CUseCase, stereotypes=["editable"])) and [ '_edit' ] or []) + (any(c.all_associations(ctype=uml.CUseCase, stereotypes=["hierarchical"])) and [ '_hier' ] or []),
                     })
 
                 # Generate class file
@@ -314,6 +318,12 @@ class Builder:
                 # Generate properties file
                 source_code = os.path.join(source, 'data/CLASS_properties.xml')
                 target_code = os.path.join(target, 'data/%s_properties.xml' % name)
+                shutil.copy(source_code, target_code)
+                self.update(tags, target_code)
+
+                # Generate track file
+                source_code = os.path.join(source, 'data/CLASS_track.xml')
+                target_code = os.path.join(target, 'data/%s_track.xml' % name)
                 shutil.copy(source_code, target_code)
                 self.update(tags, target_code)
 

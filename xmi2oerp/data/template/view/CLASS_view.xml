@@ -22,14 +22,14 @@ ${LICENSE_HEADER}\
             <field name="arch" type="xml">
                 <search position="inside">
 {%                  for col in CLASS.all_attributes(stereotypes=['search'], parents=False) %}\
-                        <field name="${col.name}"
+                        <field name="${col.name}" string="${col.tag['label']}"
 {%                    if 'search_groups' in col.tag or 'groups' in col.tag %}\
                             groups="${','.join([col.tag.get('search_groups',''),col.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
 {%                  for ass in CLASS.all_associations(stereotypes=['search'], parents=False) %}\
-                        <field name="${ass.name}"
+                    <field name="${ass.name}" string="${ass.tag['label']}"
 {%                    if 'search_groups' in ass.tag or 'groups' in ass.tag %}\
                             groups="${','.join([ass.tag.get('search_groups',''),ass.tag.get('groups','')])}"
 {%                    end %}\
@@ -86,26 +86,30 @@ ${LICENSE_HEADER}\
 {%  def view_filter_id() %}view_${model('_')}_filter{% end %}\
 {%  def view_form_id() %}view_${model('_')}_form{% end %}\
 {%  def view_tree_id() %}view_${model('_')}_tree{% end %}\
-        <!-- SEARCHVIEW -->
+        <!-- SEARCH VIEW -->
         <record id="${view_filter_id()}" model="ir.ui.view">
             <field name="name">${model()}.select</field>
             <field name="model">${emodel()}</field>
             <field name="arch" type="xml">
                 <search string="${CLASS_LABEL}" version="7.0">
+                    <group string="By Attribute">
 {%                  for col in CLASS.all_attributes(stereotypes=['search']) %}\
-                        <field name="${col.name}"
+                    <field name="${col.name}" string="${col.tag['label']}"
 {%                    if 'form_groups' in col.tag or 'groups' in col.tag %}\
                             groups="${','.join([col.tag.get('form_groups',''),col.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
+                    </group>
+                    <group string="By object">
 {%                  for ass in CLASS.all_associations(stereotypes=['search']) %}\
-                        <field name="${ass.name}"
+                    <field name="${ass.name}" string="${ass.tag['label']}"
 {%                    if 'form_groups' in ass.tag or 'groups' in ass.tag %}\
                             groups="${','.join([ass.tag.get('form_groups',''),ass.tag.get('groups','')])}"
 {%                    end %}\
                             />
 {%                  end %}\
+                    </group>
                 </search>
             </field>
         </record>
@@ -273,17 +277,20 @@ ${LICENSE_HEADER}\
         </record>
 
         <!-- TREEVIEW -->
-
-        <record id="${view_tree_id()}" model="ir.ui.view">
-            <field name="name">${model()}.tree</field>
+{%  for tree_type in tree_types(CLASS) %}
+        <record id="${view_tree_id()}${tree_type}" model="ir.ui.view">
+            <field name="name">${model()}.tree${tree_type}</field>
             <field name="model">${emodel()}</field>
-{%          for col in [ col for col in CLASS.all_attributes(stereotypes=['tree']) if col.is_stereotype('field_parent')] %}\
-            <field name="field_parent">${col.name}</field>
+{%          for ass in [ ass for ass in CLASS.all_associations(stereotypes=['field_parent']) if tree_type=="_hier"] %}\
+            <field name="field_parent">${ass.swap[0].name}</field>
 {%          end %}\
             <field name="arch" type="xml">
                 <tree string="${CLASS_LABEL}"
 {%                  if CLASS.is_child_of('ir.needaction_mixin') %}\
-                    fonts="bold:message_unread==True" 
+                    fonts="bold:message_unread==True"
+{%                  end %}\
+{%                  if tree_type == "_edit" %}\
+                    editable="bottom"
 {%                  end %}\
 {%                  if 'tree_colors' in CLASS.tag %}\
                     colors="${CLASS.tag['tree_colors']}"
@@ -299,6 +306,9 @@ ${LICENSE_HEADER}\
 {%                  if CLASS.is_child_of('ir.needaction_mixin') %}\
                     <field name="message_unread" invisible="1"/>
 {%                  end %}\
+{%  if CLASS.is_stereotype('hierarchical') %}\
+                    <field name="complete_name"/>
+{%  end %}\
 {%                  for col in CLASS.all_attributes(stereotypes=['tree']) %}\
                     <field name="${col.name}"
 {%                    if 'tree_widget' in col.tag %}\
@@ -307,21 +317,44 @@ ${LICENSE_HEADER}\
 {%                    if col.is_stereotype('hidden') %}\
                             invisible="True"
 {%                    end %}\
-{%                    if not col.is_stereotype('hidden') and 'tree_invisible' in col.tag %}\
+{%                    if (not col.is_stereotype('hidden') and 'tree_invisible' in col.tag) %}\
                             invisible="${col.tag['tree_invisible']}"
 {%                    end %}\
                         />
 {%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotypes=['tree']) %}\
+{%                  for ass in CLASS.all_associations(stereotypes=['tree'], no_stereotypes=['field_parent']) %}\
                     <field name="${ass.name}"
+{%                    if 'tree_widget' in ass.tag %}\
+                            widget="${ass.tag['tree_widget']}"
+{%                    end %}\
+{%                    if ass.is_stereotype('hidden') %}\
+                            invisible="True"
+{%                    end %}\
+{%                    if not ass.is_stereotype('hidden') and 'tree_invisible' in ass.tag %}\
+                            invisible="${col.tag['tree_invisible']}"
+{%                    end %}\
                         />
 {%                  end %}\
+{%                  for ass in CLASS.all_associations(stereotypes=['field_parent']) %}\
+                    <field name="${ass.name}"
+{%                    if 'tree_widget' in ass.tag %}\
+                            widget="${ass.tag['tree_widget']}"
+{%                    end %}\
+{%                    if ass.is_stereotype('hidden') %}\
+                            invisible="True"
+{%                    end %}\
+{%                    if not ass.is_stereotype('hidden') and 'tree_invisible' in ass.tag %}\
+                            invisible="${col.tag['tree_invisible']}"
+{%                    end %}\
+                       />
+{%                  end %}\
 {%                  for sm in [ sm for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) ] %}\
-                    <field name="state"/>
+                    <field name="state" {% if sm.is_stereotype('hidden') %}invisible='True'{% end %}{% if sm.is_stereotype('readonly') %}readonly='True'{% end %}/>
 {%                  end %}\
                 </tree>
             </field>
         </record>
+{%  end %}\
 {% end %}\
 
     </data>
