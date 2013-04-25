@@ -58,8 +58,8 @@ ${          fnct_search(obj)}\
 {%end%}\
 
 import re
-import netsvc
-from osv import osv, fields
+import openerp.netsvc
+from openerp.osv import osv, fields
 
 class ${CLASS.name}(osv.osv):
     """${CLASS.get('documentation', '')}"""

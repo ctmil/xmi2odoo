@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ${LICENSE_HEADER}
 
-from osv import osv, fields
+from openerp.osv import osv, fields
 
 ${CLASS_DEFINITION}
 
