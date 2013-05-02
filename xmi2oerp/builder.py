@@ -78,6 +78,8 @@ class Builder:
         """
         for k in self.model.iterclass(uml.CPackage):
             package = self.model[k]
+            if package.is_stereotype('external'):
+                continue
             target = os.path.join(self.path, package.name)
             if os.path.exists(target): shutil.rmtree(target)
 
