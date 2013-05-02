@@ -58,7 +58,7 @@ ${          fnct_search(obj)}\
 {%end%}\
 
 import re
-import openerp.netsvc
+from openerp import netsvc
 from openerp.osv import osv, fields
 
 class ${CLASS.name}(osv.osv):
