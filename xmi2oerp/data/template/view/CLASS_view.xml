@@ -48,6 +48,9 @@ ${LICENSE_HEADER}\
                 <group position="inside">
 {%                  for col in CLASS.all_attributes(stereotypes=['form'], parents=False) %}\
                         <field name="${col.name}"
+{%                    if 'form_context' in col.tag %}\
+                            context="${col.tag.get('form_context','')}"
+{%                    end %}\
 {%                    if 'form_groups' in col.tag or 'groups' in col.tag %}\
                             groups="${','.join([col.tag.get('form_groups',''),col.tag.get('groups','')])}"
 {%                    end %}\
@@ -55,6 +58,9 @@ ${LICENSE_HEADER}\
 {%                  end %}\
 {%                  for ass in CLASS.all_associations(stereotypes=['form'], parents=False) %}\
                         <field name="${ass.name}"
+{%                    if 'form_context' in ass.tag %}\
+                            context="${ass.tag.get('form_context','')}"
+{%                    end %}\
 {%                    if 'form_groups' in ass.tag or 'groups' in ass.tag %}\
                             groups="${','.join([ass.tag.get('form_groups',''),ass.tag.get('groups','')])}"
 {%                    end %}\
@@ -72,10 +78,18 @@ ${LICENSE_HEADER}\
             <field name="arch" type="xml">
                 <tree position="inside">
 {%                  for col in CLASS.all_attributes(stereotypes=['tree'], parents=False) %}\
-                    <field name="${col.name}"/>
+                    <field name="${col.name}"
+{%                    if 'form_context' in col.tag %}\
+                            context="${col.tag.get('form_context','')}"
+{%                    end %}\
+                            />
 {%                  end %}\
 {%                  for ass in CLASS.all_associations(stereotypes=['tree'], parents=False) %}\
-                    <field name="${ass.name}"/>
+                    <field name="${ass.name}"
+{%                    if 'form_context' in ass.tag %}\
+                            context="${ass.tag.get('form_context','')}"
+{%                    end %}\
+                            />
 {%                  end %}\
                 </tree>
             </field>
@@ -185,6 +199,9 @@ ${LICENSE_HEADER}\
 {%                    if 'form_domain' in col.tag %}\
                             domain="${col.tag['form_domain']}"
 {%                    end %}\
+{%                    if 'form_context' in col.tag %}\
+                            context="${col.tag['form_context']}"
+{%                    end %}\
 {%                    if 'form_widget' in col.tag %}\
                             widget="${col.tag['form_widget']}"
 {%                    end %}\
@@ -239,6 +256,9 @@ ${LICENSE_HEADER}\
 {%                    end %}\
 {%                    if 'form_domain' in ass.tag %}\
                             domain="${ass.tag['form_domain']}"
+{%                    end %}\
+{%                    if 'form_context' in ass.tag %}\
+                            context="${ass.tag['form_context']}"
 {%                    end %}\
 {%                    if 'form_widget' in ass.tag %}\
                             widget="${ass.tag['form_widget']}"
