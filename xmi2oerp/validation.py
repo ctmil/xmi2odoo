@@ -24,9 +24,37 @@ from xmi2oerp.uml import *
 from xmi2oerp.model import *
 import logging
 
+def count(l):
+    diff = dict( (a.name, len([b.name for b in c.attributes if b.name == a.name])) for a in c.attributes )
+    diff = dict( (name, count) for (name, count) in diff.items() if count > 1 )
+
 class Validator():
     def __init__(self, model):
         self.model = model
+
+    def check_duplicated_attributes(self):
+        r = True
+        for c in self.model.session.query(CClass):
+            all_attributes = c.all_attributes()
+            uni_attributes = set(all_attributes)
+            if len(all_attributes) != len(uni_attributes):
+                import pdb; pdb.set_trace()
+                logging.error('Class %s (xmi_id=%s) have reapeated attributes: %s' % (c.name, c.xmi_id, diff.keys()))
+                r = False
+
+        return r
+
+    def check_duplicated_associations(self):
+        r = True
+        for c in self.model.session.query(CClass):
+            all_associations = [ a.name for a in c.all_associations() if a.name is not None ]
+            uni_associations = set(all_associations)
+            if len(all_associations) != len(uni_associations):
+                import pdb; pdb.set_trace()
+                logging.error('Class %s (xmi_id=%s) have reapeated associations: %s' % (c.name, c.xmi_id, diff.keys()))
+                r = False
+
+        return r
 
     def check_state_machines(self):
         r = True
@@ -56,7 +84,9 @@ class Validator():
 
     def run(self):
         r = True
-        # r &= self.check_state_machines()
+        r &= self.check_state_machines()
+        r &= self.check_duplicated_associations()
+        r &= self.check_duplicated_attributes()
         return r
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

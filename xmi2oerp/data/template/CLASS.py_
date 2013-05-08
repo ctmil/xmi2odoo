@@ -180,7 +180,7 @@ class ${CLASS.name}(osv.osv):
 {%      def states %}{% if 'states' in ass.tag %}${sep()}states=${ass.tag['states']}{%end%}{%end%}\
 {%      def context %}{% if 'context' in ass.tag %}${sep()}context=${ass.tag['context']}{%end%}{%end%}\
 {%      def domain %}{% if 'domain' in ass.tag %}${sep()}domain=${ass.tag['domain']}{%end%}{%end%}\
-{%      def change_default  %}{% if ass.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
+{%      def change_default %}{% if ass.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
 {%      def on_change %}{% if 'on_change' in ass.tag %}${sep()}on_change='${ass.tag['on_change']}'{%end%}{%end%}\
 {%      def groups    %}{% if 'module_groups' in ass.tag or 'groups' in ass.tag %}${sep()}groups='${','.join([ass.tag.get('module_groups',''), ass.tag.get('groups','')])}'{%end%}{%end%}\
 {%      def readonly  %}{% if ass.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\

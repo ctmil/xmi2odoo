@@ -445,9 +445,9 @@ class CDataType(CEntity):
                             *[ gen.parent.all_associations(stereotypes, no_stereotypes, parents, ctype, sort=False) for gen in self.child_of if parents]))
         if sort:
             s = sorted(r,key=lambda k: k[1])
-            return s and zip(*s)[0] or []
-        else:
-            return r
+            r = s and zip(*s)[0] or []
+            r = [ i for i in r if i.name is not None ]
+        return r
 
 class CEnumerationLiteral(CEntity):
     """CEnumerationLiteral class.
