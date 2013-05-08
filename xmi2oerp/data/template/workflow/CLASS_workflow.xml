@@ -41,7 +41,14 @@ ${LICENSE_HEADER}\
             <field name="kind">function</field>
 {%     end %}\
 {%     if 'action' not in s.tag %}\
-            <field name="action">write({'state':'${s.name}'})</field>
+            <field name="action">
+{%      if 'message_subject' in s.tag or 'message_text' in s.tag %}\
+                message_post(
+                    _("${s.tag.get('message_subject', 'No subject')}"), 
+                    _("${s.tag.get('message_text', 'No text')}"), context=context)
+{%      end %}\
+                write({'state':'${s.name}'})
+            </field>
             <field name="kind">function</field>
 {%     end %}\
         </record>
