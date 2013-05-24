@@ -369,7 +369,9 @@ class Model:
             import pdb; pdb.set_trace()
         if package is None:
             logging.warning("Object without package associated")
-        params = [ elem.attrib.get(k) for k in attribs ]
+        params = [ elem.attrib.get(k, None) for k in attribs ]
+        if None in params:
+            logging.debug("Object has undefined attributes for %s: %s" % (attribs, params))
         params.extend(extra_params)
         for i in booleans:
             params[i] = params[i] in ['true','1','TRUE']
@@ -746,6 +748,7 @@ class Model:
                 cdatatype = None
                 cusecase = None
                 cactor = None
+                cassociationend = None
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}Association'):
                 pass

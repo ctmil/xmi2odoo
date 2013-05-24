@@ -446,7 +446,6 @@ class CDataType(CEntity):
         if sort:
             s = sorted(r,key=lambda k: k[1])
             r = s and zip(*s)[0] or []
-            r = [ i for i in r if i.name is not None ]
         return r
 
 class CEnumerationLiteral(CEntity):
