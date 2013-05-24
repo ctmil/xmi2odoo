@@ -195,7 +195,7 @@ class ${CLASS.name}(osv.osv):
 {%          when 'one2one'   %}'${name()}': fields.many2one('${oerp_id()}', ${options()}), {% end %}\
 {%          when 'many2one'  %}'${name()}': fields.many2one('${oerp_id()}', ${options()}), {% end %}\
 {%          when 'one2many'  %}'${name()}': fields.one2many('${oerp_id()}', '${other_name()}', ${options()}), {% end %}\
-{%          when 'many2many' %}'${name()}': fields.many2many('${oerp_id()}', '${relational_obj()}', '${name()}', '${other_name()}', ${options()}), {% end %}\
+{%          when 'many2many' %}'${name()}': fields.many2many('${oerp_id()}', '${relational_obj()}', '${actual_id()}', '${other_id()}', ${options()}), {% end %}\
 {%          when 'related'   %}'${name()}': fields.related(
                     ${"'%s'" % "','".join(ass.tag['related_by'].split(','))},
                     ${"'%s'" % ass.tag['related_to']},
