@@ -267,6 +267,23 @@ class ${CLASS.name}(osv.osv):
 
 {%      end %}\
 {%  end %}\
+{%  if CLASS.parents(no_stereotypes=['prototype','extend']) %}\
+    def unlink(self, cr, uid, ids, context=None):
+{%    for parent in CLASS.parents(no_stereotypes=['prototype','extend']) %}\
+        ${parent.oerp_id('_')}_obj = self.pool.get('${parent.oerp_id('.')}')
+{%    end %}\
+        data = self.read(cr, uid, ids, [ \
+{%    for parent in CLASS.parents(no_stereotypes=['prototype','extend']) %}\
+'${parent.oerp_id('_')}_id', \
+{%    end %}\
+])
+        res = super(${CLASS.name}, self).unlink(cr, uid, ids, context=context)
+        for item in data:
+{%    for parent in CLASS.parents(no_stereotypes=['prototype','extend']) %}\
+            ${parent.oerp_id('_')}_obj.unlink(cr, uid, item['${parent.oerp_id('_')}_id'][0],context=context)
+{%    end %}\
+        return res
+{%  end %}\
 {% end %}\
 
 
