@@ -16,6 +16,9 @@ ${LICENSE_HEADER}
             <field name="view_mode">${menu.tag.get('view_mode', 'tree,form')}</field>
             <field name="view_id" ref="view_${model('_')}_tree${tree_sufix()}"/>
             <field name="search_view_id" ref="view_${model('_')}_filter"/>
+{%          if 'help' in menu.tag %}\
+            <field name="help" type="html">${menu.tag['help']}</field>
+{%          end %}\
 {%          if 'context' in menu.tag %}\
             <field name="context">${menu.tag['context']}</field>
 {%          end %}\
