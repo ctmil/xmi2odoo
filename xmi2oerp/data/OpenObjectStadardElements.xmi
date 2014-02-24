@@ -1,5 +1,5 @@
 <?xml version = '1.0' encoding = 'UTF-8' ?>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Mon Jun 10 10:35:08 ART 2013'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Tue Jul 09 11:41:08 ART 2013'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.34(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -68,8 +68,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:0000000000000BA1'
           name = 'readonly' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>StateMachine</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
@@ -85,8 +85,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:0000000000000BA2'
           name = 'required' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1D'
               isSpecification = 'false'>
@@ -100,8 +100,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:0000000000000BA3'
           name = 'select' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1F'
               isSpecification = 'false'>
@@ -115,8 +115,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011E5'
           name = 'form' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D19'
               isSpecification = 'false'>
@@ -130,8 +130,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011E6'
           name = 'tree' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D23'
               isSpecification = 'false'>
@@ -145,8 +145,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011E8'
           name = 'store' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D21'
               isSpecification = 'false'>
@@ -193,8 +193,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011F5'
           name = 'method' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1B'
               isSpecification = 'false'>
@@ -376,8 +376,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1-7b01ca01:13b51db18aa:-8000:0000000000000D12'
           name = 'hidden' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>StateMachine</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1A'
@@ -392,8 +392,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--7f493fcf:13b6d9e307b:-8000:0000000000000F56'
           name = 'search' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1E'
               isSpecification = 'false'>
@@ -410,8 +410,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D17'
           name = 'state' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D20'
               isSpecification = 'false'>
@@ -603,23 +603,23 @@
         <UML:Stereotype xmi.id = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EE1'
           name = 'context' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EE2'
           name = 'cancellable' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Pseudostate</UML:Stereotype.baseClass>
-          <UML:Stereotype.baseClass>State</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>FinalState</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>State</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EE3'
           name = 'editable' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>State</UML:Stereotype.baseClass>
-          <UML:Stereotype.baseClass>FinalState</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>UseCase</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>FinalState</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>State</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Pseudostate</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
         </UML:Stereotype>
@@ -632,8 +632,8 @@
           name = 'visible' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Pseudostate</UML:Stereotype.baseClass>
-          <UML:Stereotype.baseClass>State</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>FinalState</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>State</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1-4b248840:13cda7ec58c:-8000:00000000000019EF'
@@ -693,8 +693,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C88'
           name = 'advance_select' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
         </UML:Stereotype>
         <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C89'
           name = 'form_groups' isSpecification = 'false'>
@@ -952,8 +952,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1-19de3346:13d114137f6:-8000:0000000000001B3F'
           name = 'property' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
         </UML:Stereotype>
         <UML:TagDefinition xmi.id = '127-0-1-1--70d108d6:13d11b86512:-8000:0000000000001B3F'
           name = 'value' isSpecification = 'false'>
@@ -1052,6 +1052,36 @@
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>State</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
+        </UML:Stereotype>
+        <UML:Stereotype xmi.id = '127-0-1-1-3a0e66f:13f52b11fc8:-8000:0000000000000D4A'
+          name = 'memory' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>Class</UML:Stereotype.baseClass>
+        </UML:Stereotype>
+        <UML:Stereotype xmi.id = '127-0-1-1-3a0e66f:13f52b11fc8:-8000:0000000000000D4B'
+          name = 'wizard' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>Class</UML:Stereotype.baseClass>
+        </UML:Stereotype>
+        <UML:Stereotype xmi.id = '127-0-1-1-3a0e66f:13f52b11fc8:-8000:0000000000000D4C'
+          name = 'report' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>Class</UML:Stereotype.baseClass>
+        </UML:Stereotype>
+        <UML:Stereotype xmi.id = '127-0-1-1-3a0e66f:13f52b11fc8:-8000:0000000000000D4D'
+          name = 'view' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>Class</UML:Stereotype.baseClass>
+        </UML:Stereotype>
+        <UML:Stereotype xmi.id = '127-0-1-1--d4d24eb:13fa5469284:-8000:000000000000153F'
+          name = 'function' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>Enumeration</UML:Stereotype.baseClass>
+        </UML:Stereotype>
+        <UML:Stereotype xmi.id = '127-0-1-1-15814bbb:13fc3d42206:-8000:0000000000000D54'
+          name = 'act' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>Association</UML:Stereotype.baseClass>
         </UML:Stereotype>
       </UML:Namespace.ownedElement>
     </UML:Model>
