@@ -557,8 +557,11 @@ class CPackage(CEntity):
     def __repr__(self):
         return "<CPackage(xmi_id:'%s', name:'%s')>" % (self.xmi_id, self.name)
 
-    def get_entities(self, cclass):
-        return [ ent for ent in self.entities if type(ent) is cclass ]
+    def get_entities(self, cclass, stereotypes=[], no_stereotypes=[]):
+        return [ ent for ent in self.entities
+                if type(ent) is cclass
+                   and ent.is_stereotype(*stereotypes)
+                   and ent.not_is_stereotype(*no_stereotypes)]
 
 class CClass(CDataType):
     """Class class.

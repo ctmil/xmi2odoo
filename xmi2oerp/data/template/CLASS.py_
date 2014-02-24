@@ -61,7 +61,12 @@ import re
 from openerp import netsvc
 from openerp.osv import osv, fields
 
+{%  if CLASS.is_stereotype('memory') %}\
+class ${CLASS.name}(osv.osv_memory):
+{%  end %}\
+{%  if CLASS.not_is_stereotype('memory') %}\
 class ${CLASS.name}(osv.osv):
+{%  end %}\
     """${CLASS.get('documentation', '')}"""
     
 {%  if CLASS.is_stereotype('hierarchical') %}\
@@ -135,6 +140,16 @@ class ${CLASS.name}(osv.osv):
     }
 {% end %}\
 {% end %}\
+
+{% for col in CLASS.all_attributes(parents=False, stereotypes=['function']) %}\
+{%   choose col.datatype.entityclass %}\
+{%      when 'cenumeration' %}\
+    def _get_${ col.datatype.name }(self, cr, uid, context=None):
+        return []
+{%      end %}\
+{%   end %}\
+{% end %}\
+
     _columns = {
 {%  if CLASS.is_stereotype('hierarchical') %}\
         'complete_name': fields.function(_name_get_fnc, type="char", string='Name', store=True),
@@ -143,7 +158,7 @@ class ${CLASS.name}(osv.osv):
         '${parent.oerp_id('_')}_id': fields.many2one('${parent.oerp_id('.')}', '${parent.get('label', parent.name)}', ondelete='cascade', required=True, help=u"""${quote(parent.get('documentation',''))}"""),
 {%      end %}\
 {%      for child in CLASS.childs(no_stereotypes=['prototype','extend']) %}\
-        '${child.oerp_id('_')}_id': fields.one2many('${child.oerp_id('.')}', '${CLASS.oerp_id('_')}_id', '${child.oerp_id('.')}_id', '${child.get('label', child.name)}', help=u"""${quote(child.get('documentation',''))}"""),
+        '${child.oerp_id('_')}_id': fields.one2many('${child.oerp_id('.')}', '${CLASS.oerp_id('_')}_id', '${child.get('label', child.name)}', help=u"""${quote(child.get('documentation',''))}"""),
 {%      end %}\
 {%      for col in CLASS.all_attributes(parents=False) %}\
         '${name(col, prefix='property_' if col.is_stereotype('property') else '')}': \
@@ -151,7 +166,7 @@ class ${CLASS.name}(osv.osv):
 {%          if 'fnct' not in col.tag and col.datatype.name in datatype %}fields.${datatype[col.datatype.name]}(${options(col)}),{% end %}\
 {%          if 'fnct' not in col.tag and col.datatype.name not in datatype %}\
 {%              choose col.datatype.entityclass %}\
-{%                  when 'cenumeration' %}fields.selection(${repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()])}, ${options(col)}),{% end %}\
+{%                  when 'cenumeration' %}fields.selection(${ repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()]) if col.datatype.not_is_stereotype('function') else "_get_%s" % col.datatype.name }, ${options(col)}),{% end %}\
 {%                  when 'cclass' %}fields.${'property' if col.is_stereotype('property') else 'many2one'}('${col.datatype.oerp_id()}', ${options(col)}),{% end %}\
 {%              end %}\
 {%          end %}
@@ -220,7 +235,7 @@ class ${CLASS.name}(osv.osv):
 {%      end %}\
 {%  end %}\
 {%  for ass in CLASS.all_associations(parents=False) %}\
-{%      if ass.is_stereotype('context') %}\
+{%      if ass.is_stereotype('context') or ass.aggregation == 'composite' %}\
         '${ass.name}': lambda self, cr, uid, context=None: context and context.get('${ass.name}', ${ass.tag.get('default','False')}),
 {%      end %}\
 {%  end %}\

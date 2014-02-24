@@ -5,9 +5,6 @@ ${LICENSE_HEADER}\
 {% def model(s='.')  %}${CLASS.oerp_id(s, False)}{% end %}\
 {% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
 {% def pmodel(s='.') %}${CLASS.oerp_id(s, False, True)}{% end %}\
-<!-- ${ model()  } -->
-<!-- ${ emodel() } -->
-<!-- ${ pmodel() } -->
 <openerp>
     <data>
 {% if CLASS.parents(no_stereotypes=['disjoin_view'], ignore=['mail.thread','ir.needaction_mixin']) %}

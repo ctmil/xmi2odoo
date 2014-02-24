@@ -20,7 +20,7 @@
 #
 ##############################################################################
 
-import sys, os
+import sys, os, traceback
 import argparse
 from xmi2oerp.model import Model
 from xmi2oerp.builder import Builder
@@ -29,7 +29,7 @@ import logging
 
 _loglevel = [ logging.ERROR, logging.INFO, logging.DEBUG ]
 
-def convert(func, infile, dbfile, target, logfile, loglevel, remove):
+def convert(func, infile, dbfile, target, logfile, loglevel, remove, rpdb):
     """
     Convert XMI file to a set of OpenERP modules.
     """
@@ -41,6 +41,10 @@ def convert(func, infile, dbfile, target, logfile, loglevel, remove):
 
     if dbfile is None:
         dbfile = ':memory:'
+
+    if rpdb:
+        print "Start remote debugging. Password set to: %s" % rpdb
+        import rpdb2; rpdb2.start_embedded_debugger(rpdb)
 
     model = Model(infile, db=dbfile)
 
@@ -84,20 +88,24 @@ def main():
     parser.add_argument('--remove', '-r',
                         action='store_true',
                         help='Remove destination before recreate.')
+    parser.add_argument('--rpdb', '-R',
+                        type=str, nargs='?',
+                        help='Enable remote debugging and set the password to the winpdb.')
 
     parser.set_defaults(func=convert)
 
     args = parser.parse_args()
 
-    #logging.basicConfig(level=logging.WARNING)
-    #logging.basicConfig(level=logging.INFO)
-
     try:
         args.func(**args.__dict__)
     except OSError, m:
-        print "\nERROR: Target exists?"
+        print "\nERROR: Target exists?", m
+        print "Try using -r flag."
     except Exception, m:
-        print "\nERROR:", m.message
+        #ex_type, ex, tb = sys.exc_info()
+        logging.error(traceback.format_exc())
+        print "\nERROR:", m
+        #import pdb; pdb.set_trace()
         return -1
     return 0
 

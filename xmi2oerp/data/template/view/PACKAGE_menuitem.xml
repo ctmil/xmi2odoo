@@ -12,10 +12,18 @@ ${LICENSE_HEADER}
         <record id="action_${model('_')}_${menu.name}${tree_sufix()}" model="ir.actions.act_window">
             <field name="name">${escape(menu.tag.get('label', menu.name))}</field>
             <field name="res_model">${emodel()}</field>
+{%      if menu.relateds(uml.CClass)[0].is_stereotype('wizard') %}\
+            <field name="view_type">${menu.tag.get('view_type', 'form')}</field>
+            <field name="view_mode">${menu.tag.get('view_mode', 'tree,form')}</field>
+            <field name="view_id" ref="view_${model('_')}_form"/>
+            <field name="target">new</field>
+{%      end %}\
+{%      if not menu.relateds(uml.CClass)[0].is_stereotype('wizard') %}\
             <field name="view_type">${menu.is_stereotype('hierarchical') and 'tree' or menu.tag.get('view_type', 'form')}</field>
             <field name="view_mode">${menu.tag.get('view_mode', 'tree,form')}</field>
             <field name="view_id" ref="view_${model('_')}_tree${tree_sufix()}"/>
             <field name="search_view_id" ref="view_${model('_')}_filter"/>
+{%      end %}\
 {%          if 'help' in menu.tag %}\
             <field name="help" type="html">${menu.tag['help']}</field>
 {%          end %}\
@@ -28,7 +36,12 @@ ${LICENSE_HEADER}
 {%    end %}\
 
         <menuitem
+{%      if 'menu_parent' in menu.tag %}\
+            name="${menu.tag['menu_parent']}/${escape(menu.tag.get('label', '<No label>'))}"
+{%      end %}\
+{%      if 'menu_parent' not in menu.tag %}\
             name="${escape(menu.tag.get('label', '<No label>'))}"
+{%      end %}\
             id="menu_${menu.name}"
             sequence="${menu.tag.get('menu_sequence',100)}"
 {%      if 'action' in menu.tag %}\
