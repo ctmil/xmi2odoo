@@ -27,8 +27,15 @@ from genshi.template import NewTextTemplate
 from datetime import date
 from pprint import PrettyPrinter
 import logging
-from xml.sax.saxutils import quoteattr, escape
+from xml.sax.saxutils import escape as xmlescape
+
 import itertools
+
+def escape(s, entities={}):
+    if isinstance(s, unicode):
+        s = s.encode('ascii', 'xmlcharrefreplace')
+    s = xmlescape(s, entities)
+    return s
 
 def names(items):
     return [ i.name.encode('ascii', 'ignore') for i in items ]
@@ -86,16 +93,31 @@ class Builder:
     def sort_menues(self, menues):
         if len(menues)==0:
             return []
-        r = []
-        items = list(menues[0].prev_leafs(uml.CUseCase, uml.CUseCase))
-        while items:
-            r.extend(items)
-            items = sorted(set(itertools.chain(*[ i.nexts(uml.CUseCase) for i in items ])), key=lambda a: a.name)
-        if len(menues) != len(r):
-            logging.error('Unlinked menues.\nMenues: %s\nSorted: %s\nDiff: %s' %
-                          ([m.name for m in menues], [m.name for m in r], [ m.name for m in set(r)-set(menues)]))
-            raise RuntimeError, 'Unlinked menues.'
-        return r
+        sorted_items = []
+        take_first = 0
+
+        while len(sorted_items) != len(menues):
+            # Solve group of menues taking one and iterating to the leafs.
+            r = []
+            items = list(menues[take_first].prev_leafs(uml.CUseCase, uml.CUseCase))
+            while items:
+                repeated_menues = (set([ i.xmi_id for i in items ]) & set([ ri.xmi_id for ri in r ]))
+                if repeated_menues != set():
+                    raise RuntimeError, 'Loop in menues. Repeat for %s.' \
+                            'Check if they have undirected association ' \
+                            'or exists a loop in directed associations.' \
+                            % [ i.name for i in items if i.xmi_id in repeated_menues ]
+                r.extend(items)
+                items = sorted(set(itertools.chain(*[ i.nexts(uml.CUseCase) for i in items ])), key=lambda a: a.name)
+            sorted_items += r
+
+            # If exists other groups of menues, prepare them to solve.
+            menues_xmi_id = set([ i.xmi_id for i in menues ])
+            items_xmi_id = set([ ri.xmi_id for ri in r ])
+            problematic_menues_xmi_id = menues_xmi_id - items_xmi_id
+            take_first = menues.index([ i for i in menues if i.xmi_id in problematic_menues_xmi_id ][0])
+
+        return sorted_items
 
     def sort_by_gen(self, entities):
         tree = {}
@@ -136,6 +158,8 @@ class Builder:
 
         # Sorting algorithm
         def sorttree(root, tree):
+            if root not in tree:
+                raise Exception, "Class %s could have an non declared external relation. Please check it." % root
             if root in tree[root][0]:
                 logging.warning('Preventing infinite recursion for %s.' % root)
                 tree[root][0].remove(root)
@@ -150,6 +174,10 @@ class Builder:
 
         return result
 
+    def copy_template(self, source, target, ignore=[]):
+            logging.info("Copy template structure from: %s to %s" % ( source, target) )
+            shutil.copytree(source, target, ignore=ignore)
+
     def build(self, logfile=sys.stderr):
         logging.info("Starting Building")
         # Por cada paquete generar un directorio de addon.
@@ -162,14 +190,19 @@ class Builder:
             logging.debug("Building package %s" % package.name)
             # Configuro las variables y tags para este paquete
             ptag = package.tag
-            root_classes = [ (c.xmi_id, c.name) for c in package.get_entities(uml.CClass) ]
-            wizard_classes = [] # [ (c.xmi_id, c.name) for c in package.classes ]
-            report_classes = [] # [ (c.xmi_id, c.name) for c in package.classes ]
+            root_classes_obj = package.get_entities(uml.CClass, no_stereotypes=["wizard", "report"])
+            wizard_classes_obj = package.get_entities(uml.CClass, stereotypes=["wizard"])
+            report_classes_obj = package.get_entities(uml.CClass, stereotypes=["report"])
+            root_classes = [ (c.xmi_id, c.name) for c in root_classes_obj ]
+            wizard_classes = [ (c.xmi_id, c.name) for c in wizard_classes_obj ]
+            report_classes = [ (c.xmi_id, c.name) for c in report_classes_obj ]
             #view_files = [ 'view/%s_view.xml' % name for xml_id, name in root_classes ]
-            view_files = [ "view/%s_view.xml" % n for n in self.sort_classes(package.get_entities(uml.CClass)) ]
+            view_files = [ "view/%s_view.xml" % n for n in self.sort_classes(root_classes_obj) ]
+            wizard_view_files = [ "wizard/%s_view.xml" % n for n in self.sort_classes(wizard_classes_obj) ]
+            wizard_workflow_files = [ 'wizard/%s_workflow.xml' % name for xml_id, name in wizard_classes if len(list(self.model[xml_id].iter_over_inhereted_attrs('statemachines'))[0:1])>0 ]
             menu_files = [ 'view/%s_menuitem.xml' % package.name ]
-            properties_files = [ "data/%s_properties.xml" % n for n in self.sort_classes(package.get_entities(uml.CClass)) ]
-            track_files = [ "data/%s_track.xml" % n for n in self.sort_classes(package.get_entities(uml.CClass)) ]
+            properties_files = [ "data/%s_properties.xml" % n for n in self.sort_classes(root_classes_obj) ]
+            track_files = [ "data/%s_track.xml" % n for n in self.sort_classes(root_classes_obj) ]
             group_files = [ 'security/%s_group.xml' % package.name ]
             workflow_files = [ 'workflow/%s_workflow.xml' % name for xml_id, name in root_classes if len(list(self.model[xml_id].iter_over_inhereted_attrs('statemachines'))[0:1])>0 ]
             app_files = [ '%s_app.xml' % package.name ]
@@ -211,9 +244,12 @@ class Builder:
                 'MODULE_DEPENDS': ptag.get('depends', ''),
                 'MENUES': self.sort_menues([ cu for cu in self.model.session.query(uml.CUseCase) if cu.is_stereotype('menu')]),
                 'GROUPS': self.sort_by_gen([ ac for ac in self.model.session.query(uml.CActor) if ac.is_stereotype('group')]),
-                'ROOT_IMPORT': '\n'.join([ "import %s" % n for n in self.sort_classes(package.get_entities(uml.CClass)) ]),
-                'WIZARD_IMPORT': '\n'.join([ "import %s" % n for k, n in wizard_classes ]),
-                'REPORT_IMPORT': '\n'.join([ "import %s" % n for k, n in report_classes ]),
+                'ROOT_IMPORT': '\n'.join([ "import %s" % n
+                                          for n in self.sort_classes(root_classes_obj) ]),
+                'WIZARD_IMPORT': '\n'.join([ "import %s" % n
+                                            for n in self.sort_classes(wizard_classes_obj) ]),
+                'REPORT_IMPORT': '\n'.join([ "import %s" % n
+                                            for n in self.sort_classes(report_classes_obj) ]),
             }
             tags.update({
                 'LICENSE_HEADER': str(NewTextTemplate(
@@ -233,7 +269,7 @@ class Builder:
                     'depends': list(dependencies),
                     'init_xml': [],
                     'demo_xml': [],
-                    'update_xml': group_files + view_files + menu_files + properties_files + track_files + workflow_files + security_files,
+                    'update_xml': group_files + view_files + properties_files + track_files + workflow_files + security_files + wizard_view_files + wizard_workflow_files + menu_files,
                     'test': [],
                     'active': False,
                     'installable': True,
@@ -335,6 +371,59 @@ class Builder:
                     target_code = os.path.join(target, 'workflow/%s_workflow.xml' % name)
                     shutil.copy(source_code, target_code)
                     self.update(tags, target_code)
+
+            # Por cada wizard genero un archivo. El archivo lo agrego a la lista de importacion.
+            for xmi_id, name in wizard_classes:
+                # Prepare data
+                cclass = self.model[xmi_id]
+                if len(cclass.child_of) > 0:
+                    generalization = cclass.child_of[0]
+                    parent = generalization.parent
+                    extend_parent = generalization.is_extend
+                else:
+                    parent = None
+                    extend_parent = False
+                ctag = cclass.tag
+                tags.update({
+                    'CLASS': cclass,
+                    'CLASS_EXTEND_PARENT': extend_parent,
+                    'CLASS_LABEL': cclass.tag.get('label', name),
+                    'CLASS_MODULE': parent.package.name if extend_parent else cclass.package.name,
+                    'CLASS_NAME': parent.name if extend_parent else name,
+                    'CLASS_PARENT_MODULE': parent.package.name if parent is not None else None,
+                    'CLASS_PARENT_NAME': parent.name if parent is not None else None,
+                    'CLASS_DOCUMENTATION': ctag.get('documentation', None),
+                    'CLASS_ATTRIBUTES': [ m for m in cclass.members if m.entityclass == 'cattribute' ],
+                    'CLASS_ASSOCIATIONS': [ cclass.all_associations(ctype=uml.CClass, parents=False) ],
+                    'MENU_PARENT': cclass.tag.get('menu_parent', None) or (
+                        [ass.participant.tag['label']
+                         for ass in cclass.associations
+                         if type(ass.swap[0]) is uml.CUseCase and ass.swap[0].is_stereotype('menu')
+                        ]+[None]
+                    )[0],
+                    'MENU_SEQUENCE': cclass.tag.get('menu_sequence', '100'),
+                    'STEREOTYPES': [ s.name for s in cclass.stereotypes ],
+                    'tree_types': lambda c: [ '' ] + (any(c.all_associations(ctype=uml.CUseCase, stereotypes=["editable"])) and [ '_edit' ] or []) + (any(c.all_associations(ctype=uml.CUseCase, stereotypes=["hierarchical"])) and [ '_hier' ] or []),
+                    })
+
+                # Generate class file
+                source_code = os.path.join(source, 'wizard', 'CLASS.py_')
+                target_code = os.path.join(target, 'wizard', '%s.py' % name)
+                shutil.copy(source_code, target_code)
+                self.update(tags, target_code)
+
+                # Generate view file
+                source_code = os.path.join(source, 'wizard', 'CLASS_view.xml')
+                target_code = os.path.join(target, 'wizard', '%s_view.xml' % name)
+                shutil.copy(source_code, target_code)
+                self.update(tags, target_code)
+
+                # Generate workflow file
+                source_code = os.path.join(source, 'wizard', 'CLASS_workflow.xml')
+                target_code = os.path.join(target, 'wizard', '%s_workflow.xml' % name)
+                shutil.copy(source_code, target_code)
+                self.update(tags, target_code)
+
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
 
