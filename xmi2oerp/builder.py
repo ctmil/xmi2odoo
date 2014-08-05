@@ -77,7 +77,8 @@ class Builder:
             tmpl = NewTextTemplate(stmpl.read())
         stream = tmpl.generate(**tags)
         with open(filename, 'w') as out:
-                out.write(stream.render())
+            s = stream.render()
+            out.write(s)
 
     def reset(self):
         """
@@ -115,7 +116,8 @@ class Builder:
             menues_xmi_id = set([ i.xmi_id for i in menues ])
             items_xmi_id = set([ ri.xmi_id for ri in r ])
             problematic_menues_xmi_id = menues_xmi_id - items_xmi_id
-            take_first = menues.index([ i for i in menues if i.xmi_id in problematic_menues_xmi_id ][0])
+            if problematic_menues_xmi_id:
+                take_first = menues.index([ i for i in menues if i.xmi_id in problematic_menues_xmi_id ][0])
 
         return sorted_items
 

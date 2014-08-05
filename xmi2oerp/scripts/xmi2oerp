@@ -26,6 +26,7 @@ from xmi2oerp.model import Model
 from xmi2oerp.builder import Builder
 from xmi2oerp.validation import Validator
 import logging
+import zipfile
 
 _loglevel = [ logging.ERROR, logging.INFO, logging.DEBUG ]
 

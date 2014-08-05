@@ -112,7 +112,13 @@ class ${CLASS.name}(osv.osv):
     def ${op.name}(self, cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None):
         """${op.tag.get('documentation','')}"""
 {%    if op.member_of.name == CLASS.name %}\
+{%      if len(CLASS.child_of)>0 %}\
+        result = super(${CLASS.name},self).${op.name}(cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None)
+        return result
+{%      end %}\
+{%      if len(CLASS.child_of)==0 %}\
         raise NotImplementedError
+{%      end %}\
 {%  end %}\
 {%    if op.member_of.name != CLASS.name %}\
         member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
@@ -207,7 +213,10 @@ class ${CLASS.name}(osv.osv):
 {%      def options   %}${string()}${change_default()}${help()}${ondelete()}${readonly()}${required()}${size()}${states()}${store()}${translate()}${groups()}${context()}${domain()}${invisible()}${on_change()}${select()}${composite()}${mult1()}{%end%}\
 {%      choose ass.multiplicity %}\
         \
-{%          when 'one2one'   %}'${name()}': fields.many2one('${oerp_id()}', ${options()}), {% end %}\
+{%          when 'one2one'   %}'${name()}': \
+{%                 if (eval(ass.multiplicityrange) or (0,0))[0]  > 0 %} fields.many2one('${oerp_id()}', ${options()}), {% end %}\
+{%                 if (eval(ass.multiplicityrange) or (0,0))[0] <= 0 %} fields.one2many('${oerp_id()}', '${other_name()}', ${options()}), {% end %}\
+{%                 end %}\
 {%          when 'many2one'  %}'${name()}': fields.many2one('${oerp_id()}', ${options()}), {% end %}\
 {%          when 'one2many'  %}'${name()}': fields.one2many('${oerp_id()}', '${other_name()}', ${options()}), {% end %}\
 {%          when 'many2many' %}'${name()}': fields.many2many('${oerp_id()}', '${relational_obj()}', '${actual_id()}', '${other_id()}', ${options()}), {% end %}\
@@ -262,7 +271,13 @@ class ${CLASS.name}(osv.osv):
     def ${op.name}(self, cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None):
         """${op.tag.get('documentation','')}"""
 {%    if op.member_of.name == CLASS.name %}\
+{%      if len(CLASS.child_of)>0 %}\
+        result = super(${CLASS.name},self).${op.name}(cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None)
+        return result
+{%      end %}\
+{%      if len(CLASS.child_of)==0 %}\
         raise NotImplementedError
+{%      end %}\
 {%  end %}\
 {%    if op.member_of.name != CLASS.name %}\
         member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
