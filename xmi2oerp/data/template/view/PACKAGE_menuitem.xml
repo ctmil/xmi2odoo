@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-${LICENSE_HEADER}
--->
 <openerp>
     <data>
 {%  for menu in MENUES %}\
