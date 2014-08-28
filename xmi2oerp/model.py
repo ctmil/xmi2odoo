@@ -581,6 +581,7 @@ class Model:
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}UseCase'):
                 if stop: import pdb; pdb.set_trace()
                 cusecase = self._create(uml.CUseCase, elem)
+                self._append_obj(cpackage, 'entities', cusecase)
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}UseCase'):
                 if stop: import pdb; pdb.set_trace()

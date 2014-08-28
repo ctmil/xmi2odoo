@@ -50,7 +50,12 @@
             action="action_${model('_')}_${menu.name}${tree_sufix()}"
 {%      end %}\
 {%      if len(list(menu.prevs(uml.CUseCase))) > 0 %}\
+{%        if menu.prevs(uml.CUseCase)[0].package.xmi_id != menu.package.xmi_id %}\
+            parent="${menu.prevs(uml.CUseCase)[0].package.name}.menu_${menu.prevs(uml.CUseCase)[0].name}"
+{%        end %}\
+{%        if menu.prevs(uml.CUseCase)[0].package.xmi_id == menu.package.xmi_id %}\
             parent="menu_${menu.prevs(uml.CUseCase)[0].name}"
+{%        end %}\
 {%      end %}\
 {%      if len(list(menu.prev_leafs(uml.CActor, remove_inherits=True))) > 0 %}\
             groups="${','.join([ 'group_%s' % actor.name for actor in menu.prev_leafs(uml.CActor, remove_inherits=True)])}"

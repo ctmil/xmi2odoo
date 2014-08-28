@@ -107,7 +107,8 @@ class Builder:
         while len(sorted_items) != len(menues):
             # Solve group of menues taking one and iterating to the leafs.
             r = []
-            items = list(menues[take_first].prev_leafs(uml.CUseCase, uml.CUseCase))
+            items = [ m for m in menues[take_first].prev_leafs(uml.CUseCase, uml.CUseCase) ]
+
             while items:
                 repeated_menues = (set([ i.xmi_id for i in items ]) & set([ ri.xmi_id for ri in r ]))
                 if repeated_menues != set():
@@ -115,7 +116,7 @@ class Builder:
                             'Check if they have undirected association ' \
                             'or exists a loop in directed associations.' \
                             % [ i.name for i in items if i.xmi_id in repeated_menues ]
-                r.extend(items)
+                r.extend( m for m in items if m.package.xmi_id == menues[take_first].package.xmi_id )
                 items = sorted(set(itertools.chain(*[ i.nexts(uml.CUseCase) for i in items ])), key=lambda a: a.name)
             sorted_items += r
 
@@ -123,6 +124,7 @@ class Builder:
             menues_xmi_id = set([ i.xmi_id for i in menues ])
             items_xmi_id = set([ ri.xmi_id for ri in r ])
             problematic_menues_xmi_id = menues_xmi_id - items_xmi_id
+
             if problematic_menues_xmi_id:
                 take_first = menues.index([ i for i in menues if i.xmi_id in problematic_menues_xmi_id ][0])
 
@@ -256,8 +258,14 @@ class Builder:
                 'MODULE_WEBSITE': ptag.get('website', ''),
                 'MODULE_LICENSE': ptag.get('license', 'AGPL-3'),
                 'MODULE_DEPENDS': ptag.get('depends', ''),
-                'MENUES': self.sort_menues([ cu for cu in self.model.session.query(uml.CUseCase) if cu.is_stereotype('menu')]),
-                'GROUPS': self.sort_by_gen([ ac for ac in self.model.session.query(uml.CActor) if ac.is_stereotype('group')]),
+                'MENUES': self.sort_menues([ cu for cu in self.model.session.query(uml.CUseCase)
+                                            if cu.is_stereotype('menu') and
+                                               cu.package and
+                                               cu.package.xmi_id == k]),
+                'GROUPS': self.sort_by_gen([ ac for ac in self.model.session.query(uml.CActor)
+                                            if ac.is_stereotype('group') and
+                                               ac.package and
+                                               ac.package.xmi_id == k]),
                 'ROOT_IMPORT': '\n'.join([ "import %s" % n
                                           for n in self.sort_classes(root_classes_obj) ]),
                 'WIZARD_IMPORT': '\n'.join([ "import %s" % n
