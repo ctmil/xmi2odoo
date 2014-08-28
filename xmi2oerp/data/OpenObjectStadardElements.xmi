@@ -1,5 +1,5 @@
 <?xml version = '1.0' encoding = 'UTF-8' ?>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Tue Jul 09 11:41:08 ART 2013'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Thu Aug 28 12:10:29 ART 2014'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.34(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -68,8 +68,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:0000000000000BA1'
           name = 'readonly' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>StateMachine</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
@@ -85,8 +85,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:0000000000000BA2'
           name = 'required' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1D'
               isSpecification = 'false'>
@@ -100,8 +100,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:0000000000000BA3'
           name = 'select' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1F'
               isSpecification = 'false'>
@@ -115,8 +115,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011E5'
           name = 'form' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D19'
               isSpecification = 'false'>
@@ -130,8 +130,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011E6'
           name = 'tree' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D23'
               isSpecification = 'false'>
@@ -145,8 +145,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011E8'
           name = 'store' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D21'
               isSpecification = 'false'>
@@ -193,8 +193,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--66344949:13b09938a14:-8000:00000000000011F5'
           name = 'method' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1B'
               isSpecification = 'false'>
@@ -376,8 +376,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1-7b01ca01:13b51db18aa:-8000:0000000000000D12'
           name = 'hidden' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>StateMachine</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1A'
@@ -392,8 +392,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--7f493fcf:13b6d9e307b:-8000:0000000000000F56'
           name = 'search' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D1E'
               isSpecification = 'false'>
@@ -410,8 +410,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D17'
           name = 'state' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-608aa393:13b6da4b8d4:-8000:0000000000000D20'
               isSpecification = 'false'>
@@ -603,23 +603,23 @@
         <UML:Stereotype xmi.id = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EE1'
           name = 'context' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EE2'
           name = 'cancellable' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Pseudostate</UML:Stereotype.baseClass>
-          <UML:Stereotype.baseClass>FinalState</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>State</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>FinalState</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EE3'
           name = 'editable' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>UseCase</UML:Stereotype.baseClass>
-          <UML:Stereotype.baseClass>FinalState</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>State</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>FinalState</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>UseCase</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Pseudostate</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
         </UML:Stereotype>
@@ -632,8 +632,8 @@
           name = 'visible' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Pseudostate</UML:Stereotype.baseClass>
-          <UML:Stereotype.baseClass>FinalState</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>State</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>FinalState</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1-4b248840:13cda7ec58c:-8000:00000000000019EF'
@@ -693,8 +693,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C88'
           name = 'advance_select' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
         </UML:Stereotype>
         <UML:TagDefinition xmi.id = '127-0-1-1--6c1fde7f:13ceca5ec28:-8000:0000000000000C89'
           name = 'form_groups' isSpecification = 'false'>
@@ -952,8 +952,8 @@
         <UML:Stereotype xmi.id = '127-0-1-1-19de3346:13d114137f6:-8000:0000000000001B3F'
           name = 'property' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
-          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>Attribute</UML:Stereotype.baseClass>
+          <UML:Stereotype.baseClass>AssociationEnd</UML:Stereotype.baseClass>
         </UML:Stereotype>
         <UML:TagDefinition xmi.id = '127-0-1-1--70d108d6:13d11b86512:-8000:0000000000001B3F'
           name = 'value' isSpecification = 'false'>
@@ -1083,6 +1083,505 @@
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Association</UML:Stereotype.baseClass>
         </UML:Stereotype>
+        <UML:Package xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000E9F'
+          name = 'res' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:ModelElement.stereotype>
+            <UML:Stereotype xmi.idref = '127-0-1-1-663b23fd:13b396ee199:-8000:0000000000000D10'/>
+          </UML:ModelElement.stereotype>
+          <UML:Namespace.ownedElement>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EA4'
+              name = 'partner' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EA5'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_partner_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EA6'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_partner_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EA7'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_res_partner_filter</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EA8'
+              name = 'bank' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EA9'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_res_bank_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EAB'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_res_bank_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EAC'
+              name = 'partner.bank' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EAD'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_partner_bank_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EAE'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_partner_bank_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EAF'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_partner_bank_search</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB5'
+              name = 'partner.bank.type' visibility = 'public' isSpecification = 'false'
+              isRoot = 'false' isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB7'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_partner_bank_type_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB8'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_partner_bank_type_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB6'
+              name = 'partner.bank.type.fields' visibility = 'public' isSpecification = 'false'
+              isRoot = 'false' isLeaf = 'false' isAbstract = 'false' isActive = 'false'/>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EBA'
+              name = 'company' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EBB'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_company_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EBC'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_company_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EBE'
+              name = 'multi_company_default' visibility = 'public' isSpecification = 'false'
+              isRoot = 'false' isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EBF'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_inventory_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC0'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_inventory_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC1'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_inventory_search</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC5'
+              name = 'config' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC7'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.res_config_view_base</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC6'
+              name = 'config.installer' visibility = 'public' isSpecification = 'false'
+              isRoot = 'false' isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC8'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.res_config_installer</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+              <UML:Classifier.feature>
+                <UML:Operation xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF3'
+                  name = 'newOperation' visibility = 'public' isSpecification = 'false' ownerScope = 'instance'
+                  isQuery = 'false' concurrency = 'sequential' isRoot = 'false' isLeaf = 'false'
+                  isAbstract = 'false'>
+                  <UML:BehavioralFeature.parameter>
+                    <UML:Parameter xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF4'
+                      name = 'return' isSpecification = 'false' kind = 'return'/>
+                  </UML:BehavioralFeature.parameter>
+                </UML:Operation>
+              </UML:Classifier.feature>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC9'
+              name = 'country' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ECC'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_country_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ECD'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_country_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ECA'
+              name = 'country.group' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ECE'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_country_group_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ECF'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_country_group_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ECB'
+              name = 'country.state' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED0'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_country_state_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED1'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_country_state_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED2'
+              name = 'currency' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED4'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_currency_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED5'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_currency_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED6'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_currency_search</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED3'
+              name = 'currency.rate' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'/>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED7'
+              name = 'font' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'/>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED8'
+              name = 'lang' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED9'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.res_lang_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EDA'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.res_lang_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EDB'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.res_lang_search</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EDC'
+              name = 'partner.category' visibility = 'public' isSpecification = 'false'
+              isRoot = 'false' isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EE3'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_partner_category_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EE4'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_partner_category_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EDD'
+              name = 'partner.title' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EDE'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_partner_title_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EDF'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_partner_title_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EE6'
+              name = 'request.link' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EE7'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.res_request_link-view</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EE8'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.res_request_link_tree-view</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EE9'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.res_request_link_search_view</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EEA'
+              name = 'groups' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EEC'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_groups_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EED'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_groups_search</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EEB'
+              name = 'users' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EEF'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_users_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF0'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_users_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF1'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_users_search</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+          </UML:Namespace.ownedElement>
+        </UML:Package>
+        <UML:Package xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB0'
+          name = 'ir' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:ModelElement.stereotype>
+            <UML:Stereotype xmi.idref = '127-0-1-1-663b23fd:13b396ee199:-8000:0000000000000D10'/>
+          </UML:ModelElement.stereotype>
+          <UML:Namespace.ownedElement>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB1'
+              name = 'property' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB2'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.ir_property_view</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB3'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.ir_property_view_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB4'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.ir_property_view_search</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF5'
+              name = 'attachment' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF6'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_attachment_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF7'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_attachment_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF8'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.view_attachment_search</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+          </UML:Namespace.ownedElement>
+        </UML:Package>
+        <UML:Package xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF9'
+          name = 'mail' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:ModelElement.stereotype>
+            <UML:Stereotype xmi.idref = '127-0-1-1-663b23fd:13b396ee199:-8000:0000000000000D10'/>
+          </UML:ModelElement.stereotype>
+          <UML:Namespace.ownedElement>
+            <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EFA'
+              name = 'thread' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'/>
+          </UML:Namespace.ownedElement>
+        </UML:Package>
       </UML:Namespace.ownedElement>
     </UML:Model>
   </XMI.content>
