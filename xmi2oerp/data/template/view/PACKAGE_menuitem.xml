@@ -18,8 +18,10 @@
 {%      if not menu.relateds(uml.CClass)[0].is_stereotype('wizard') %}\
             <field name="view_type">${menu.is_stereotype('hierarchical') and 'tree' or menu.tag.get('view_type', 'form')}</field>
             <field name="view_mode">${menu.tag.get('view_mode', 'tree,form')}</field>
+{%          if not menu.relateds(uml.CClass)[0].package.is_stereotype('external') %}\
             <field name="view_id" ref="view_${model('_')}_tree${tree_sufix()}"/>
             <field name="search_view_id" ref="view_${model('_')}_filter"/>
+{%          end %}\
 {%      end %}\
 {%          if 'help' in menu.tag %}\
             <field name="help" type="html">${menu.tag['help']}</field>
