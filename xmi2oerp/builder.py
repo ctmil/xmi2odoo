@@ -217,8 +217,13 @@ class Builder:
             app_files = [ '%s_app.xml' % package.name ]
             security_files = [ 'security/ir.model.access.csv' ]
             # Calcula dependencias
-            dependencies = set([ self.model[ass].name for ass in self.model.iterclass(uml.CPackage) ]) \
-                    - set(['res', 'ir', package.name])
+            att_depends = [ self.model[a].datatype.package.name for a in self.model.iterclass(uml.CAttribute)
+                           if self.model[a].datatype.package and self.model[a].datatype.package.is_stereotype('external') ]
+            ass_depends = [ self.model[a].participant.package.name for a in self.model.iterclass(uml.CAssociationEnd)
+                           if self.model[a].participant.package and self.model[a].participant.package.is_stereotype('external') ]
+            gen_depends = [ self.model[a].parent.package.name for a in self.model.iterclass(uml.CGeneralization)
+                           if self.model[a].parent.package and self.model[a].parent.package.is_stereotype('external') ]
+            dependencies = set(att_depends + ass_depends + gen_depends) - set(['res', 'ir', package.name])
             # Construyo los tags
             tags = {
                 'stereotype_dict': stereotype_dict,
