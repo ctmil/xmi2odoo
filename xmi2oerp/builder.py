@@ -76,9 +76,16 @@ class Builder:
         with open(filename) as stmpl:
             tmpl = NewTextTemplate(stmpl.read())
         stream = tmpl.generate(**tags)
-        with open(filename, 'w') as out:
-            s = stream.render()
-            out.write(s)
+        try:
+            with open(filename, 'w') as out:
+                s = stream.render()
+                out.write(s)
+        except UnicodeEncodeError, e:
+            print "Error in file %s.\nMessage: %s" % (filename, e)
+            raise
+        except:
+            raise
+
 
     def reset(self):
         """
