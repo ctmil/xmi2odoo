@@ -605,6 +605,10 @@ class Model:
                 if stop: import pdb; pdb.set_trace()
                 cdatatype = self._get_ref(elem)
 
+            elif (kind, event, elem.tag) == ('externalref', 'start', '{org.omg.xmi.namespace.UML}Class'):
+                if stop: import pdb; pdb.set_trace()
+                cdatatype = self._get_xref(elem)
+
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}Class'):
                 if stop: import pdb; pdb.set_trace()
                 if cclass is not None:
