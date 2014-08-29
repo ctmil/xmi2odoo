@@ -669,6 +669,7 @@ class Model:
                 if cclass is None or cdatatype is None:
                     raise RuntimeError, "The attribute %s.%s has not type." % (cclass if type(cclass) is str else cclass.name, elem.attrib['name']) 
                 cattribute = self._create(uml.CAttribute, elem, mask=(False, False, True, True), extra_params=[cdatatype, cclass])
+                self._append_obj(cpackage, 'entities', cattribute)
 
 # Members: Operation
 

@@ -191,6 +191,8 @@ class Builder:
 
     def build(self, logfile=sys.stderr):
         logging.info("Starting Building")
+        # Store dependencies to check circular ones.
+        dependencies_map = {}
         # Por cada paquete generar un directorio de addon.
         for k in self.model.iterclass(uml.CPackage):
             package = self.model[k]
@@ -220,12 +222,15 @@ class Builder:
             security_files = [ 'security/ir.model.access.csv' ]
             # Calcula dependencias
             att_depends = [ self.model[a].datatype.package.name for a in self.model.iterclass(uml.CAttribute)
-                           if self.model[a].datatype.package and self.model[a].datatype.package.is_stereotype('external') ]
+                           if self.model[a].package.xmi_id == package.xmi_id and self.model[a].datatype.package ]
             ass_depends = [ self.model[a].participant.package.name for a in self.model.iterclass(uml.CAssociationEnd)
-                           if self.model[a].participant.package and self.model[a].participant.package.is_stereotype('external') ]
+                           if self.model[a].swap[0].isNavigable
+                           and self.model[a].swap[0].participant.package.xmi_id == package.xmi_id
+                           and self.model[a].participant.package ]
             gen_depends = [ self.model[a].parent.package.name for a in self.model.iterclass(uml.CGeneralization)
-                           if self.model[a].parent.package and self.model[a].parent.package.is_stereotype('external') ]
+                           if self.model[a].parent.package ]
             dependencies = set(att_depends + ass_depends + gen_depends) - set(['res', 'ir', package.name])
+            dependencies_map[package.name] = dependencies
             # Construyo los tags
             tags = {
                 'stereotype_dict': stereotype_dict,
@@ -446,6 +451,12 @@ class Builder:
                 shutil.copy(source_code, target_code)
                 self.update(tags, target_code)
 
+        for pack in dependencies_map:
+            circular = [ pack_b for pack_b in dependencies_map[pack]
+                        if pack_b in dependencies_map and pack in dependencies_map[pack_b] ]
+            if circular:
+                raise RuntimeError, "Simple circular dependies found beetween %s and %s.\n"\
+                        "Please check relations direction beetween packages, or create an inhereted class in some package." % (pack, ','.join(circular))
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
 
