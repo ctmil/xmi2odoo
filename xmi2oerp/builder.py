@@ -72,6 +72,8 @@ class Builder:
         self.t = 0
 
     def update(self, tags, filename):
+        if filename[0] == "." or filename[-4:] == ".swp":
+           return
         logging.info('Updating %s' % filename)
         with open(filename) as stmpl:
             tmpl = NewTextTemplate(stmpl.read())
@@ -81,6 +83,7 @@ class Builder:
                 s = stream.render()
                 out.write(s)
         except UnicodeEncodeError, e:
+            import pdb; pdb.set_trace()
             print "Error in file %s.\nMessage: %s" % (filename, e)
             raise
         except:
@@ -213,7 +216,8 @@ class Builder:
             view_files = [ "view/%s_view.xml" % n for n in self.sort_classes(root_classes_obj) ]
             wizard_view_files = [ "wizard/%s_view.xml" % n for n in self.sort_classes(wizard_classes_obj) ]
             wizard_workflow_files = [ 'wizard/%s_workflow.xml' % name for xml_id, name in wizard_classes if len(list(self.model[xml_id].iter_over_inhereted_attrs('statemachines'))[0:1])>0 ]
-            menu_files = [ 'view/%s_menuitem.xml' % package.name ]
+            menu_files = ['view/%s_menuitem.xml' % package.name,
+                          'view/%s_actions.xml' % package.name]
             properties_files = [ "data/%s_properties.xml" % n for n in self.sort_classes(root_classes_obj) ]
             track_files = [ "data/%s_track.xml" % n for n in self.sort_classes(root_classes_obj) ]
             group_files = [ 'security/%s_group.xml' % package.name ]
@@ -228,7 +232,7 @@ class Builder:
                            and self.model[a].swap[0].participant.package.xmi_id == package.xmi_id
                            and self.model[a].participant.package ]
             gen_depends = [ self.model[a].parent.package.name for a in self.model.iterclass(uml.CGeneralization)
-                           if self.model[a].parent.package ]
+                           if self.model[a].child.package.name == package.name ]
             dependencies = set(att_depends + ass_depends + gen_depends) - set(['res', 'ir', package.name])
             dependencies_map[package.name] = dependencies
             # Construyo los tags
@@ -265,6 +269,10 @@ class Builder:
                 'MODULE_DEPENDS': ptag.get('depends', ''),
                 'MENUES': self.sort_menues([ cu for cu in self.model.session.query(uml.CUseCase)
                                             if cu.is_stereotype('menu') and
+                                               cu.package and
+                                               cu.package.xmi_id == k]),
+                'SERVER_ACTIONS': self.sort_menues([ cu for cu in self.model.session.query(uml.CUseCase)
+                                            if cu.is_stereotype('server_action') and
                                                cu.package and
                                                cu.package.xmi_id == k]),
                 'GROUPS': self.sort_by_gen([ ac for ac in self.model.session.query(uml.CActor)
@@ -318,6 +326,12 @@ class Builder:
             # Generate menu file
             source_code = os.path.join(source, 'view/PACKAGE_menuitem.xml')
             target_code = os.path.join(target, 'view/%s_menuitem.xml' % package.name)
+            shutil.copy(source_code, target_code)
+            self.update(tags, target_code)
+
+            # Generate actions file
+            source_code = os.path.join(source, 'view/PACKAGE_actions.xml')
+            target_code = os.path.join(target, 'view/%s_actions.xml' % package.name)
             shutil.copy(source_code, target_code)
             self.update(tags, target_code)
 
