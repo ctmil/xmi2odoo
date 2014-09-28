@@ -1,7 +1,7 @@
-xmi2oerp
+xmi2odoo
 ========
 
-This program convert an XMI file to OpenERP modules.
+This program convert an XMI file to Odoo modules.
 
 This software is supported by:
 

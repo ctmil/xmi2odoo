@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# xmi2oerp documentation build configuration file, created by
+# xmi2odoo documentation build configuration file, created by
 # sphinx-quickstart on Wed Nov 21 19:21:20 2012.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'xmi2oerp'
+project = u'xmi2odoo'
 copyright = u'2012, Cristian S. Rocha'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -164,7 +164,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'xmi2oerpdoc'
+htmlhelp_basename = 'xmi2odoodoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -183,7 +183,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'xmi2oerp.tex', u'xmi2oerp Documentation',
+  ('index', 'xmi2odoo.tex', u'xmi2odoo Documentation',
    u'Cristian S. Rocha', 'manual'),
 ]
 
@@ -213,7 +213,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'xmi2oerp', u'xmi2oerp Documentation',
+    ('index', 'xmi2odoo', u'xmi2odoo Documentation',
      [u'Cristian S. Rocha'], 1)
 ]
 
@@ -227,8 +227,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'xmi2oerp', u'xmi2oerp Documentation',
-   u'Cristian S. Rocha', 'xmi2oerp', 'One line description of project.',
+  ('index', 'xmi2odoo', u'xmi2odoo Documentation',
+   u'Cristian S. Rocha', 'xmi2odoo', 'One line description of project.',
    'Miscellaneous'),
 ]
 

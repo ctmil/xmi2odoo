@@ -21,8 +21,8 @@
 ##############################################################################
 
 import pkg_resources, os, sys, shutil
-from xmi2oerp import uml
-from xmi2oerp.model import Model
+from xmi2odoo import uml
+from xmi2odoo.model import Model
 from genshi.template import NewTextTemplate
 from datetime import date
 from pprint import PrettyPrinter
@@ -57,7 +57,7 @@ def stereotype_dict(items, attribute, dictmap, default=None, prefix=None, suffix
 class Builder:
     """Builder engine for addons.
 
-    >>> model = Model("xmi2oerp/test/data/test_003.xmi")
+    >>> model = Model("xmi2odoo/test/data/test_003.xmi")
     >>> import tempfile; tmpdir = tempfile.mkdtemp()
     >>> builder = Builder(tmpdir, model)
     >>> builder.build()
@@ -192,7 +192,7 @@ class Builder:
             logging.info("Copy template structure from: %s to %s" % ( source, target) )
             shutil.copytree(source, target, ignore=ignore)
 
-    def build(self, logfile=sys.stderr):
+    def build(self, version, logfile=sys.stderr):
         logging.info("Starting Building")
         # Store dependencies to check circular ones.
         dependencies_map = {}
@@ -309,7 +309,7 @@ class Builder:
                 }),
             })
             # Copio la estructura basica al nuevo directorio.
-            source = pkg_resources.resource_filename(__name__, os.path.join('data', 'template'))
+            source = pkg_resources.resource_filename(__name__, os.path.join('data', 'template', version))
             target = os.path.join(self.path, package.name)
             logging.info("Copy template structure from: %s to %s" % ( source, target) )
             shutil.copytree(source, target,

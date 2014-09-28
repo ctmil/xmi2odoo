@@ -1,7 +1,7 @@
 UML Entities declared in XMI file
 *********************************
 
-.. automodule:: xmi2oerp.uml
+.. automodule:: xmi2odoo.uml
 
 .. autoclass:: CEntity
         :members:

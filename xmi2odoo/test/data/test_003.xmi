@@ -16,7 +16,7 @@
           <UML:ModelElement.taggedValue>
             <UML:TaggedValue xmi.id = '127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:00000000000009A2'
               isSpecification = 'false'>
-              <UML:TaggedValue.dataValue>This a test for xmi2oerp using OpenERP model</UML:TaggedValue.dataValue>
+              <UML:TaggedValue.dataValue>This a test for xmi2odoo using OpenERP model</UML:TaggedValue.dataValue>
               <UML:TaggedValue.type>
                 <UML:TagDefinition xmi.idref = '127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:000000000000099F'/>
               </UML:TaggedValue.type>

@@ -20,8 +20,8 @@
 #
 ##############################################################################
 
-from xmi2oerp.uml import *
-from xmi2oerp.model import *
+from xmi2odoo.uml import *
+from xmi2odoo.model import *
 import logging
 
 def count(l):

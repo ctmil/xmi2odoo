@@ -50,7 +50,7 @@ una descripción más robusta en tutorial_omg_.
 
 En las próximas secciones se detallarán las entidades incorporadas en el 
 XMI base para el diseño de entidades compatibles con OpenERP: 
-./xmi2oerp/data/OpenObjectStadardElements.xmi
+./xmi2odoo/data/OpenObjectStadardElements.xmi
 
 .. _XMI: http://es.wikipedia.org/wiki/XML_Metadata_Interchange 
 .. _ArgoUML: http://argouml.tigris.org/

@@ -1,7 +1,7 @@
 UML Model storage
 *****************
 
-.. automodule:: xmi2oerp.model
+.. automodule:: xmi2odoo.model
 
 .. autoclass:: Model
         :members:

@@ -67,8 +67,8 @@ class Model:
     Read a simple XMI file and compare the result with the expected output stored in .out file.
 
     >>> model = Model()
-    >>> model.load("xmi2oerp/test/data/test_001.xmi")
-    >>> out = open("xmi2oerp/test/data/test_001.out").read()
+    >>> model.load("xmi2odoo/test/data/test_001.xmi")
+    >>> out = open("xmi2odoo/test/data/test_001.out").read()
     >>> print repr(model)
     <CPackage(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000866', name:'testing1')>
       <CClass(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000867', name:'class1')>
@@ -215,8 +215,8 @@ class Model:
     Read a more complex XMI file and compare the result with the expected output stored in .out file.
 
     >>> model = Model()
-    >>> model.load("xmi2oerp/test/data/test_002.xmi")
-    >>> out = open("xmi2oerp/test/data/test_002.out").read()
+    >>> model.load("xmi2odoo/test/data/test_002.xmi")
+    >>> out = open("xmi2odoo/test/data/test_002.out").read()
     >>> str(repr(model)) == out.strip()
     True
 
@@ -255,7 +255,7 @@ class Model:
     Take generalizations.
 
     >>> model = Model()
-    >>> model.load("xmi2oerp/test/data/test_003.xmi")
+    >>> model.load("xmi2odoo/test/data/test_003.xmi")
     >>> gen = model.iterclass(uml.CGeneralization).next()
     >>> model[gen]
     <CGeneralization(xmi_id:'127-0-1-1-3b1b98f2:13b2e2eda8f:-8000:0000000000000A0A', parent:'resource', child: 'car')>
@@ -302,7 +302,7 @@ class Model:
 
     def _c_load(self, url):
         querypaths = lambda filename: \
-                [os.path.join(os.path.expanduser('~'), '.xmi2oerp', 'profiles', filename),
+                [os.path.join(os.path.expanduser('~'), '.xmi2odoo', 'profiles', filename),
                  pkg_resources.resource_filename(__name__, os.path.join('data', filename)) ]
         if 'http://argouml.org/user-profiles/' in url:
             filename = url.split('/')[-1]
