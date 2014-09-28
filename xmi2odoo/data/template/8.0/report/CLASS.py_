@@ -1,0 +1,71 @@
+# -*- coding: utf-8 -*-
+${LICENSE_HEADER}
+{% def model(s='.') %}${CLASS.oerp_id(s, False)}{% end %}\
+{% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
+\
+{% def name(obj, prefix='', suffix='') %}${prefix}${obj.name}${suffix}{%end%}\
+{% def string(obj)         %}{% if 'label' in obj.tag %}${sep()}string='${obj.tag['label']}'{%end%}{%end%}\
+{% def help(obj)           %}{% if 'documentation' in obj.tag %}${sep()}help=u"""${quote(obj.tag['documentation'])}"""{%end%}{%end%}\
+{% def ondelete(obj)       %}{% if 'ondelete' in obj.tag %}${sep()}ondelete=${obj.tag['ondelete']}{%end%}{%end%}\
+{% def digits(obj)         %}{% if 'digits' in obj.tag %}${sep()}digits=${obj.tag['digits']}{%end%}{%end%}\
+{% def size(obj)           %}{% if 'size' in obj.tag %}${sep()}size=${obj.tag['size']}{%end%}{%end%}\
+{% def states(obj)         %}{% if 'states' in obj.tag %}${sep()}states=${obj.tag['states']}{%end%}{%end%}\
+{% def context(obj)        %}{% if 'context' in obj.tag %}${sep()}context=${obj.tag['context']}{%end%}{%end%}\
+{% def domain(obj)         %}{% if 'domain' in obj.tag %}${sep()}domain=${obj.tag['domain']}{%end%}{%end%}\
+{% def on_change(obj)      %}{% if 'on_change' in obj.tag %}${sep()}on_change='${obj.tag['on_change']}'{%end%}{%end%}\
+{% def fnct_inv(obj)       %}{% if 'fnct_inv' in obj.tag %}${sep()}fnct_inv='${obj.tag['fnct_inv']}'{%end%}{%end%}\
+{% def fnct_search(obj)    %}{% if 'fnct_search' in obj.tag %}${sep()}fnct_search='${obj.tag['fnct_search']}'{%end%}{%end%}\
+{% def groups(obj)         %}{% if 'module_groups' in obj.tag or 'groups' in obj.tag %}${sep()} groups='${','.join([obj.tag.get('module_groups',''), obj.tag.get('groups','')])}'{%end%}{%end%}\
+{% def change_default(obj) %}{% if obj.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
+{% def readonly(obj)       %}{% if obj.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
+{% def required(obj)       %}{% if obj.is_stereotype('required') and not CLASS.is_extended() %}${sep()}required=True{%end %}{%end%}\
+{% def select(obj)         %}{% if obj.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
+{% def store(obj)          %}{% if obj.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
+{% def translate(obj)      %}{% if obj.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
+{% def invisible(obj)      %}{% if obj.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
+{% def relation(obj)       %}{% if obj.is_stereotype('property') %}${sep()}relation='${obj.datatype.oerp_id()}'{%end%}{%end%}\
+{% def ctype(obj)          %}{% if obj.is_stereotype('property') %}${sep()}type='many2one'{%end%}{%end%}\
+{% def method(obj)         %}{% if obj.is_stereotype('property') %}${sep()}method=True{%end%}{%end%}\
+{% def view_load(obj)      %}{% if obj.is_stereotype('property') %}${sep()}view_load=True{%end%}{%end%}\
+{% def group_name(obj)     %}{% if obj.is_stereotype('property') %}${sep()}group_name='${CLASS.tag.get('group',CLASS.package.tag['label'])}'{%end%}{%end%}\
+\
+{% def options(obj)        %}\
+{%               def sep() %}{%  def sep() %}, {% end %}{% end %}\
+${               string(obj)}\
+${                 help(obj)}\
+${             ondelete(obj)}\
+${               digits(obj)}\
+${             readonly(obj)}\
+${             required(obj)}\
+${                 size(obj)}\
+${               states(obj)}\
+${              context(obj)}\
+${               domain(obj)}\
+${            on_change(obj)}\
+${               groups(obj)}\
+${       change_default(obj)}\
+${               select(obj)}\
+${                store(obj)}\
+${            translate(obj)}\
+${            invisible(obj)}\
+${                ctype(obj)}\
+${             relation(obj)}\
+${               method(obj)}\
+${            view_load(obj)}\
+${           group_name(obj)}\
+${             fnct_inv(obj)}\
+${          fnct_search(obj)}\
+{%end%}\
+
+from openerp.report import report_sxw
+from common_report_header import common_report_header
+
+class ${CLASS.name}(report_sxw.rml_parser, common_report_header):
+    """${CLASS.get('documentation', '')}"""
+
+   def __init__(self, cr, uid, name, context=None):
+       pass
+   
+${CLASS.name}()
+
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

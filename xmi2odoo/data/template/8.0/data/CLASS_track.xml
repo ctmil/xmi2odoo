@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+${LICENSE_HEADER}\
+-->
+<openerp>
+    <data>
+{% if CLASS.is_child_of('mail.thread') %}\
+{%   for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
+{%      for s in sm.list_ordered_states() %}\
+        <record id="${CLASS.oerp_id()}_${s.name}" model="mail.message.subtype">
+	    <field name="name">${s.tag['label']}</field>
+	    <field name="res_model">${CLASS.oerp_id()}</field>
+            <field name="default" eval="True"/>
+	    <field name="description">${s.tag['label']}</field>
+        </record>
+{%     end %}\
+{%   end %}\
+{% end %}\
+    </data>
+</openerp>
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4
+     -->

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+<data>
+{% def model(s='.') %}${CLASS.oerp_id(s, False)}{% end %}\
+{% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
+ 
+{%  for col in CLASS.all_attributes(parents=False, stereotypes=['property']) %}\
+{%      def name(prefix='property_', suffix='') %}${prefix}${col.name}${suffix}{%end%}\
+    <record model="ir.property" id="${emodel('_')}_${name()}">
+        <field name="name">${emodel('_')}_${name()}</field>
+        <field name="fields_id" search="[('model','=','${emodel()}'), ('name','=','${name()}')]"/>
+        <field name="value" eval="'${col.datatype.oerp_id()},%i' % ${col.tag.get('value',1)}"/>
+	</record>
+{%  end %}\
+
+</data>
+</openerp>
+        
+<!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4
+     -->

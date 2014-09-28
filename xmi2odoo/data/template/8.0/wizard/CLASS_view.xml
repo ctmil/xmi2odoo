@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+{% def model(s='.')  %}${CLASS.oerp_id(s, False)}{% end %}\
+{% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
+{% def pmodel(s='.') %}${CLASS.oerp_id(s, False, True)}{% end %}\
+<openerp>
+    <data>
+{%  def view_filter_id() %}view_${model('_')}_filter{% end %}\
+{%  def view_form_id() %}view_${model('_')}_form{% end %}\
+{%  def view_tree_id() %}view_${model('_')}_tree{% end %}\
+        <!-- FORMVIEW -->
+        <record id="${view_form_id()}" model="ir.ui.view">
+            <field name="name">${model()}.form</field>
+            <field name="model">${emodel()}</field>
+            <field name="arch" type="xml">
+                <form string="${CLASS_LABEL}" version="7.0">
+                    <header>
+{%                  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
+{%                    for tri in [ t for t in sm.list_ordered_triggers() ] %}\
+{%                      for state in [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ][0:1] %}\
+                        <button name="action_wfk_set_${state.name}"
+                            type="object"
+{%                      end %}\
+{%                      if not [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ] %}\
+                        <button name="sgn_${tri.name}"
+{%                      end %}\
+{%                          if 'class' in tri.tag %}\
+                            class="${tri.tag['class']}"
+{%                          end %}\
+{%                          if 'type' in tri.tag %}\
+                            type="${tri.tag['type']}"
+{%                          end %}\
+                            states="${','.join(sorted([ s.name for s in set(tri.list_states_from(sm)) ]))}"
+                            string="${tri.tag['label']}"
+{%                          if 'groups' in tri.tag %}\
+                            groups="${tri.tag['groups']}"
+{%                          end %}\
+{%                          if [ tra for tra in tri.sm_transitions(sm) if tra.is_stereotype('default') ] %}\
+                            class="oe_highlight"
+{%                          end %}\
+                            />
+{%                    end %}\
+                        <field name="state" widget="statusbar"
+                            statusbar_colors='${doublequote(repr(stereotype_dict(sm.list_states(),'name',{'exception':'red'})))}'
+                            />
+{%                  end %}\
+                    </header>
+                    <sheet string="${CLASS_LABEL}">
+                     <group>
+{%                  for col in CLASS.all_attributes(stereotypes=['form']) %}\
+                        <field name="${col.name}"
+{%                    if 'form_select' in col.tag %}\
+                            select="${col.tag['form_select']}"
+{%                    end %}\
+{%                    if 'form_colspan' in col.tag %}\
+                            colspan="${col.tag['form_colspan']}"
+{%                    end %}\
+{%                    if 'form_readonly' in col.tag %}\
+                            readonly="${col.tag['form_readonly']}"
+{%                    end %}\
+{%                    if 'form_required' in col.tag %}\
+                            required="${col.tag['form_required']}"
+{%                    end %}\
+{%                    if 'form_nolabel' in col.tag %}\
+                            nolabel="${col.tag['form_nolabel']}"
+{%                    end %}\
+{%                    if col.is_stereotype('hidden') %}\
+                            invisible="True"
+{%                    end %}\
+{%                    if not col.is_stereotype('hidden') and 'form_invisible' in col.tag %}\
+                            invisible="${col.tag['form_invisible']}"
+{%                    end %}\
+{%                    if 'form_password' in col.tag %}\
+                            password="${col.tag['form_password']}"
+{%                    end %}\
+{%                    if 'form_string' in col.tag %}\
+                            string="${col.tag['form_string']}"
+{%                    end %}\
+{%                    if 'form_domain' in col.tag %}\
+                            domain="${col.tag['form_domain']}"
+{%                    end %}\
+{%                    if 'form_context' in col.tag %}\
+                            context="${col.tag['form_context']}"
+{%                    end %}\
+{%                    if 'form_widget' in col.tag %}\
+                            widget="${col.tag['form_widget']}"
+{%                    end %}\
+{%                    if 'form_mode' in col.tag %}\
+                            mode="${col.tag['form_mode']}"
+{%                    end %}\
+{%                    if 'form_on_change' in col.tag %}\
+                            on_change="${col.tag['form_on_change']}"
+{%                    end %}\
+{%                    if 'form_attrs' in col.tag %}\
+                            attrs="${col.tag['form_attrs']}"
+{%                    end %}\
+{%                    if 'form_eval' in col.tag %}\
+                            eval="${col.tag['form_eval']}"
+{%                    end %}\
+{%                    if 'form_default_focus' in col.tag %}\
+                            default_focus="${col.tag['form_default_focus']}"
+{%                    end %}\
+{%                    if 'form_groups' in col.tag or 'groups' in col.tag %}\
+                            groups="${','.join([col.tag.get('form_groups',''),col.tag.get('groups','')])}"
+{%                    end %}\
+                            />
+{%                  end %}\
+{%                  for ass in CLASS.all_associations(stereotypes=['form']) %}\
+                    <field name="${ass.name}"
+{%                    if 'form_select' in ass.tag %}\
+                            select="${ass.tag['form_select']}"
+{%                    end %}\
+{%                    if 'form_colspan' in ass.tag %}\
+                            colspan="${ass.tag['form_colspan']}"
+{%                    end %}\
+{%                    if 'form_readonly' in ass.tag %}\
+                            readonly="${ass.tag['form_readonly']}"
+{%                    end %}\
+{%                    if 'form_required' in ass.tag %}\
+                            required="${ass.tag['form_required']}"
+{%                    end %}\
+{%                    if 'form_nolabel' in ass.tag %}\
+                            nolabel="${ass.tag['form_nolabel']}"
+{%                    end %}\
+{%                    if ass.is_stereotype('hidden') %}\
+                            invisible="True"
+{%                    end %}\
+{%                    if not ass.is_stereotype('hidden') and 'form_invisible' in ass.tag %}\
+                            invisible="${ass.tag['form_invisible']}"
+{%                    end %}\
+{%                    if 'form_password' in ass.tag %}\
+                            password="${ass.tag['form_password']}"
+{%                    end %}\
+{%                    if 'form_string' in ass.tag %}\
+                            string="${ass.tag['form_string']}"
+{%                    end %}\
+{%                    if 'form_domain' in ass.tag %}\
+                            domain="${ass.tag['form_domain']}"
+{%                    end %}\
+{%                    if 'form_context' in ass.tag %}\
+                            context="${ass.tag['form_context']}"
+{%                    end %}\
+{%                    if 'form_widget' in ass.tag %}\
+                            widget="${ass.tag['form_widget']}"
+{%                    end %}\
+{%                    if 'form_mode' in ass.tag %}\
+                            mode="${ass.tag['form_mode']}"
+{%                    end %}\
+{%                    if 'form_on_change' in ass.tag %}\
+                            on_change="${ass.tag['form_on_change']}"
+{%                    end %}\
+{%                    if 'form_attrs' in ass.tag %}\
+                            attrs="${ass.tag['form_attrs']}"
+{%                    end %}\
+{%                    if 'form_eval' in ass.tag %}\
+                            eval="${ass.tag['form_eval']}"
+{%                    end %}\
+{%                    if 'form_default_focus' in ass.tag %}\
+                            default_focus="${ass.tag['form_default_focus']}"
+{%                    end %}\
+{%                    if 'form_groups' in ass.tag or 'groups' in ass.tag %}\
+                            groups="${','.join([ass.tag.get('form_groups',''),ass.tag.get('groups','')])}"
+{%                    end %}\
+                            />
+{%                  end %}\
+                     </group>
+                    </sheet>
+
+                </form>
+            </field>
+        </record>
+    </data>
+</openerp>
