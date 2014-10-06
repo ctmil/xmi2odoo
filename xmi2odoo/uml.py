@@ -46,7 +46,7 @@ Create the main package
 
 Append a class with two attributes to the package
 
->>> theclass = CClass('C', 'TestClass', package)
+>>> theclass = CClass('C', 'TestClass', package=package)
 >>> session.add(theclass)
 >>> attrib_a = CAttribute('a', 'A', type_integer, member_of=theclass)
 >>> session.add(attrib_a)
@@ -72,7 +72,7 @@ C testclass []
 Append an operation with an output to the class.
 
 >>> function_a = COperation('o', 'A')
->>> function_a.parameters = [ CParameter('return', 'return', type_integer, 0, 'return') ]
+>>> function_a.parameters = [ CParameter('return', 'return', type_integer, 'return') ]
 >>> session.add(function_a)
 >>> session.commit()
 
@@ -318,9 +318,9 @@ class CEntity(Base):
             for item in parent.iter_over_inhereted_attrs(attrs):
                 yield item
 
-    def __getattr__(self, name):
+    def __getattr__(obj, name):
         if 'is_' == name[:3]:
-            return self.is_stereotype(name[3:])
+            return obj.is_stereotype(name[3:])
         raise AttributeError
 
     def __getitem__(self, name):
@@ -706,11 +706,15 @@ class CParameter(CEntity):
     :param datatype: Datatype of this parameter.
     :param kind: Define if this parameter if an input or output parameter.
     :param operation: Operation owner of this parameter.
+    :param order: 
+    :param package: 
     :type xmi_id: str
     :type name: str
     :type datatype: CDatatype
     :type kind: [ 'input', 'return' ]
     :type operation: COperation
+    :type order: int
+    :type package: CPackage
     """
     
     __tablename__ = 'cparameter'

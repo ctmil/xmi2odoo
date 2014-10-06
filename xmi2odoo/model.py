@@ -72,9 +72,10 @@ class Model:
     >>> print repr(model)
     <CPackage(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000866', name:'testing1')>
       <CClass(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000867', name:'class1')>
-        <COperation(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:000000000000086B', name:'func1')>
         <CAttribute(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000868', name:'attr1', size=None)>
           <CDataType(xmi_id:'-84-17--56-5-43645a83:11466542d86:-8000:000000000000087C', name:'Integer')>
+        <COperation(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:000000000000086B', name:'func1')>
+      <CAttribute(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000868', name:'attr1', size=None)>
 
     Iterate for all entities xmi_ids
 
@@ -141,8 +142,9 @@ class Model:
     -84-17--56-5-43645a83:11466542d86:-8000:0000000000000880
     -84-17--56-5-43645a83:11466542d86:-8000:0000000000000881
     -84-17--56-5-43645a83:11466542d86:-8000:0000000000000882
-    127-0-1-1--9b39813:13af03f5b9c:-8000:000000000000086B
     127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000868
+    127-0-1-1--9b39813:13af03f5b9c:-8000:000000000000086B
+    127-0-1-1--9b39813:13af03f5b9c:-8000:000000000000086C
 
     Iterate for all entities
 
@@ -209,8 +211,9 @@ class Model:
     <CEnumeration(xmi_id:'-84-17--56-5-43645a83:11466542d86:-8000:0000000000000880', name:'Boolean', literals:[u'TRUE', u'FALSE'])>
     <CEntity(xmi_id:'-84-17--56-5-43645a83:11466542d86:-8000:0000000000000881', name:'TRUE')>
     <CEntity(xmi_id:'-84-17--56-5-43645a83:11466542d86:-8000:0000000000000882', name:'FALSE')>
-    <COperation(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:000000000000086B', name:'func1')>
     <CAttribute(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:0000000000000868', name:'attr1', size=None)>
+    <COperation(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:000000000000086B', name:'func1')>
+    <CParameter(xmi_id:'127-0-1-1--9b39813:13af03f5b9c:-8000:000000000000086C', name:'return', kind='None')>
 
     Read a more complex XMI file and compare the result with the expected output stored in .out file.
 
@@ -224,6 +227,30 @@ class Model:
 
     >>> for xmi_id in model.iterclass(uml.CClass):
     ...     print model[xmi_id]
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EA4', name:'partner')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EA8', name:'bank')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EAC', name:'partner.bank')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB5', name:'partner.bank.type')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB6', name:'partner.bank.type.fields')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EBA', name:'company')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EBE', name:'multi_company_default')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC5', name:'config')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC6', name:'config.installer')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC9', name:'country')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ECA', name:'country.group')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ECB', name:'country.state')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED2', name:'currency')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED3', name:'currency.rate')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED7', name:'font')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED8', name:'lang')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EDC', name:'partner.category')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EDD', name:'partner.title')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EE6', name:'request.link')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EEA', name:'groups')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EEB', name:'users')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB1', name:'property')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF5', name:'attachment')>
+    <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EFA', name:'thread')>
     <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010A5', name:'person')>
     <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010B1', name:'email')>
     <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D8', name:'document')>
@@ -235,7 +262,12 @@ class Model:
     >>> for xmi_id in model.iterclass(uml.CMember,
     ...                                uml.CMember.member_of == model['127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D8']):
     ...     print model[xmi_id]
+    <COperation(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF3', name:'newOperation')>
+    <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010A6', name:'name', size=None)>
+    <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010B7', name:'name', size=None)>
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D9', name:'number', size=None)>
+    <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010F8', name:'name', size=None)>
+    <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:0000000000001116', name:'name', size=None)>
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010E7', name:'tipo', size=None)>
 
     Take the Package and get properties.
@@ -1040,10 +1072,11 @@ class Model:
             s.append(repr(p))
             for c in p.entities:
                 s.append('  %s' % (repr(c),))
-                for a in c.members:
-                    s.append('    %s' % (repr(a),))
-                    if hasattr(a, 'datatype'):
-                        s.append('      %s' % (repr(a.datatype)))
+                if hasattr(c, 'members'):
+                    for a in c.members:
+                        s.append('    %s' % (repr(a),))
+                        if hasattr(a, 'datatype'):
+                            s.append('      %s' % (repr(a.datatype)))
         return '\n'.join(s)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

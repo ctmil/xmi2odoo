@@ -5,14 +5,48 @@
   <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010B1', name:'email')>
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010B7', name:'name', size=None)>
       <CDataType(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:0000000000000B9C', name:'Char')>
+  <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010A6', name:'name', size=None)>
+  <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010B7', name:'name', size=None)>
   <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D8', name:'document')>
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D9', name:'number', size=None)>
       <CDataType(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:0000000000000B97', name:'Integer')>
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010E7', name:'tipo', size=None)>
       <CEnumeration(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010E1', name:'tipo_documento', literals:[u'dni', u'cuit', u'passport'])>
+  <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010D9', name:'number', size=None)>
   <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010F7', name:'emaillist')>
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010F8', name:'name', size=None)>
       <CDataType(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:0000000000000B9C', name:'Char')>
+  <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010F8', name:'name', size=None)>
   <CClass(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:0000000000001115', name:'estudios')>
     <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:0000000000001116', name:'name', size=None)>
       <CDataType(xmi_id:'127-0-1-1--66344949:13b09938a14:-8000:0000000000000B9C', name:'Char')>
+  <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:0000000000001116', name:'name', size=None)>
+  <CAttribute(xmi_id:'127-0-1-1-2b464aa4:13b09d81b72:-8000:00000000000010E7', name:'tipo', size=None)>
+<CPackage(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000E9F', name:'res')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EA4', name:'partner')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EA8', name:'bank')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EAC', name:'partner.bank')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB5', name:'partner.bank.type')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB6', name:'partner.bank.type.fields')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EBA', name:'company')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EBE', name:'multi_company_default')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC5', name:'config')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC6', name:'config.installer')>
+    <COperation(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF3', name:'newOperation')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC9', name:'country')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ECA', name:'country.group')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ECB', name:'country.state')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED2', name:'currency')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED3', name:'currency.rate')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED7', name:'font')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000ED8', name:'lang')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EDC', name:'partner.category')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EDD', name:'partner.title')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EE6', name:'request.link')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EEA', name:'groups')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EEB', name:'users')>
+<CPackage(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB0', name:'ir')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EB1', name:'property')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF5', name:'attachment')>
+<CPackage(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF9', name:'mail')>
+  <CClass(xmi_id:'127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EFA', name:'thread')>

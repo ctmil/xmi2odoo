@@ -57,10 +57,20 @@ def stereotype_dict(items, attribute, dictmap, default=None, prefix=None, suffix
 class Builder:
     """Builder engine for addons.
 
+    Build code for version api 7.0.
+
     >>> model = Model("xmi2odoo/test/data/test_003.xmi")
     >>> import tempfile; tmpdir = tempfile.mkdtemp()
     >>> builder = Builder(tmpdir, model)
-    >>> builder.build()
+    >>> builder.build('7.0')
+    >>> shutil.rmtree(tmpdir)
+
+    Build code for version api 8.0.
+
+    >>> model = Model("xmi2odoo/test/data/test_003.xmi")
+    >>> import tempfile; tmpdir = tempfile.mkdtemp()
+    >>> builder = Builder(tmpdir, model)
+    >>> builder.build('8.0')
     >>> shutil.rmtree(tmpdir)
     """
 
