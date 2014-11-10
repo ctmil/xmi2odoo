@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-def tag_option(obj, name, label=None, default=None, check=True, quote='\'', negate=False):
+from xmi2odoo import uml
+
+def tag_option(obj, name, label=None, default=None, check=True, quote='\'', negate=False, translate=False):
     if isinstance(name, list):
         valid = any(n in obj.tag for n in name)
         label = label or name[0]
@@ -9,8 +11,10 @@ def tag_option(obj, name, label=None, default=None, check=True, quote='\'', nega
         valid = name in obj.tag
         label = label or name
         value = valid and obj.tag[name]
+    pretrans = "_(" if translate else ""
+    posttrans = ")" if translate else ""
     if check and (not valid if negate else valid):
-        r = "%s=%s%s%s" % (label, quote, obj.tag[name], quote)
+        r = "%s=%s%s%s%s%s" % (label, pretrans, quote, obj.tag[name], quote, posttrans)
     else:
         r = default
     return r 
@@ -44,9 +48,9 @@ def names(obj, prefix='', suffix='', default=''):
 
 def attr_options(cls, obj):
     return ','.join([ o for o in [
-       tag_option(obj,  'label', label='string'),
+       tag_option(obj,  'label', label='string', translate=True),
        tag_option(obj,  'documentation', label='help', quote='"""'),
-       tag_option(obj,  'ondelete'),
+       tag_option(obj,  'ondelete', quote=''),
        tag_option(obj,  'digits'),
        stereotype_option(obj, 'readonly'),
        stereotype_option(obj, 'required', check=not cls.is_extended()),
@@ -88,7 +92,7 @@ def ass_relational_obj(mod, ass):
 
 def ass_options(cls,obj):
     return ','.join([ o for o in [
-       tag_option(obj,  'label', label='string'),
+       tag_option(obj,  'label', label='string', translate=True),
        tag_option(obj,  'documentation', label='help', quote='"""'),
        tag_option(obj,  'ondelete'),
        tag_option(obj,  'digits'),
@@ -120,10 +124,10 @@ def sel_literals(col):
 def fnc_name(col):
     return name(col, prefix='property_' if col.is_stereotype('property') else '')
 
-def parameters(op):
+def parameters(op, prefix='', suffix=''):
     parms = [par.name for par in [ p for p in op.parameters if p.name != 'return']]
     if parms:
-        return ', '.join(parms)
+        return '%s%s%s' % (prefix, ', '.join(parms), suffix)
     else:
         return ''
 
@@ -161,4 +165,11 @@ def wkf_guard(cls, u=' and '):
 
 def groups(obj):
     return ','.join([ '(4, ref(\'%s\'))' % (name if '.' in name else 'group_%s' % name) for name in obj.tag['groups'].split(',')])
+
+def is_related(obj):
+    return obj.relateds(uml.CClass)
+
+def related(obj):
+    assert list(obj.relateds(uml.CClass)) > 1, "You have more than one class related to %s.\n%s" % (obj.name, names(obj.relateds(uml.CClass)))
+    return obj.relateds(uml.CClass)[0]
 

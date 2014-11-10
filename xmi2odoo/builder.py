@@ -23,11 +23,12 @@
 import pkg_resources, os, sys, shutil
 from xmi2odoo import uml
 from xmi2odoo.model import Model
-from genshi.template import NewTextTemplate
 from datetime import date
 from pprint import PrettyPrinter
 import logging
 from xml.sax.saxutils import escape as xmlescape
+from mako.template import Template
+from mako.exceptions import RichTraceback
 
 import itertools
 
@@ -85,20 +86,22 @@ class Builder:
         if filename[0] == "." or filename[-4:] == ".swp":
            return
         logging.info('Updating %s' % filename)
-        with open(filename) as stmpl:
-            tmpl = NewTextTemplate(stmpl.read())
-        stream = tmpl.generate(**tags)
         try:
+            tmpl = Template(filename=filename, module_directory='/tmp/mako_modules')
             with open(filename, 'w') as out:
-                s = stream.render()
-                out.write(s)
+                s = tmpl.render(**tags)
+                out.write(s.encode('utf-8'))
         except UnicodeEncodeError, e:
-            import pdb; pdb.set_trace()
             print "Error in file %s.\nMessage: %s" % (filename, e)
             raise
         except:
-            raise
-
+            traceback = RichTraceback()
+            m = ""
+            for (filename, lineno, function, line) in traceback.traceback:
+                m += "File %s, line %s, in %s\n" % (filename, lineno, function)
+                m += line + "\n"
+            m += "%s: %s\n" % (str(traceback.error.__class__.__name__), traceback.error)
+            raise RuntimeError(m)
 
     def reset(self):
         """
@@ -243,7 +246,8 @@ class Builder:
                            and self.model[a].participant.package ]
             gen_depends = [ self.model[a].parent.package.name for a in self.model.iterclass(uml.CGeneralization)
                            if self.model[a].child.package.name == package.name ]
-            dependencies = set(att_depends + ass_depends + gen_depends) - set(['res', 'ir', package.name])
+            exp_depends = package.tag.get('depends','').split(',')
+            dependencies = set(att_depends + ass_depends + gen_depends + exp_depends) - set(['', 'res', 'ir', package.name])
             dependencies_map[package.name] = dependencies
             # Construyo los tags
             tags = {
@@ -297,12 +301,13 @@ class Builder:
                                             for n in self.sort_classes(report_classes_obj) ]),
             }
             tags.update({
-                'LICENSE_HEADER': str(NewTextTemplate(
+                'uml': uml,
+                'LICENSE_HEADER': str(Template(
                     pkg_resources.resource_stream(__name__,
                                                   os.path.join('data',
                                                                'licenses',
                                                                filter(lambda c: c.isalpha() or c.isdigit(), tags['MODULE_LICENSE'].lower())+'-header.txt')
-                                                 ).read()).generate(**tags)),
+                                                 ).read()).render(**tags)),
                 'MODULE_DICTIONARY': self.pp.pformat({
                     'name': tags['MODULE_SHORT_DESCRIPTION'],
                     'version': tags['MODULE_VERSION'],

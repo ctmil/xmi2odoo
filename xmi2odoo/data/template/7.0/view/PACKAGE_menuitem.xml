@@ -1,68 +1,75 @@
+<%!
+from xmi2odoo.tools import emodel, model, tree_sufix, related, is_related
+%>\
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-{%  for menu in MENUES %}\
-{%    def model(s='.') %}${menu.relateds(uml.CClass)[0].oerp_id(s, False)}{% end %}\
-{%    def emodel(s='.') %}${menu.relateds(uml.CClass)[0].oerp_id(s)}{% end %}\
-{%    def tree_sufix() %}${menu.is_stereotype('hierarchical') and '_hier' or ''}${menu.is_stereotype('editable') and '_edit' or ''}{% end %}\
-{%    if 'action' not in menu.tag and len(list(menu.relateds(uml.CClass))) == 1 %}\
-        <record id="action_${model('_')}_${menu.name}${tree_sufix()}" model="ir.actions.act_window">
+%  for menu in MENUES:
+%    if 'action' not in menu.tag and is_related(menu):
+        <record id="action_${model(related(menu),'_')}_${menu.name}${tree_sufix(menu)}" model="ir.actions.act_window">
             <field name="name">${escape(menu.tag.get('label', menu.name))}</field>
-            <field name="res_model">${emodel()}</field>
-{%      if menu.relateds(uml.CClass)[0].is_stereotype('wizard') %}\
+            <field name="res_model">${emodel(related(menu))}</field>
+%      if related(menu).is_stereotype('wizard'):
             <field name="view_type">${menu.tag.get('view_type', 'form')}</field>
             <field name="view_mode">${menu.tag.get('view_mode', 'tree,form')}</field>
-            <field name="view_id" ref="view_${model('_')}_form"/>
+            <field name="view_id" ref="view_${model(related(menu),'_')}_form"/>
             <field name="target">new</field>
-{%      end %}\
-{%      if not menu.relateds(uml.CClass)[0].is_stereotype('wizard') %}\
+%      else:
             <field name="view_type">${menu.is_stereotype('hierarchical') and 'tree' or menu.tag.get('view_type', 'form')}</field>
             <field name="view_mode">${menu.tag.get('view_mode', 'tree,form')}</field>
-{%          if not menu.relateds(uml.CClass)[0].package.is_stereotype('external') %}\
-            <field name="view_id" ref="view_${model('_')}_tree${tree_sufix()}"/>
-            <field name="search_view_id" ref="view_${model('_')}_filter"/>
-{%          end %}\
-{%      end %}\
-{%          if 'help' in menu.tag %}\
+%           if not related(menu).package.is_stereotype('external'):
+            <field name="view_id" ref="view_${model(related(menu),'_')}_tree${tree_sufix(menu)}"/>
+            <field name="search_view_id" ref="view_${model(related(menu),'_')}_filter"/>
+%          endif
+%      endif
+%      if 'help' in menu.tag:
             <field name="help" type="html">${menu.tag['help']}</field>
-{%          end %}\
-{%          if 'context' in menu.tag %}\
+%      else:
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create"> Click to create a ${escape(menu.tag.get('label', menu.name))}.</p>
+            </field>
+%      endif
+%      if 'context' in menu.tag:
             <field name="context">${menu.tag['context']}</field>
-{%          end %}\
-            <field name="domain">[{% def sep() %}{% def sep() %}, {% end %}{% end %}{% if 'domain' in menu.tag %}${sep()}${menu.tag['domain'][1:-1]}{% end %}\
-{%          for ass in [ ass for ass in menu.relateds(uml.CClass)[0].all_associations(stereotypes=['field_parent']) if menu.is_stereotype('hierarchical') ]%}${sep()}('${ass.name}','=',False){% end %}]</field>
+%      endif
+%      if 'domain' in menu.tag:
+            <field name="domain">
+                [
+                 ${menu.tag['domain'][1:-1]},
+                % for ass in [ ass for ass in related(menu).all_associations(stereotypes=['field_parent']) if menu.is_stereotype('hierarchical') ]:
+                 ('${ass.name}','=',False),
+                % endfor
+                ]
+            </field>
+%      endif
         </record>
-{%    end %}\
+%    endif
 
         <menuitem
-{%      if 'menu_parent' in menu.tag %}\
+%      if 'menu_parent' in menu.tag:
             name="${menu.tag['menu_parent']}/${escape(menu.tag.get('label', '<No label>'))}"
-{%      end %}\
-{%      if 'menu_parent' not in menu.tag %}\
+%      else:
             name="${escape(menu.tag.get('label', '<No label>'))}"
-{%      end %}\
+%      endif
             id="menu_${menu.name}"
-            sequence="${menu.tag.get('menu_sequence',100)}"
-{%      if 'action' in menu.tag %}\
+            sequence="${menu.tag.get('menu_sequence',10)}"
+%      if 'action' in menu.tag:
             action="${menu.tag['action']}"
-{%      end %}\
-{%      if 'action' not in menu.tag and len(list(menu.relateds(uml.CClass))) == 1 %}\
-            action="action_${model('_')}_${menu.name}${tree_sufix()}"
-{%      end %}\
-{%      if len(list(menu.prevs(uml.CUseCase))) > 0 %}\
-{%        if menu.prevs(uml.CUseCase)[0].package.xmi_id != menu.package.xmi_id %}\
+%      elif is_related(menu):
+            action="action_${model(related(menu),'_')}_${menu.name}${tree_sufix(menu)}"
+%      endif
+%      if len(list(menu.prevs(uml.CUseCase))) > 0:
+%        if menu.prevs(uml.CUseCase)[0].package.xmi_id != menu.package.xmi_id:
             parent="${menu.prevs(uml.CUseCase)[0].package.name}.menu_${menu.prevs(uml.CUseCase)[0].name}"
-{%        end %}\
-{%        if menu.prevs(uml.CUseCase)[0].package.xmi_id == menu.package.xmi_id %}\
+%        else:
             parent="menu_${menu.prevs(uml.CUseCase)[0].name}"
-{%        end %}\
-{%      end %}\
-{%      if len(list(menu.prev_leafs(uml.CActor, remove_inherits=True))) > 0 %}\
+%        endif
+%      endif
+%      if len(list(menu.prev_leafs(uml.CActor, remove_inherits=True))) > 0:
             groups="${','.join([ 'group_%s' % actor.name for actor in menu.prev_leafs(uml.CActor, remove_inherits=True)])}"
-{%      end %}\
+%      endif
             />
-
-{%  end %}\
+%  endfor
     </data>
 </openerp>
 <!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4

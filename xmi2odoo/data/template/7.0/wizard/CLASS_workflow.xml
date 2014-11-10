@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-{% def model(s='.')  %}${CLASS.oerp_id(s, False)}{% end %}\
-{% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
-{% def pmodel(s='.') %}${CLASS.oerp_id(s, False, True)}{% end %}\
-<!-- ${ model()  } -->
-<!-- ${ emodel() } -->
-<!-- ${ pmodel() } -->
+<%!
+from xmi2odoo.tools import model, emodel, sel_literals, fnc_name, attr_options
+from xmi2odoo.tools import parameters, names, groups, wkf_name, wkf_guard
+%>
 <openerp>
     <data>
-{% for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
-{% def wkfname() %}${CLASS.name}_${sm.name}_wkf{% end %}\
-{% def wkfguard(u=' and ') %}True${u}{% end %}\
-{% if CLASS.oerp_id('-', False) != CLASS.oerp_id('-') and CLASS.has_member('type', uml.CAttribute) %}\
-{%    def wkfguard(u=' and ') %}type=="${ model() }"${u}{% end %}\
-{% end %}\
+% for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
         <!-- Workflow -->
 
-        <record id="${wkfname()}" model="workflow">
+        <record id="${wkf_name(CLASS, sm)}" model="workflow">
             <field name="name">${CLASS.oerp_id()}.${sm.name}</field>
             <field name="osv">${CLASS.oerp_id()}</field>
             <field name="on_create">True</field>
@@ -23,60 +16,58 @@
 
         <!-- Activities -->
 
-{%   for s in sm.list_ordered_states() %}\
+%   for s in sm.list_ordered_states():
         <record id="a_${CLASS.xmi_id[-4:]}_${s.xmi_id[-4:]}" model="workflow.activity">
-            <field name="wkf_id" ref="${wkfname()}"/>
-{%     if s.is_initial() %}\
+            <field name="wkf_id" ref="${wkf_name(CLASS, sm)}"/>
+%     if s.is_initial():
             <field name="flow_start">True</field>
-{%     end %}\
-{%     if s.is_final() %}\
+%     endif
+%     if s.is_final():
             <field name="flow_stop">True</field>
-{%     end %}\
+%     endif
             <field name="name">${s.tag['label']}</field>
-{%     if 'action' in s.tag %}\
+%     if 'action' in s.tag:
             <field name="action">${s.tag['action']}</field>
             <field name="kind">function</field>
-{%     end %}\
-{%     if 'action' not in s.tag %}\
+%     endif
+%     if 'action' not in s.tag:
             <field name="action">
-{%      if 'message_subject' in s.tag or 'message_text' in s.tag %}\
+%      if 'message_subject' in s.tag or 'message_text' in s.tag:
                 message_post("${s.tag.get('message_subject', 'No subject')}","${s.tag.get('message_text', 'No text')}")
-{%      end %}\
+%      endif
                 write({'state':'${s.name}'})
             </field>
             <field name="kind">function</field>
-{%     end %}\
+%     endif
         </record>
-{%   end %}\
+%   endfor
 
         <!-- Transitions -->
 
-{%   for t in sm.middle_transitions() %}\
+%   for t in sm.middle_transitions():
         <record id="t_${CLASS.xmi_id[-4:]}_${t.xmi_id[-4:]}" model="workflow.transition">
             <field name="act_from" ref="a_${CLASS.xmi_id[-4:]}_${t.state_from.xmi_id[-4:]}"/>
             <field name="act_to" ref="a_${CLASS.xmi_id[-4:]}_${t.state_to.xmi_id[-4:]}"/>
-{%     if t.trigger is not None %}\
+%     if t.trigger is not None:
             <field name="signal">sgn_${t.trigger.name}</field>
-{%     end %}\
-{%     if t.guard is None %}\
-            <field name="condition">${wkfguard('')}</field>
-{%     end %}\
-{%     if t.guard is not None %}\
-            <field name="condition">${wkfguard(' and ')}${t.guard.body}</field>
-{%     end %}\
-{%     if 'trigger_model' in t.tag %}\
+%     endif
+%     if t.guard is None:
+            <field name="condition">${wkf_guard(CLASS, '')}</field>
+%     else:
+            <field name="condition">${wkf_guard(CLASS, ' and ')}${t.guard.body}</field>
+%     endif
+%     if 'trigger_model' in t.tag:
             <field name="trigger_model">${t.tag['trigger_model']}</field>
-{%     end %}\
-{%     if 'trigger_expr_id' in t.tag %}\
+%     endif
+%     if 'trigger_expr_id' in t.tag:
             <field name="trigger_expr_id">${t.tag['trigger_expr_id']}</field>
-{%     end %}\
-{%     if 'groups' in t.tag %}\
-{% def groups() %}${','.join([ '(4, ref(\'%s\'))' % (name if '.' in name else 'group_%s' % name) for name in t.tag['groups'].split(',')])}{% end %}\
-            <field name="group_ids" eval="${groups()}"/>
-{%     end %}\
+%     endif
+%     if 'groups' in t.tag:
+            <field name="group_ids" eval="${groups(t)}"/>
+%     endif
         </record>
-{%   end %}\
-{% end %}\
+%   endfor
+% endfor
     </data>
 </openerp>
 <!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4

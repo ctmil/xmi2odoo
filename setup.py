@@ -46,7 +46,7 @@ setup(name='xmi2odoo',
       scripts=['xmi2odoo/scripts/xmi2odoo'],
       packages=find_packages(),
       test_suite='xmi2odoo.test',
-      install_requires=['Genshi','sqlalchemy'],
+      install_requires=['mako','sqlalchemy'],
       include_package_data=True,
       dependency_links=[],
    )

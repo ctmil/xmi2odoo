@@ -1,29 +1,29 @@
+<%!
+from xmi2odoo.tools import emodel, model, tree_sufix, is_related, related
+%>\
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-{%  for menu in SERVER_ACTIONS %}\
-{%    def model(s='.') %}${menu.relateds(uml.CClass)[0].oerp_id(s, False)}{% end %}\
-{%    def emodel(s='.') %}${menu.relateds(uml.CClass)[0].oerp_id(s)}{% end %}\
-{%    def tree_sufix() %}${menu.is_stereotype('hierarchical') and '_hier' or ''}${menu.is_stereotype('editable') and '_edit' or ''}{% end %}\
-{%    if 'action' not in menu.tag and len(list(menu.relateds(uml.CClass))) == 1 %}\
-        <record id="action_srv_${model('_')}_${menu.name}" model="ir.actions.server">
+%  for menu in SERVER_ACTIONS:
+%    if 'action' not in menu.tag and is_related(menu):
+        <record id="action_srv_${model(related(menu),'_')}_${menu.name}" model="ir.actions.server">
             <field name="name">${escape(menu.tag.get('label', menu.name))}</field>
-            <field name="model_id" ref="model_${emodel(s='_')}"/>
-{%          if 'code' in menu.tag %}\
+            <field name="model_id" ref="model_${emodel(related(menu),s='_')}"/>
+%           if 'code' in menu.tag:
             <field name="state">code</field>
             <field name="code">${menu.tag['code']}</field>
-{%          end %}\
+%           endif
         </record>
 	
-        <record id="ir_${model('_')}_${menu.name}" model="ir.values">
+        <record id="ir_${model(related(menu),'_')}_${menu.name}" model="ir.values">
             <field name="key2">client_action_multi</field>
-            <field name="model" eval="'${emodel()}'"/>
-            <field name="name">${menu.label}</field>
-            <field name="value" eval="'ir.actions.server,%d'%action_srv_${model('_')}_${menu.name}"/>
+            <field name="model" eval="'${emodel(related(menu))}'"/>
+            <field name="name">${menu.tag['label']}</field>
+            <field name="value" eval="'ir.actions.server,%d'%action_srv_${model(related(menu),'_')}_${menu.name}"/>
         </record>
-{%    end %}\
+%    endif
 
-{%  end %}\
+%  endfor
     </data>
 </openerp>
 <!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4

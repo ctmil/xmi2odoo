@@ -106,6 +106,7 @@ def main():
     except OSError, m:
         print "\nERROR: Target exists?", m
         print "Try using -r flag."
+        return -1
     except Exception, m:
         #ex_type, ex, tb = sys.exc_info()
         logging.error(traceback.format_exc())
@@ -115,6 +116,8 @@ def main():
     return 0
 
 if __name__ == '__main__':
-        main()
+    from sys import exit
+    exit(main())
+
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

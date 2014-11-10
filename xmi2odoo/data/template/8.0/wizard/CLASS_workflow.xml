@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-{% def model(s='.')  %}${CLASS.oerp_id(s, False)}{% end %}\
-{% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
-{% def pmodel(s='.') %}${CLASS.oerp_id(s, False, True)}{% end %}\
-<!-- ${ model()  } -->
-<!-- ${ emodel() } -->
-<!-- ${ pmodel() } -->
 <openerp>
     <data>
 {% for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\

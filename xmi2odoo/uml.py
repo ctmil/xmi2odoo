@@ -321,7 +321,7 @@ class CEntity(Base):
     def __getattr__(obj, name):
         if 'is_' == name[:3]:
             return obj.is_stereotype(name[3:])
-        raise AttributeError
+        raise AttributeError, 'Not found attribute %s in %s' % (name, obj.name)
 
     def __getitem__(self, name):
         tag = self.tag
@@ -612,9 +612,11 @@ class CClass(CDataType):
             parent = generalization.parent
             extend_parent = generalization.is_stereotype('extend')
             if check_extend and extend_parent:
-                return sep.join([parent.package.name, parent.name])
+                return parent.oerp_id(sep, check_extend=check_extend, return_parent=return_parent, ignore=ignore)
+                #return sep.join([parent.package.name, parent.name])
             if return_parent:
-                return sep.join([parent.package.name, parent.name])
+                return parent.oerp_id(sep, check_extend=check_extend, return_parent=return_parent, ignore=ignore)
+                #return sep.join([parent.package.name, parent.name])
         return sep.join([self.package.name, self.name])
 
 class CMember(CEntity):
