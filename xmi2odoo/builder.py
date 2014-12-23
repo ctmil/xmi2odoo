@@ -123,6 +123,7 @@ class Builder:
         while len(sorted_items) != len(menues):
             # Solve group of menues taking one and iterating to the leafs.
             r = []
+
             items = [ m for m in menues[take_first].prev_leafs(uml.CUseCase, uml.CUseCase) ]
 
             while items:
@@ -134,6 +135,7 @@ class Builder:
                             % [ i.name for i in items if i.xmi_id in repeated_menues ]
                 r.extend( m for m in items if m.package.xmi_id == menues[take_first].package.xmi_id )
                 items = sorted(set(itertools.chain(*[ i.nexts(uml.CUseCase) for i in items ])), key=lambda a: a.name)
+
             sorted_items += r
 
             # If exists other groups of menues, prepare them to solve.

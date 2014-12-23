@@ -80,7 +80,7 @@ def ass_id(obj):
     return obj.participant.oerp_id()
 
 def ass_other_name(cls, obj):
-    return actual_id(cls.name) if obj.swap[0].name in [None, ''] else obj.swap[0].name
+    return "%s_id" % cls.name if obj.swap[0].name in [None, ''] else obj.swap[0].name
 
 def ass_other_id(ass):
     return "%s_id" % ass.participant.name.replace('.','_')

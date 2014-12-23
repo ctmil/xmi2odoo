@@ -172,7 +172,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
             <field name="arch" type="xml">
                 <form string="${CLASS_LABEL}" version="7.0">
                     <group>
-%                  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype'])[:1]:
+%                  for sm in list(CLASS.get_statemachines(no_stereotypes=['extend','prototype']))[:1]:
                         <field name="state" invisible="True"/>
 %                  endfor
 %                  for col in CLASS.all_attributes(stereotypes=['form']):

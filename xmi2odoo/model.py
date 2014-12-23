@@ -1040,12 +1040,16 @@ class Model:
         except Exception, m:
             import traceback
             import StringIO
-            r =  "Parsing error in line %i of file %s.\n" % (infile.lineno, infile.filename)
+            r =  "Parsing error in line %i of file %s.\n" % (infile.lineno, infile.source.name)
             if 'elem' in globals():
                 r += "\t<Tag: %s, ID: %s> -\n" % (elem.tag, kind == 'description' and elem.attrib['xmi.id'] or '')
             r += "\tError: %s\n" % m
             r += "\tLine: %s\n" % sys.exc_traceback.tb_lineno
-            r += "\tBreadcrumbs: %s\n" % ';'.join([ getattr(self.get(xmi_id, xmi_id),'name', xmi_id) for xmi_id in owner ])
+            try:
+                r += "\tBreadcrumbs: %s\n" % ';'.join([ getattr(self.get(xmi_id, xmi_id),'name', xmi_id) for xmi_id in owner ])
+            except:
+                r += "\tBreadcrumbs error."
+                pass
             sout = StringIO.StringIO()
             traceback.print_exc(file=sout)
             logging.error(sout.getvalue())

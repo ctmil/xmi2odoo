@@ -253,11 +253,12 @@ class CEntity(Base):
 
     def parents(self, package=None, stereotypes=[], no_stereotypes=[], ignore=[]):
         f_package = lambda gen: gen.parent.package == package if package else True
-        return [ gen.parent for gen in self.child_of
+        r = [ gen.parent for gen in self.child_of
                 if f_package(gen)
                    and gen.is_stereotype(*stereotypes)
                    and gen.not_is_stereotype(*no_stereotypes)
                    and gen.parent.oerp_id() not in ignore ]
+        return list(set(r))
 
     def childs(self, package=None, stereotypes=[], no_stereotypes=[], ignore=[]):
         f_package = lambda gen: gen.parent.package == package if package else True
@@ -583,6 +584,7 @@ class CClass(CDataType):
     __normalize_name__ = True
 
     def __init__(self, xmi_id, name, order=None, package=None):
+        print xmi_id, name
         super(CClass, self).__init__(xmi_id, name, order=order, package=package)
 
     def __repr__(self):

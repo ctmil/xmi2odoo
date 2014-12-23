@@ -1,5 +1,5 @@
 <?xml version = '1.0' encoding = 'UTF-8' ?>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Tue Oct 28 09:22:22 ART 2014'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Mon Dec 22 14:16:50 ART 2014'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.34(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -1259,17 +1259,6 @@
                   </UML:TaggedValue.type>
                 </UML:TaggedValue>
               </UML:ModelElement.taggedValue>
-              <UML:Classifier.feature>
-                <UML:Operation xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF3'
-                  name = 'newOperation' visibility = 'public' isSpecification = 'false' ownerScope = 'instance'
-                  isQuery = 'false' concurrency = 'sequential' isRoot = 'false' isLeaf = 'false'
-                  isAbstract = 'false'>
-                  <UML:BehavioralFeature.parameter>
-                    <UML:Parameter xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF4'
-                      name = 'return' isSpecification = 'false' kind = 'return'/>
-                  </UML:BehavioralFeature.parameter>
-                </UML:Operation>
-              </UML:Classifier.feature>
             </UML:Class>
             <UML:Class xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EC9'
               name = 'country' visibility = 'public' isSpecification = 'false' isRoot = 'false'
@@ -1562,6 +1551,33 @@
                 <UML:TaggedValue xmi.id = '127-0-1-1-6253ec58:1481cead29a:-8000:0000000000000EF8'
                   isSpecification = 'false'>
                   <UML:TaggedValue.dataValue>base.view_attachment_search</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+              </UML:ModelElement.taggedValue>
+            </UML:Class>
+            <UML:Class xmi.id = '127-0-1-1--5ea8e63e:14a72d347f9:-8000:0000000000002271'
+              name = 'filters' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+              isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+              <UML:ModelElement.taggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1--5ea8e63e:14a72d347f9:-8000:0000000000002272'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.ir_filters_view_form</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDB'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1--5ea8e63e:14a72d347f9:-8000:0000000000002273'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.ir_filters_view_tree</UML:TaggedValue.dataValue>
+                  <UML:TaggedValue.type>
+                    <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000ED8'/>
+                  </UML:TaggedValue.type>
+                </UML:TaggedValue>
+                <UML:TaggedValue xmi.id = '127-0-1-1--5ea8e63e:14a72d347f9:-8000:0000000000002274'
+                  isSpecification = 'false'>
+                  <UML:TaggedValue.dataValue>base.ir_filters_view_search</UML:TaggedValue.dataValue>
                   <UML:TaggedValue.type>
                     <UML:TagDefinition xmi.idref = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EDE'/>
                   </UML:TaggedValue.type>

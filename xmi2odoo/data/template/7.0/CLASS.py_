@@ -50,12 +50,20 @@ class ${CLASS.name}(${'osv.osv_memory' if CLASS.is_stereotype('memory') else 'os
 % endif
 % for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] == '_' ]:
 
-    def ${op.name}(self, cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None):
+    def ${op.name}(self, cr, uid, ids
+%    for par in [ p for p in op.parameters if p.name != 'return']:
+, ${par and par.name or None}
+%    endfor
+, context=None):
         """${op.tag.get('documentation','')}"""
 %    if op.member_of.name == CLASS.name:
 %      if len(CLASS.child_of)>0:
         parent = super(${CLASS.name},self)
-        result = parent.${op.name}(cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None) if hasattr(parent, '${op.name}') else False
+        result = parent.${op.name}(cr, uid, ids
+% for par in [ p for p in op.parameters if p.name != 'return']:
+, ${par and par.name or 'None'}
+% endfor
+, context=None) if hasattr(parent, '${op.name}') else False
         return result
 %      endif
 %      if len(CLASS.child_of)==0:
@@ -64,7 +72,11 @@ class ${CLASS.name}(${'osv.osv_memory' if CLASS.is_stereotype('memory') else 'os
 %    endif
 %    if op.member_of.name != CLASS.name:
         member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
-        return member(cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %})
+        return member(cr, uid, ids
+% for par in [ p for p in op.parameters if p.name != 'return']:
+, ${par and par.name or 'None'}
+% endfor
+)
 %    endif
 % endfor
 % for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
@@ -120,7 +132,7 @@ class ${CLASS.name}(${'osv.osv_memory' if CLASS.is_stereotype('memory') else 'os
 %      endfor
 %      for col in CLASS.all_attributes(parents=False):
 %          if 'fnct' in col.tag:
-       '${fnc_name(col)}': fields.function(${col.tag['fnct']}, type='${datatype[col.datatype.name]}', arg=None, fnct_inv_arg=None, obj=None, ${attr_options(CLASS, col)}),
+       '${fnc_name(col)}': fields.function(${col.tag['fnct']}, type='${datatype.get(col.datatype.name, 'Not found')}', arg=None, fnct_inv_arg=None, obj=None, ${attr_options(CLASS, col)}),
 %          endif
 %          if 'fnct' not in col.tag and 'related_to' not in col.tag and 'related_by' not in col.tag and col.datatype.name in datatype:
        '${fnc_name(col)}': fields.${datatype[col.datatype.name]}(${attr_options(CLASS, col)}),

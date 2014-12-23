@@ -276,4 +276,3 @@ fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options
 ${CLASS.name}()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
