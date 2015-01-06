@@ -179,24 +179,6 @@ fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options
        '${fnc_name(ass)}_count': fields.function(_count_all, type='integer', string=_("${ass.tag.get('label', ass.name)}"), multi='_count_all'),
 %      endfor
 
-    _defaults = {
-%  for sm in CLASS.statemachines:
-        'state': '${','.join([ s.name for s in sm.list_states() if s.is_initial() ])}',
-%  endfor
-%  for col in CLASS_ATTRIBUTES:
-%      if col.tag.get('default') and not col.is_stereotype('context'):
-        '${col.name}': ${col.tag['default']},
-%      endif
-%      if col.is_stereotype('context'):
-        '${col.name}': lambda self, cr, uid, context=None: context and context.get('${col.name}', ${col.tag.get('default','False')}),
-%      endif
-%  endfor
-%  for ass in CLASS.all_associations(parents=False):
-%      if ass.is_stereotype('context') or ass.aggregation == 'composite':
-        '${ass.name}': lambda self, cr, uid, context=None: context and context.get('${ass.name}', ${ass.tag.get('default','False')}),
-%      endif
-%  endfor
-    }
 %  if 'order' in CLASS.tag:
 
     _order = "${CLASS.tag['order']}"

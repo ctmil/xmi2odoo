@@ -70,6 +70,7 @@ def attr_options(cls, obj, version=False):
          stereotype_option(obj, 'method'),
          stereotype_option(obj, 'view_load'),
          stereotype_option(obj, 'group_name',value=cls.tag.get('group',cls.package.tag['label'])),
+         tag_option(obj,  'default', quote=''),
          tag_option(obj,  'fnct', label='compute'),
          tag_option(obj,  'fnct_inv', label='inverse'),
          tag_option(obj,  'fnct_search', label='search'),
