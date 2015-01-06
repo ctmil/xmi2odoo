@@ -4,13 +4,13 @@ from xmi2odoo.tools import ass_id, ass_options, ass_other_name, ass_relational_o
 from xmi2odoo.tools import parameters
 %>\
 # -*- coding: utf-8 -*-
-from openerp import netsvc
-from openerp.osv import osv, fields
-from openerp.tools.translate import _
+from openerp import models, fields, api, _
+from openerp.exceptions import Warning
 
-class ${CLASS.name}(${'osv.osv_memory' if CLASS.is_stereotype('memory') else 'osv.osv'}):
+
+class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') else 'models.Model'}):
     """${CLASS.get('documentation', '')}"""
-    
+
 % if CLASS.is_stereotype('hierarchical'):
     def name_get(self, cr, uid, ids, context=None):
         if isinstance(ids, (list, tuple)) and not len(ids):
@@ -284,7 +284,5 @@ fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options
             'context': "{'default_${ass.swap[0].name}': %s}" % (res_id)
         }
 % endfor
-
-${CLASS.name}()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
