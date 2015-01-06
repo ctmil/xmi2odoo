@@ -45,8 +45,8 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
     _description = '${CLASS.get('documentation',CLASS.name)[:64]}'
 % endif
 % if len(CLASS.child_of)>0:
-    _inherits = { ${','.join(['\'%s\':\'%s_id\'' % (parent.oerp_id('.'), parent.oerp_id('_')) for parent in CLASS.parents(no_stereotypes=['prototype','extend']) ])} }
-    _inherit = [ ${','.join(set(['\'%s\'' % (parent.oerp_id('.'),) for parent in CLASS.parents(stereotypes=['prototype','extend'])]))} ]
+    _inherits = {${','.join(['\'%s\': \'%s_id\'' % (parent.oerp_id('.'), parent.oerp_id('_')) for parent in CLASS.parents(no_stereotypes=['prototype','extend']) ])}}
+    _inherit = [${','.join(set(['\'%s\'' % (parent.oerp_id('.'),) for parent in CLASS.parents(stereotypes=['prototype','extend'])]))}]
 % endif
 % for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] == '_' ]:
 
