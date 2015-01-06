@@ -46,8 +46,11 @@ def name(obj, prefix='', suffix='', default=''):
 def names(obj, prefix='', suffix='', default=''):
     return [ name(o, prefix=prefix, suffix=suffix, default=default) for o in obj ]
 
-def attr_options(cls, obj):
-    return ','.join([ o for o in [
+def attr_options(cls, obj, version=False):
+    format_string = ','
+    if version == '8.0':
+      format_string = ',\n        '
+    return format_string.join([ o for o in [
        tag_option(obj,  'label', label='string', translate=True),
        tag_option(obj,  'documentation', label='help', quote='"""'),
        tag_option(obj,  'ondelete', quote=''),

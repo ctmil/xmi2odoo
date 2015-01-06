@@ -146,13 +146,13 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
 %      for col in CLASS.all_attributes(parents=False):
 %          if col.datatype.name in datatype:
     ${fnc_name(col)} = fields.${datatype[col.datatype.name]}(
-        ${attr_options(CLASS, col)}
+        ${attr_options(CLASS, col, '8.0')}
         )
 %          endif
 %          if col.datatype.name not in datatype and col.datatype.entityclass == 'cenumeration':
     ${fnc_name(col)} = fields.Selection(
         ${sel_literals(col)},
-        ${attr_options(CLASS, col)}
+        ${attr_options(CLASS, col, '8.0')}
         )
 %          endif
 %      endfor
