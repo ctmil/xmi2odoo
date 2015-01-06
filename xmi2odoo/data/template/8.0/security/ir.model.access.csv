@@ -2,7 +2,7 @@
 % for model in PACKAGE.get_entities(uml.CClass):
 %   for actor in PACKAGE.get_entities(uml.CActor):
 %      if actor.is_stereotype('group'):
-"access_${model.oerp_id('_')}_${actor.name}","${model.oerp_id('.')}.${actor.name}","model_${model.oerp_id('_')}","group_${actor.name}",1,1,1,1
+"access_${model.oerp_id('_').replace('.','_')}_${actor.name}","${model.oerp_id('.').replace('.','_')}.${actor.name}","model_${model.oerp_id('_').replace('.','_')}","group_${actor.name}",1,1,1,1
 %      endif
 %   endfor
 % endfor

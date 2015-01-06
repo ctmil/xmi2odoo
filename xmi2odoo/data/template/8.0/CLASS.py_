@@ -8,7 +8,7 @@ from openerp import models, fields, api, _
 from openerp.exceptions import Warning
 
 
-class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') else 'models.Model'}):
+class ${CLASS.name.replace('.','_')}(${'models.TransientModel' if CLASS.is_stereotype('memory') else 'models.Model'}):
     """${CLASS.get('documentation', '')}"""
 
 % if CLASS.is_stereotype('hierarchical'):
@@ -52,37 +52,6 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
 
     _order = "${CLASS.tag['order']}"
 %  endif
-% for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] == '_' ]:
-
-    def ${op.name}(self, cr, uid, ids
-%    for par in [ p for p in op.parameters if p.name != 'return']:
-, ${par and par.name or None}
-%    endfor
-, context=None):
-        """${op.tag.get('documentation','')}"""
-%    if op.member_of.name == CLASS.name:
-%      if len(CLASS.child_of)>0:
-        parent = super(${CLASS.name},self)
-        result = parent.${op.name}(cr, uid, ids
-% for par in [ p for p in op.parameters if p.name != 'return']:
-, ${par and par.name or 'None'}
-% endfor
-, context=None) if hasattr(parent, '${op.name}') else False
-        return result
-%      endif
-%      if len(CLASS.child_of)==0:
-        raise NotImplementedError
-%      endif
-%    endif
-%    if op.member_of.name != CLASS.name:
-        member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
-        return member(cr, uid, ids
-% for par in [ p for p in op.parameters if p.name != 'return']:
-, ${par and par.name or 'None'}
-% endfor
-)
-%    endif
-% endfor
 % for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
 
     _states_ = [
@@ -198,7 +167,7 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
         '${ass_relational_obj(MODULE_NAME, ass)}',
         '${class_id(CLASS)}',
         '${ass_other_id(ass)}',
-        ${ass_options(CLASS, ass, '8.0')})
+       ${ass_options(CLASS, ass, '8.0')})
 %      endif
 %      endfor
 %      for ass in CLASS.all_associations(parents=False, stereotypes=['button_box']):
@@ -217,7 +186,7 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
 
     _sql_constraints = [ ${CLASS.tag['sql_constraints']} ]
 %  endif
-%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] != '_' ]:
+%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation ]:
 
     @api.one
     def ${op.name}(self${parameters(op, prefix=' ,')}):
