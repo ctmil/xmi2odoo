@@ -120,69 +120,64 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
 %   endif
 % endfor
 
-    _columns = {
 %      if CLASS.is_stereotype('hierarchical'):
-       'complete_name': fields.function(_name_get_fnc, type="char", string=_('Name'), store=True),
+    complete_name = fields.Char(
+        compute="_name_get_fnc",
+        string=_('Name'),
+        store=True)
 %      endif
 %      for parent in CLASS.parents(no_stereotypes=['prototype','extend']):
-       '${parent.oerp_id('_')}_id': fields.many2one('${parent.oerp_id('.')}', '${parent.get('label', parent.name)}', ondelete='cascade', required=True, help=u"""${quote(parent.get('documentation',''))}"""),
+    ${parent.oerp_id('_')}_id = fields.Many2one(
+        '${parent.oerp_id('.')}',
+        '${parent.get('label', parent.name)}',
+        ondelete='cascade',
+        required=True,
+        help=u"""${quote(parent.get('documentation',''))}"""
+        )
 %      endfor
 %      for child in CLASS.childs(no_stereotypes=['prototype','extend']):
-       '${child.oerp_id('_')}_id': fields.one2many('${child.oerp_id('.')}', '${CLASS.oerp_id('_')}_id', '${child.get('label', child.name)}', help=u"""${quote(child.get('documentation',''))}"""),
+    ${child.oerp_id('_')}_id = fields.One2many(
+        '${child.oerp_id('.')}',
+        '${CLASS.oerp_id('_')}_id',
+        '${child.get('label', child.name)}',
+        help=u"""${quote(child.get('documentation',''))}"""
+        )
 %      endfor
 %      for col in CLASS.all_attributes(parents=False):
-%          if 'fnct' in col.tag:
-       '${fnc_name(col)}': fields.function(${col.tag['fnct']}, type='${datatype.get(col.datatype.name, 'Not found')}', arg=None, fnct_inv_arg=None, obj=None, ${attr_options(CLASS, col)}),
+%          if col.datatype.name in datatype:
+    ${fnc_name(col)} = fields.${datatype[col.datatype.name]}(
+        ${attr_options(CLASS, col)}
+        )
 %          endif
-%          if 'fnct' not in col.tag and 'related_to' not in col.tag and 'related_by' not in col.tag and col.datatype.name in datatype:
-       '${fnc_name(col)}': fields.${datatype[col.datatype.name]}(${attr_options(CLASS, col)}),
-%          endif
-%          if 'fnct' not in col.tag and 'related_to' in col.tag and 'related_by' in col.tag and col.datatype.name in datatype:
-       '${fnc_name(col)}': fields.related(
-                   ${"'%s'" % "','".join(col.tag['related_by'].split(','))},
-                   ${"'%s'" % col.tag['related_to']},
-                   type='${datatype[col.datatype.name]}',
-                   ${attr_options(CLASS, col)}
-                   ),
-%          endif
-%          if 'fnct' not in col.tag and col.datatype.name not in datatype and col.datatype.entityclass == 'cenumeration':
-       '${fnc_name(col)}': fields.selection(${sel_literals(col)}, ${attr_options(CLASS, col)}),
-%          endif
-%          if 'fnct' not in col.tag and col.datatype.name not in datatype and col.datatype.entityclass == 'cclass':
-       '${fnc_name(col)}': fields.${'property' if col.is_stereotype('property') else 'many2one'}('${col.datatype.oerp_id()}', ${attr_options(CLASS, col)}),
+%          if col.datatype.name not in datatype and col.datatype.entityclass == 'cenumeration':
+    ${fnc_name(col)} = fields.Selection(
+        ${sel_literals(col)},
+        ${attr_options(CLASS, col)}
+        )
 %          endif
 %      endfor
 %      if list(CLASS.get_statemachines(no_stereotypes=['extend','prototype'])):
        'state': fields.selection(_states_, "State"),
 %      endif
 %      for ass in CLASS.all_associations(parents=False):
-%      if ass.multiplicity == 'one2one':
+%      if ass.multiplicity == 'One2one':
        '${fnc_name(ass)}': \
 %        if (eval(ass.multiplicityrange) or (0,0))[0]  > 0:
 fields.many2one('${ass_id(ass)}', ${ass_options(CLASS, ass)}),
 %        else:
 fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options(CLASS, ass)}),
 %        endif
-%      elif ass.multiplicity == 'many2one':
+%      elif ass.multiplicity == 'Many2one':
        '${fnc_name(ass)}': fields.many2one('${ass_id(ass)}', ${ass_options(CLASS, ass)}), 
-%      elif ass.multiplicity == 'one2many':
+%      elif ass.multiplicity == 'One2many':
        '${fnc_name(ass)}': fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options(CLASS, ass)}),
-%      elif ass.multiplicity == 'many2many':
+%      elif ass.multiplicity == 'Many2many':
        '${fnc_name(ass)}': fields.many2many('${ass_id(ass)}', '${ass_relational_obj(MODULE_NAME, ass)}', '${class_id(CLASS)}', '${ass_other_id(ass)}', ${ass_options(CLASS, ass)}),
-%      elif ass.multiplicity == 'related':
-       '${fnc_name(ass)}': fields.related(
-                   ${"'%s'" % "','".join(ass.tag['related_by'].split(','))},
-                   ${"'%s'" % ass.tag['related_to']},
-                   type='${getattr(getattr(ass.participant.member_by_name(ass.tag["related_to"]), "datatype", None),"oerp_type",getattr(ass.participant.association_by_name(ass.tag["related_to"]), "multiplicity","<Not defined>"))}',
-                   relation='${oerp_id()}',
-                   ${ass_options(ass)}
-                   ),
 %      endif
 %      endfor
 %      for ass in CLASS.all_associations(parents=False, stereotypes=['button_box']):
        '${fnc_name(ass)}_count': fields.function(_count_all, type='integer', string=_("${ass.tag.get('label', ass.name)}"), multi='_count_all'),
 %      endfor
-    }
 
     _defaults = {
 %  for sm in CLASS.statemachines:
