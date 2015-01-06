@@ -1,76 +1,17 @@
+<%!
+from xmi2odoo.tools import emodel, sel_literals, fnc_name, attr_options, class_id
+from xmi2odoo.tools import ass_id, ass_options, ass_other_name, ass_relational_obj, ass_other_id
+from xmi2odoo.tools import parameters
+%>\
 # -*- coding: utf-8 -*-
-{% def model(s='.')  %}${CLASS.oerp_id(s, False)}{% end %}\
-{% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
-\
-{% def name(obj, prefix='', suffix='') %}${prefix}${obj.name}${suffix}{%end%}\
-{% def string(obj)         %}{% if 'label' in obj.tag %}${sep()}string='${obj.tag['label']}'{%end%}{%end%}\
-{% def help(obj)           %}{% if 'documentation' in obj.tag %}${sep()}help=u"""${quote(obj.tag['documentation'])}"""{%end%}{%end%}\
-{% def ondelete(obj)       %}{% if 'ondelete' in obj.tag %}${sep()}ondelete=${obj.tag['ondelete']}{%end%}{%end%}\
-{% def digits(obj)         %}{% if 'digits' in obj.tag %}${sep()}digits=${obj.tag['digits']}{%end%}{%end%}\
-{% def size(obj)           %}{% if 'size' in obj.tag %}${sep()}size=${obj.tag['size']}{%end%}{%end%}\
-{% def states(obj)         %}{% if 'states' in obj.tag %}${sep()}states=${obj.tag['states']}{%end%}{%end%}\
-{% def context(obj)        %}{% if 'context' in obj.tag %}${sep()}context=${obj.tag['context']}{%end%}{%end%}\
-{% def domain(obj)         %}{% if 'domain' in obj.tag %}${sep()}domain=${obj.tag['domain']}{%end%}{%end%}\
-{% def on_change(obj)      %}{% if 'on_change' in obj.tag %}${sep()}on_change='${obj.tag['on_change']}'{%end%}{%end%}\
-{% def fnct_inv(obj)       %}{% if 'fnct_inv' in obj.tag %}${sep()}fnct_inv='${obj.tag['fnct_inv']}'{%end%}{%end%}\
-{% def fnct_search(obj)    %}{% if 'fnct_search' in obj.tag %}${sep()}fnct_search='${obj.tag['fnct_search']}'{%end%}{%end%}\
-{% def groups(obj)         %}{% if 'module_groups' in obj.tag or 'groups' in obj.tag %}${sep()} groups='${','.join([obj.tag.get('module_groups',''), obj.tag.get('groups','')])}'{%end%}{%end%}\
-{% def change_default(obj) %}{% if obj.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
-{% def readonly(obj)       %}{% if obj.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
-{% def required(obj)       %}{% if obj.is_stereotype('required') and not CLASS.is_extended() %}${sep()}required=True{%end %}{%end%}\
-{% def select(obj)         %}{% if obj.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
-{% def store(obj)          %}{% if obj.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
-{% def translate(obj)      %}{% if obj.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
-{% def invisible(obj)      %}{% if obj.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
-{% def relation(obj)       %}{% if obj.is_stereotype('property') %}${sep()}relation='${obj.datatype.oerp_id()}'{%end%}{%end%}\
-{% def ctype(obj)          %}{% if obj.is_stereotype('property') %}${sep()}type='many2one'{%end%}{%end%}\
-{% def method(obj)         %}{% if obj.is_stereotype('property') %}${sep()}method=True{%end%}{%end%}\
-{% def view_load(obj)      %}{% if obj.is_stereotype('property') %}${sep()}view_load=True{%end%}{%end%}\
-{% def group_name(obj)     %}{% if obj.is_stereotype('property') %}${sep()}group_name='${CLASS.tag.get('group',CLASS.package.tag['label'])}'{%end%}{%end%}\
-\
-{% def options(obj)        %}\
-{%               def sep() %}{%  def sep() %}, {% end %}{% end %}\
-${               string(obj)}\
-${                 help(obj)}\
-${             ondelete(obj)}\
-${               digits(obj)}\
-${             readonly(obj)}\
-${             required(obj)}\
-${                 size(obj)}\
-${               states(obj)}\
-${              context(obj)}\
-${               domain(obj)}\
-${            on_change(obj)}\
-${               groups(obj)}\
-${       change_default(obj)}\
-${               select(obj)}\
-${                store(obj)}\
-${            translate(obj)}\
-${            invisible(obj)}\
-${                ctype(obj)}\
-${             relation(obj)}\
-${               method(obj)}\
-${            view_load(obj)}\
-${           group_name(obj)}\
-${             fnct_inv(obj)}\
-${          fnct_search(obj)}\
-{%end%}\
+from openerp import netsvc
+from openerp.osv import osv, fields
+from openerp.tools.translate import _
 
-from openerp import models, fields, api, _
-from openerp.exceptions import except_orm, Warning, RedirectWarning
-
-{%  if CLASS.is_stereotype('abstract') %}\
-class ${CLASS.name}(models.AbstractModel):
-{%  end %}\
-{%  if CLASS.is_stereotype('memory') %}\
-class ${CLASS.name}(models.TransientModel):
-{%  end %}\
-{%  if CLASS.not_is_stereotype('memory') %}\
-class ${CLASS.name}(models.Model):
-{%  end %}\
+class ${CLASS.name}(${'osv.osv_memory' if CLASS.is_stereotype('memory') else 'osv.osv'}):
     """${CLASS.get('documentation', '')}"""
     
-{%  if CLASS.is_stereotype('hierarchical') %}\
+% if CLASS.is_stereotype('hierarchical'):
     def name_get(self, cr, uid, ids, context=None):
         if isinstance(ids, (list, tuple)) and not len(ids):
             return []
@@ -98,205 +39,208 @@ class ${CLASS.name}(models.Model):
                 return False
             level -= 1
         return True
-
-{% end %}\
-    _name = '${emodel()}'
-{%  if not CLASS.is_extended() %}\
+% endif
+    _name = '${emodel(CLASS)}'
+% if not CLASS.is_extended():
     _description = '${CLASS.get('documentation',CLASS.name)[:64]}'
-{%  end %}\
-{%  if len(CLASS.child_of)>0 %}\
+% endif
+% if len(CLASS.child_of)>0:
     _inherits = { ${','.join(['\'%s\':\'%s_id\'' % (parent.oerp_id('.'), parent.oerp_id('_')) for parent in CLASS.parents(no_stereotypes=['prototype','extend']) ])} }
-    _inherit = [ ${','.join(['\'%s\'' % (parent.oerp_id('.'),) for parent in CLASS.parents(stereotypes=['prototype','extend'])])} ]
-{%  end %}\
+    _inherit = [ ${','.join(set(['\'%s\'' % (parent.oerp_id('.'),) for parent in CLASS.parents(stereotypes=['prototype','extend'])]))} ]
+% endif
+% for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] == '_' ]:
 
-{%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] == '_' ] %}\
-    def ${op.name}(self, cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None):
+    def ${op.name}(self, cr, uid, ids
+%    for par in [ p for p in op.parameters if p.name != 'return']:
+, ${par and par.name or None}
+%    endfor
+, context=None):
         """${op.tag.get('documentation','')}"""
-{%    if op.member_of.name == CLASS.name %}\
-{%      if len(CLASS.child_of)>0 %}\
+%    if op.member_of.name == CLASS.name:
+%      if len(CLASS.child_of)>0:
         parent = super(${CLASS.name},self)
-        result = parent.${op.name}(cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None) if hasattr(parent, '${op.name}') else False
+        result = parent.${op.name}(cr, uid, ids
+% for par in [ p for p in op.parameters if p.name != 'return']:
+, ${par and par.name or 'None'}
+% endfor
+, context=None) if hasattr(parent, '${op.name}') else False
         return result
-{%      end %}\
-{%      if len(CLASS.child_of)==0 %}\
+%      endif
+%      if len(CLASS.child_of)==0:
         raise NotImplementedError
-{%      end %}\
-{%  end %}\
-{%    if op.member_of.name != CLASS.name %}\
+%      endif
+%    endif
+%    if op.member_of.name != CLASS.name:
         member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
-        return member(cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %})
-{%  end %}\
+        return member(cr, uid, ids
+% for par in [ p for p in op.parameters if p.name != 'return']:
+, ${par and par.name or 'None'}
+% endfor
+)
+%    endif
+% endfor
+% for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
 
-{% end %}\
-{% for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
     _states_ = [
         # State machine: ${sm.name}
-{%      for s in sm.list_ordered_states() %}\
+%      for s in sm.list_ordered_states():
         ('${s.name}','${s['label']}'),
-{%      end %}\
+%      endfor
     ]
-{% end %}\
-{% if CLASS.is_child_of('mail.thread') %}\
-    _track = {
-{%     for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
-        'state': {
-{%      for s in sm.list_ordered_states() %}\
-            '${CLASS.oerp_id()}_${s.name}': lambda self, cr, uid, obj, ctx=None: obj['state'] == '${s.name}',
-{%      end %}\
-        },
-{%  end %}\
-    }
-{% end %}\
-{% end %}\
+% endfor
+% if CLASS.is_child_of('mail.thread'):
 
-{% for col in CLASS.all_attributes(parents=False, stereotypes=['function']) %}\
-{%   choose col.datatype.entityclass %}\
-{%      when 'cenumeration' %}\
-    def _get_${ col.datatype.name }(self, cr, uid, context=None):
-        return []
-{%      end %}\
-{%   end %}\
-{% end %}\
+    _track = {
+%     for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
+        'state': {
+%      for s in sm.list_ordered_states():
+            '${CLASS.oerp_id()}_${s.name}': lambda self, cr, uid, obj, ctx=None: obj['state'] == '${s.name}',
+%      endfor
+        },
+%     endfor
+    }
+% endif
+% if CLASS.all_associations(parents=False, stereotypes=['button_box']):
+
+    def _count_all(self, cr, uid, ids, field_name, arg, context=None):
+       return {
+           obj.id: {
+% for ass in CLASS.all_associations(parents=False, stereotypes=['button_box']):
+               '${ass.name}_count': len(obj.${ass.name}),
+% endfor
+           }
+           for obj in self.browse(cr, uid, ids, context=context)
+       }
+% endif
+% for col in CLASS.all_attributes(parents=False, stereotypes=['function']):
+%   if col.datatype.entityclass == 'cenumeration':
+
+   def _get_${ col.datatype.name }(self, cr, uid, context=None):
+       return []
+%   endif
+% endfor
 
     _columns = {
-{%  if CLASS.is_stereotype('hierarchical') %}\
-        'complete_name': fields.function(_name_get_fnc, type="char", string='Name', store=True),
-{%  end %}\
-{%      for parent in CLASS.parents(no_stereotypes=['prototype','extend']) %}\
-        '${parent.oerp_id('_')}_id': fields.many2one('${parent.oerp_id('.')}', '${parent.get('label', parent.name)}', ondelete='cascade', required=True, help=u"""${quote(parent.get('documentation',''))}"""),
-{%      end %}\
-{%      for child in CLASS.childs(no_stereotypes=['prototype','extend']) %}\
-        '${child.oerp_id('_')}_id': fields.one2many('${child.oerp_id('.')}', '${CLASS.oerp_id('_')}_id', '${child.get('label', child.name)}', help=u"""${quote(child.get('documentation',''))}"""),
-{%      end %}\
-{%      for col in CLASS.all_attributes(parents=False) %}\
-        '${name(col, prefix='property_' if col.is_stereotype('property') else '')}': \
-{%          if 'fnct' in col.tag %}fields.function(${col.tag['fnct']}, type='${datatype[col.datatype.name]}', arg=None, fnct_inv_arg=None, obj=None, ${options(col)}),{% end %}\
-{%          if 'fnct' not in col.tag and 'related_to' not in col.tag and 'related_by' not in col.tag and col.datatype.name in datatype %}fields.${datatype[col.datatype.name]}(${options(col)}),{% end %}\
-{%          if 'fnct' not in col.tag and 'related_to' in col.tag and 'related_by' in col.tag and col.datatype.name in datatype %}fields.related(
-                    ${"'%s'" % "','".join(col.tag['related_by'].split(','))},
-                    ${"'%s'" % col.tag['related_to']},
-                    type='${datatype[col.datatype.name]}',
-                    ${options(col)}
-                    ),\
-{%          end %}\
-{%          if 'fnct' not in col.tag and col.datatype.name not in datatype %}\
-{%              choose col.datatype.entityclass %}\
-{%                  when 'cenumeration' %}fields.selection(${ repr([(i.name, i.tag.get('label',i.name)) for i in col.datatype.all_literals()]) if col.datatype.not_is_stereotype('function') else "_get_%s" % col.datatype.name }, ${options(col)}),{% end %}\
-{%                  when 'cclass' %}fields.${'property' if col.is_stereotype('property') else 'many2one'}('${col.datatype.oerp_id()}', ${options(col)}),{% end %}\
-{%              end %}\
-{%          end %}
-{%      end %}\
-{%      if list(CLASS.get_statemachines(no_stereotypes=['extend','prototype'])) %}\
-        'state': fields.selection(_states_, "State"),
-{%      end %}\
-{%  for ass in CLASS.all_associations(parents=False) %}\
-{%      def sep() %}{%  def sep() %}, {% end %}{% end %}\
-{%      def actual_id %}${"%s_id" % CLASS_NAME}{%end%}\
-{%      def other_id %}${"%s_id" % ass.participant.name.replace('.','_')}{%end%}\
-{%      def name(prefix='', suffix='') %}${prefix}${ass.name if ass.name not in [ None, ''] else other_id() }${suffix}{%end%}\
-{%      def oerp_id %}${ass.participant.oerp_id()}{%end%}\
-{%      def other_module %}${ass.participant.package.name}{%end%}\
-{%      def other_obj %}${ass.participant.name}{%end%}\
-{%      def other_name %}${actual_id() if ass.swap[0].name in [None, ''] else ass.swap[0].name}{%end%}\
-{%      def relational_obj %}${'%s_%s_rel' % (MODULE_NAME, '_'.join([ e.name or '_' for e in ass.association.ends]))}{%end%}\
-{%      def change_default  %}{% if ass.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
-{%      def composite %}{% if ass.aggregation == 'composite' %}${sep()}ondelete='cascade'{%end%}{%end%}\
-{%      def mult1 %}{% if (eval(ass.multiplicityrange) or (0,0))[0] > 0 and not ass.is_stereotype('required') %}${sep()}required=True{%end%}{%end%}\
-{%      def string %}{% if 'label' in ass.tag %}${sep()}string='${quote(ass.tag['label'])}'{%end%}{%end%}\
-{%      def help %}{% if 'documentation' in ass.tag %}${sep()}help=u"""${quote(ass.tag['documentation'])}"""{%end%}{%end%}\
-{%      def ondelete %}{% if 'ondelete' in ass.tag %}${sep()}ondelete=${ass.tag['ondelete']}{%end%}{%end%}\
-{%      def digits %}{% if 'digits' in ass.tag %}${sep()}digits=${ass.tag['digits']}{%end%}{%end%}\
-{%      def size %}{% if 'size' in ass.tag %}${sep()}size=${ass.tag['size']}{%end%}{%end%}\
-{%      def states %}{% if 'states' in ass.tag %}${sep()}states=${ass.tag['states']}{%end%}{%end%}\
-{%      def context %}{% if 'context' in ass.tag %}${sep()}context=${ass.tag['context']}{%end%}{%end%}\
-{%      def domain %}{% if 'domain' in ass.tag %}${sep()}domain=${ass.tag['domain']}{%end%}{%end%}\
-{%      def change_default %}{% if ass.is_stereotype('change_default')  %}${sep()}change_default=True{%end %}{%end%}\
-{%      def on_change %}{% if 'on_change' in ass.tag %}${sep()}on_change='${ass.tag['on_change']}'{%end%}{%end%}\
-{%      def groups    %}{% if 'module_groups' in ass.tag or 'groups' in ass.tag %}${sep()}groups='${','.join([ass.tag.get('module_groups',''), ass.tag.get('groups','')])}'{%end%}{%end%}\
-{%      def readonly  %}{% if ass.is_stereotype('readonly')  %}${sep()}readonly=True{%end %}{%end%}\
-{%      def required  %}{% if ass.is_stereotype('required') and not CLASS.is_extended() %}${sep()}required=True{%end %}{%end%}\
-{%      def select    %}{% if ass.is_stereotype('select')    %}${sep()}select=True{%end   %}{%end%}\
-{%      def store     %}{% if ass.is_stereotype('store')     %}${sep()}store=True{%end    %}{%end%}\
-{%      def translate %}{% if ass.is_stereotype('translatable') %}${sep()}translate=True{%end%}{%end%}\
-{%      def invisible %}{% if ass.is_stereotype('invisible') %}${sep()}invisible=True{%end%}{%end%}\
-{%      def options   %}${string()}${change_default()}${help()}${ondelete()}${readonly()}${required()}${size()}${states()}${store()}${translate()}${groups()}${context()}${domain()}${invisible()}${on_change()}${select()}${composite()}${mult1()}{%end%}\
-{%      choose ass.multiplicity %}\
-        \
-{%          when 'one2one'   %}'${name()}': \
-{%                 if (eval(ass.multiplicityrange) or (0,0))[0]  > 0 %} fields.many2one('${oerp_id()}', ${options()}), {% end %}\
-{%                 if (eval(ass.multiplicityrange) or (0,0))[0] <= 0 %} fields.one2many('${oerp_id()}', '${other_name()}', ${options()}), {% end %}\
-{%                 end %}\
-{%          when 'many2one'  %}'${name()}': fields.many2one('${oerp_id()}', ${options()}), {% end %}\
-{%          when 'one2many'  %}'${name()}': fields.one2many('${oerp_id()}', '${other_name()}', ${options()}), {% end %}\
-{%          when 'many2many' %}'${name()}': fields.many2many('${oerp_id()}', '${relational_obj()}', '${actual_id()}', '${other_id()}', ${options()}), {% end %}\
-{%          when 'related'   %}'${name()}': fields.related(
-                    ${"'%s'" % "','".join(ass.tag['related_by'].split(','))},
-                    ${"'%s'" % ass.tag['related_to']},
-                    type='${getattr(getattr(ass.participant.member_by_name(ass.tag["related_to"]), "datatype", None),"oerp_type",getattr(ass.participant.association_by_name(ass.tag["related_to"]), "multiplicity","<Not defined>"))}',
-                    relation='${oerp_id()}',
-                    ${options()}
-                    ),{% end %}\
-{%      end %}
-{%  end %}\
+%      if CLASS.is_stereotype('hierarchical'):
+       'complete_name': fields.function(_name_get_fnc, type="char", string=_('Name'), store=True),
+%      endif
+%      for parent in CLASS.parents(no_stereotypes=['prototype','extend']):
+       '${parent.oerp_id('_')}_id': fields.many2one('${parent.oerp_id('.')}', '${parent.get('label', parent.name)}', ondelete='cascade', required=True, help=u"""${quote(parent.get('documentation',''))}"""),
+%      endfor
+%      for child in CLASS.childs(no_stereotypes=['prototype','extend']):
+       '${child.oerp_id('_')}_id': fields.one2many('${child.oerp_id('.')}', '${CLASS.oerp_id('_')}_id', '${child.get('label', child.name)}', help=u"""${quote(child.get('documentation',''))}"""),
+%      endfor
+%      for col in CLASS.all_attributes(parents=False):
+%          if 'fnct' in col.tag:
+       '${fnc_name(col)}': fields.function(${col.tag['fnct']}, type='${datatype.get(col.datatype.name, 'Not found')}', arg=None, fnct_inv_arg=None, obj=None, ${attr_options(CLASS, col)}),
+%          endif
+%          if 'fnct' not in col.tag and 'related_to' not in col.tag and 'related_by' not in col.tag and col.datatype.name in datatype:
+       '${fnc_name(col)}': fields.${datatype[col.datatype.name]}(${attr_options(CLASS, col)}),
+%          endif
+%          if 'fnct' not in col.tag and 'related_to' in col.tag and 'related_by' in col.tag and col.datatype.name in datatype:
+       '${fnc_name(col)}': fields.related(
+                   ${"'%s'" % "','".join(col.tag['related_by'].split(','))},
+                   ${"'%s'" % col.tag['related_to']},
+                   type='${datatype[col.datatype.name]}',
+                   ${attr_options(CLASS, col)}
+                   ),
+%          endif
+%          if 'fnct' not in col.tag and col.datatype.name not in datatype and col.datatype.entityclass == 'cenumeration':
+       '${fnc_name(col)}': fields.selection(${sel_literals(col)}, ${attr_options(CLASS, col)}),
+%          endif
+%          if 'fnct' not in col.tag and col.datatype.name not in datatype and col.datatype.entityclass == 'cclass':
+       '${fnc_name(col)}': fields.${'property' if col.is_stereotype('property') else 'many2one'}('${col.datatype.oerp_id()}', ${attr_options(CLASS, col)}),
+%          endif
+%      endfor
+%      if list(CLASS.get_statemachines(no_stereotypes=['extend','prototype'])):
+       'state': fields.selection(_states_, "State"),
+%      endif
+%      for ass in CLASS.all_associations(parents=False):
+%      if ass.multiplicity == 'one2one':
+       '${fnc_name(ass)}': \
+%        if (eval(ass.multiplicityrange) or (0,0))[0]  > 0:
+fields.many2one('${ass_id(ass)}', ${ass_options(CLASS, ass)}),
+%        else:
+fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options(CLASS, ass)}),
+%        endif
+%      elif ass.multiplicity == 'many2one':
+       '${fnc_name(ass)}': fields.many2one('${ass_id(ass)}', ${ass_options(CLASS, ass)}), 
+%      elif ass.multiplicity == 'one2many':
+       '${fnc_name(ass)}': fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options(CLASS, ass)}),
+%      elif ass.multiplicity == 'many2many':
+       '${fnc_name(ass)}': fields.many2many('${ass_id(ass)}', '${ass_relational_obj(MODULE_NAME, ass)}', '${class_id(CLASS)}', '${ass_other_id(ass)}', ${ass_options(CLASS, ass)}),
+%      elif ass.multiplicity == 'related':
+       '${fnc_name(ass)}': fields.related(
+                   ${"'%s'" % "','".join(ass.tag['related_by'].split(','))},
+                   ${"'%s'" % ass.tag['related_to']},
+                   type='${getattr(getattr(ass.participant.member_by_name(ass.tag["related_to"]), "datatype", None),"oerp_type",getattr(ass.participant.association_by_name(ass.tag["related_to"]), "multiplicity","<Not defined>"))}',
+                   relation='${oerp_id()}',
+                   ${ass_options(ass)}
+                   ),
+%      endif
+%      endfor
+%      for ass in CLASS.all_associations(parents=False, stereotypes=['button_box']):
+       '${fnc_name(ass)}_count': fields.function(_count_all, type='integer', string=_("${ass.tag.get('label', ass.name)}"), multi='_count_all'),
+%      endfor
     }
 
     _defaults = {
-{%  for sm in CLASS.statemachines %}\
+%  for sm in CLASS.statemachines:
         'state': '${','.join([ s.name for s in sm.list_states() if s.is_initial() ])}',
-{%  end %}\
-{%  for col in CLASS_ATTRIBUTES %}\
-{%      if col.tag.get('default') and not col.is_stereotype('context') %}\
+%  endfor
+%  for col in CLASS_ATTRIBUTES:
+%      if col.tag.get('default') and not col.is_stereotype('context'):
         '${col.name}': ${col.tag['default']},
-{%      end %}\
-{%      if col.is_stereotype('context') %}\
+%      endif
+%      if col.is_stereotype('context'):
         '${col.name}': lambda self, cr, uid, context=None: context and context.get('${col.name}', ${col.tag.get('default','False')}),
-{%      end %}\
-{%  end %}\
-{%  for ass in CLASS.all_associations(parents=False) %}\
-{%      if ass.is_stereotype('context') or ass.aggregation == 'composite' %}\
+%      endif
+%  endfor
+%  for ass in CLASS.all_associations(parents=False):
+%      if ass.is_stereotype('context') or ass.aggregation == 'composite':
         '${ass.name}': lambda self, cr, uid, context=None: context and context.get('${ass.name}', ${ass.tag.get('default','False')}),
-{%      end %}\
-{%  end %}\
+%      endif
+%  endfor
     }
+%  if 'order' in CLASS.tag:
 
-{%  if 'order' in CLASS.tag %}\
     _order = "${CLASS.tag['order']}"
-{%  end %}\
+%  endif
 
     _constraints = [
-{%  if CLASS.is_stereotype('hierarchical') %}\
+%  if CLASS.is_stereotype('hierarchical'):
         (_check_recursion, 'Error ! You cannot create recursive ${CLASS.name}.', ['parent_id'])
-{%  end %}\
-{%  if 'constraints' in CLASS.tag %}\
+%  endif
+%  if 'constraints' in CLASS.tag:
         ${CLASS.tag['constraints']}
-{%  end %}\
+%  endif
     ]
+%  if 'sql_constraints' in CLASS.tag:
 
-{%  if 'sql_constraints' in CLASS.tag %}\
     _sql_constraints = [ ${CLASS.tag['sql_constraints']} ]
-{%  end %}\
+%  endif
+%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] != '_' ]:
 
-{%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] != '_' ] %}\
-    def ${op.name}(self, cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None):
+    def ${op.name}(self, cr, uid, ids, ${parameters(op, suffix=', ')}context=None):
         """${op.tag.get('documentation','')}"""
-{%    if op.member_of.name == CLASS.name %}\
-{%      if len(CLASS.child_of)>0 %}\
+%    if op.member_of.name == CLASS.name:
+%      if len(CLASS.child_of)>0:
         parent = super(${CLASS.name},self)
-        result = parent.${op.name}(cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %}, context=None) if hasattr(parent, '${op.name}') else False
+        result = parent.${op.name}(cr, uid, ids, ${parameters(op, suffix=', ')}context=None) if hasattr(parent, '${op.name}') else False
         return result
-{%      end %}\
-{%      if len(CLASS.child_of)==0 %}\
+%      endif
+%      if len(CLASS.child_of)==0:
         raise NotImplementedError
-{%      end %}\
-{%  end %}\
-{%    if op.member_of.name != CLASS.name %}\
+%      endif
+%    endif
+%    if op.member_of.name != CLASS.name:
         member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
-        return member(cr, uid, ids{% for par in [ p for p in op.parameters if p.name != 'return'] %}, ${par.name}{% end %})
-{%  end %}\
+        return member(cr, uid, ids${parameters(op, prefix=', ')})
+%    endif
+%  endfor
+%  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
+%      for state in sorted(set([ tra.state_to for tra in sm.middle_transitions() if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final())]), key=lambda s: s.name):
 
-{%  end %}\
-{%  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
-{%      for state in sorted(set([ tra.state_to for tra in sm.middle_transitions() if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final())]), key=lambda s: s.name) %}\
     def action_wfk_set_${state.name}(self, cr, uid, ids, *args):
         self.write(cr, uid, ids, {'state':'${state.name}'})
         wf_service = netsvc.LocalService("workflow")
@@ -305,27 +249,41 @@ class ${CLASS.name}(models.Model):
             wf_service.trg_create(uid, '${CLASS_MODULE}.${CLASS_NAME}', obj_id, cr)
         return True
 
-{%      end %}\
-{%  end %}\
-{%  if CLASS.parents(no_stereotypes=['prototype','extend']) %}\
+%      endfor
+%  endfor
+%  if CLASS.parents(no_stereotypes=['prototype','extend']):
+
     def unlink(self, cr, uid, ids, context=None):
-{%    for parent in CLASS.parents(no_stereotypes=['prototype','extend']) %}\
+%    for parent in CLASS.parents(no_stereotypes=['prototype','extend']):
         ${parent.oerp_id('_')}_obj = self.pool.get('${parent.oerp_id('.')}')
-{%    end %}\
+%    endfor
         data = self.read(cr, uid, ids, [ \
-{%    for parent in CLASS.parents(no_stereotypes=['prototype','extend']) %}\
+%    for parent in CLASS.parents(no_stereotypes=['prototype','extend']):
 '${parent.oerp_id('_')}_id', \
-{%    end %}\
+%    endfor
 ])
         res = super(${CLASS.name}, self).unlink(cr, uid, ids, context=context)
         for item in data:
-{%    for parent in CLASS.parents(no_stereotypes=['prototype','extend']) %}\
+%    for parent in CLASS.parents(no_stereotypes=['prototype','extend']):
             ${parent.oerp_id('_')}_obj.unlink(cr, uid, item['${parent.oerp_id('_')}_id'][0],context=context)
-{%    end %}\
+%    endfor
         return res
-{%  end %}\
-{% end %}\
-
+%  endif
+% for ass in CLASS.all_associations(parents=False, stereotypes=['button_box']):
+    def view_${ass.name}(self, cr, uid, ids, context=None):
+        res_id = ids and ids[0] or False
+        return {
+            'name': _('${ass.tag.get('label', ass.name)}'),
+            'domain': [('${ass.swap[0].name}', 'in', ids)],
+            'res_model': '${ass_id(ass)}',
+            'type': 'ir.actions.act_window',
+            'view_id': False,
+            'view_mode': 'tree,form',
+            'view_type': 'form',
+            'limit': 80,
+            'context': "{'default_${ass.swap[0].name}': %s}" % (res_id)
+        }
+% endfor
 
 ${CLASS.name}()
 
