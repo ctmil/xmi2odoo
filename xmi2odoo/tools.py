@@ -51,7 +51,7 @@ def attr_options(cls, obj, version=False):
     if version == '8.0':
       format_string = ',\n        '
     return format_string.join([ o for o in [
-       tag_option(obj,  'label', label='string', translate=True),
+       tag_option(obj,  'label', label='string'),
        tag_option(obj,  'documentation', label='help', quote='"""'),
        tag_option(obj,  'ondelete', quote=''),
        tag_option(obj,  'digits'),
