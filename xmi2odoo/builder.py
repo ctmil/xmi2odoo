@@ -294,6 +294,10 @@ class Builder:
             if version=='8.0':
                 tags.update({
                     'datatype': {
+                        'Selection': 'Selection',
+                        'Many2many': 'Many2many',
+                        'One2many': 'One2many',
+                        'Many2one': 'Many2one',
                         'Boolean': 'Boolean',
                         'Integer': 'Integer',
                         'Float':   'Float',

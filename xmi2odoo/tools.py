@@ -49,6 +49,13 @@ def names(obj, prefix='', suffix='', default=''):
 def attr_options(cls, obj, version=False):
     if version == '8.0':
       return ',\n        '.join([ o for o in [
+         tag_option(obj,  'selection', quote=''),
+         tag_option(obj,  'model_name'),
+         tag_option(obj,  'relation'),
+         tag_option(obj,  'comodel_name'),
+         tag_option(obj,  'column1'),
+         tag_option(obj,  'column2'),
+         tag_option(obj,  'inverse_name'),
          tag_option(obj,  'label', label='string'),
          tag_option(obj,  'documentation', label='help', quote='"""'),
          tag_option(obj,  'ondelete', quote=''),
@@ -127,6 +134,13 @@ def ass_relational_obj(mod, ass):
 def ass_options(cls,obj,version=False):
     if version == '8.0':
       return ',\n        '.join([ o for o in [
+        tag_option(obj,  'selection', quote=''),
+        tag_option(obj,  'model_name'),
+        tag_option(obj,  'relation'),
+        tag_option(obj,  'comodel_name'),
+        tag_option(obj,  'column1'),
+        tag_option(obj,  'column2'),
+        tag_option(obj,  'inverse_name'),
         tag_option(obj,  'label', label='string'),
         tag_option(obj,  'documentation', label='help', quote='"""'),
         tag_option(obj,  'ondelete'),
