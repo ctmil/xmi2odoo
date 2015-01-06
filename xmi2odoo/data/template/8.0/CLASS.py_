@@ -198,7 +198,7 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
         '${ass_relational_obj(MODULE_NAME, ass)}',
         '${class_id(CLASS)}',
         '${ass_other_id(ass)}',
-       ${ass_options(CLASS, ass, '8.0')})
+        ${ass_options(CLASS, ass, '8.0')})
 %      endif
 %      endfor
 %      for ass in CLASS.all_associations(parents=False, stereotypes=['button_box']):
