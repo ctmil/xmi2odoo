@@ -126,7 +126,7 @@ def ass_relational_obj(mod, ass):
 def ass_options(cls,obj,version=False):
     if version == '8.0':
       return ',\n        '.join([ o for o in [
-        tag_option(obj,  'label', label='string', translate=True),
+        tag_option(obj,  'label', label='string'),
         tag_option(obj,  'documentation', label='help', quote='"""'),
         tag_option(obj,  'ondelete'),
         tag_option(obj,  'digits'),
