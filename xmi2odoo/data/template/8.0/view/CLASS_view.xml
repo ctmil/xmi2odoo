@@ -232,15 +232,13 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
             <field name="model">${emodel(CLASS)}</field>
             <field name="arch" type="xml">
                 <search string="${CLASS_LABEL}">
-                    <group string="By Attribute">
 %                  for col in CLASS.all_attributes(stereotypes=['search']):
-                        ${search_field(col)}
+                    ${search_field(col)}
 %                  endfor
-                    </group>
-                    <group string="By object">
 %                  for ass in CLASS.all_associations(stereotypes=['search']):
-                        ${search_association(ass)}
+                    ${search_association(ass)}
 %                  endfor
+                    <group expand="0" string="Group By">
                     </group>
                 </search>
             </field>
