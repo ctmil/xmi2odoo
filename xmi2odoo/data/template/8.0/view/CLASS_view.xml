@@ -192,11 +192,6 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
             <field name="model">${emodel(CLASS)}</field>
             <field name="inherit_id" ref="${ CLASS.parent().get('view_form_id', CLASS.parent().package.name+'.'+view_form_id(CLASS.parent())) }"/>
             <field name="arch" type="xml">
-                <div name="buttons" position="inside">
-%                  for ass in CLASS.all_associations(stereotypes=['button_box'], parents=False):
-                        ${form_button_box(ass)}
-%                  endfor
-                </div>
                 <group position="inside">
 %                  for col in CLASS.all_attributes(stereotypes=['form'], parents=False):
                         ${form_field(col)}
