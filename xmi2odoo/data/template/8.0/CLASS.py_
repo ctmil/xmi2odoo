@@ -198,12 +198,13 @@ fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options
 %  endif
 %  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] != '_' ]:
 
-    def ${op.name}(self, cr, uid, ids, ${parameters(op, suffix=', ')}context=None):
+    @api.one
+    def ${op.name}(self${parameters(op, prefix=' ,')}):
         """${op.tag.get('documentation','')}"""
 %    if op.member_of.name == CLASS.name:
 %      if len(CLASS.child_of)>0:
         parent = super(${CLASS.name},self)
-        result = parent.${op.name}(cr, uid, ids, ${parameters(op, suffix=', ')}context=None) if hasattr(parent, '${op.name}') else False
+        result = parent.${op.name}(${parameters(op)}) if hasattr(parent, '${op.name}') else False
         return result
 %      endif
 %      if len(CLASS.child_of)==0:

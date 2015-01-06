@@ -78,6 +78,7 @@ def attr_options(cls, obj, version=False):
          tag_option(obj,  'compute'),
          tag_option(obj,  'inverse'),
          tag_option(obj,  'search'),
+         tag_option(obj,  'copy', quote=''),
          ] if o is not None ])
     return ','.join([ o for o in [
        tag_option(obj,  'label', label='string'),
