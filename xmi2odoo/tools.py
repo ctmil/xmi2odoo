@@ -47,10 +47,38 @@ def names(obj, prefix='', suffix='', default=''):
     return [ name(o, prefix=prefix, suffix=suffix, default=default) for o in obj ]
 
 def attr_options(cls, obj, version=False):
-    format_string = ','
     if version == '8.0':
-      format_string = ',\n        '
-    return format_string.join([ o for o in [
+      return ',\n        '.join([ o for o in [
+         tag_option(obj,  'label', label='string'),
+         tag_option(obj,  'documentation', label='help', quote='"""'),
+         tag_option(obj,  'ondelete', quote=''),
+         tag_option(obj,  'digits'),
+         stereotype_option(obj, 'readonly'),
+         stereotype_option(obj, 'required', check=not cls.is_extended()),
+         tag_option(obj,  'size'),
+         tag_option(obj,  'states'),
+         tag_option(obj,  'context'),
+         tag_option(obj,  'domain'),
+         tag_option(obj,  'on_change'),
+         tag_option(obj,  ['groups', 'module_groups'], label='groups'),
+         stereotype_option(obj, 'change_default'),
+         stereotype_option(obj, 'select'),
+         stereotype_option(obj, 'store'),
+         stereotype_option(obj, 'translatable', label='translate'),
+         stereotype_option(obj, 'invisible'),
+         stereotype_option(obj, 'relation',value=obj.datatype.oerp_id()),
+         stereotype_option(obj, 'method'),
+         stereotype_option(obj, 'view_load'),
+         stereotype_option(obj, 'group_name',value=cls.tag.get('group',cls.package.tag['label'])),
+         tag_option(obj,  'fnct', label='compute'),
+         tag_option(obj,  'fnct_inv', label='inverse'),
+         tag_option(obj,  'fnct_search', label='search'),
+         tag_option(obj,  'related'),
+         tag_option(obj,  'compute'),
+         tag_option(obj,  'inverse'),
+         tag_option(obj,  'search'),
+         ] if o is not None ])
+    return ','.join([ o for o in [
        tag_option(obj,  'label', label='string'),
        tag_option(obj,  'documentation', label='help', quote='"""'),
        tag_option(obj,  'ondelete', quote=''),
