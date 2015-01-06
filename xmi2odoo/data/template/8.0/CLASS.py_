@@ -48,6 +48,10 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
     _inherits = {${','.join(['\'%s\': \'%s_id\'' % (parent.oerp_id('.'), parent.oerp_id('_')) for parent in CLASS.parents(no_stereotypes=['prototype','extend']) ])}}
     _inherit = [${','.join(set(['\'%s\'' % (parent.oerp_id('.'),) for parent in CLASS.parents(stereotypes=['prototype','extend'])]))}]
 % endif
+%  if 'order' in CLASS.tag:
+
+    _order = "${CLASS.tag['order']}"
+%  endif
 % for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation and op.name[0] == '_' ]:
 
     def ${op.name}(self, cr, uid, ids
@@ -84,7 +88,7 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
     _states_ = [
         # State machine: ${sm.name}
 %      for s in sm.list_ordered_states():
-        ('${s.name}','${s['label']}'),
+        ('${s.name}', '${s['label']}'),
 %      endfor
     ]
 % endfor
@@ -92,7 +96,7 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
 
     _track = {
 %     for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
-        'state': {
+    'state': {
 %      for s in sm.list_ordered_states():
             '${CLASS.oerp_id()}_${s.name}': lambda self, cr, uid, obj, ctx=None: obj['state'] == '${s.name}',
 %      endfor
@@ -155,34 +159,50 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
         ${attr_options(CLASS, col, '8.0')}
         )
 %          endif
+%          if col.datatype.name not in datatype and col.datatype.entityclass == 'cclass':
+    ${fnc_name(col)} = fields.Many2one(
+        '${col.datatype.oerp_id()}',
+        ${attr_options(CLASS, col, '8.0')})
+%          endif
 %      endfor
 %      if list(CLASS.get_statemachines(no_stereotypes=['extend','prototype'])):
-       'state': fields.selection(_states_, "State"),
+    state = fields.Selection(
+        _states_,
+        'State')
 %      endif
 %      for ass in CLASS.all_associations(parents=False):
 %      if ass.multiplicity == 'One2one':
-       '${fnc_name(ass)}': \
+       ${fnc_name(ass)} = \
 %        if (eval(ass.multiplicityrange) or (0,0))[0]  > 0:
-fields.many2one('${ass_id(ass)}', ${ass_options(CLASS, ass)}),
+fields.Many2one(
+        '${ass_id(ass)}',
+        ${ass_options(CLASS, ass, '8.0')}),
 %        else:
-fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options(CLASS, ass)}),
+fields.One2many(
+        '${ass_id(ass)}',
+        '${ass_other_name(CLASS, ass)}',
+        ${ass_options(CLASS, ass, '8.0')})
 %        endif
 %      elif ass.multiplicity == 'Many2one':
-       '${fnc_name(ass)}': fields.many2one('${ass_id(ass)}', ${ass_options(CLASS, ass)}), 
+       ${fnc_name(ass)} = fields.Many2one(
+       '${ass_id(ass)}',
+       ${ass_options(CLASS, ass, '8.0')})
 %      elif ass.multiplicity == 'One2many':
-       '${fnc_name(ass)}': fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options(CLASS, ass)}),
+       ${fnc_name(ass)} = fields.One2many(
+       '${ass_id(ass)}',
+       '${ass_other_name(CLASS, ass)}', ${ass_options(CLASS, ass, '8.0')})
 %      elif ass.multiplicity == 'Many2many':
-       '${fnc_name(ass)}': fields.many2many('${ass_id(ass)}', '${ass_relational_obj(MODULE_NAME, ass)}', '${class_id(CLASS)}', '${ass_other_id(ass)}', ${ass_options(CLASS, ass)}),
+       ${fnc_name(ass)} = fields.Many2many(
+       '${ass_id(ass)}',
+       '${ass_relational_obj(MODULE_NAME, ass)}',
+       '${class_id(CLASS)}',
+       '${ass_other_id(ass)}',
+       ${ass_options(CLASS, ass, '8.0')})
 %      endif
 %      endfor
 %      for ass in CLASS.all_associations(parents=False, stereotypes=['button_box']):
-       '${fnc_name(ass)}_count': fields.function(_count_all, type='integer', string=_("${ass.tag.get('label', ass.name)}"), multi='_count_all'),
+       ${fnc_name(ass)}_count' = fields.Integer(compute='_count_all', string='${ass.tag.get('label', ass.name)}")
 %      endfor
-
-%  if 'order' in CLASS.tag:
-
-    _order = "${CLASS.tag['order']}"
-%  endif
 
     _constraints = [
 %  if CLASS.is_stereotype('hierarchical'):
@@ -219,12 +239,12 @@ fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options
 %  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
 %      for state in sorted(set([ tra.state_to for tra in sm.middle_transitions() if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final())]), key=lambda s: s.name):
 
-    def action_wfk_set_${state.name}(self, cr, uid, ids, *args):
-        self.write(cr, uid, ids, {'state':'${state.name}'})
-        wf_service = netsvc.LocalService("workflow")
-        for obj_id in ids:
-            wf_service.trg_delete(uid, '${CLASS_MODULE}.${CLASS_NAME}', obj_id, cr)
-            wf_service.trg_create(uid, '${CLASS_MODULE}.${CLASS_NAME}', obj_id, cr)
+    @api.multi
+    def action_cancel_${state.name}(self):
+        # go from canceled state to draft state
+        self.write({'state': '${state.name}'})
+        self.delete_workflow()
+        self.create_workflow()
         return True
 
 %      endfor

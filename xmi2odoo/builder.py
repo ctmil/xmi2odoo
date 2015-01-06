@@ -291,7 +291,7 @@ class Builder:
                 'REPORT_IMPORT': '\n'.join([ "import %s" % n
                                             for n in self.sort_classes(report_classes_obj) ]),
             }
-            if version==8.0:
+            if version=='8.0':
                 tags.update({
                     'datatype': {
                         'Boolean': 'Boolean',
