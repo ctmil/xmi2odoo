@@ -246,7 +246,6 @@ fields.One2many(
         self.delete_workflow()
         self.create_workflow()
         return True
-
 %      endfor
 %  endfor
 %  if CLASS.parents(no_stereotypes=['prototype','extend']):
