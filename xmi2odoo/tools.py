@@ -135,7 +135,7 @@ def ass_options(cls,obj,version=False):
         stereotype_option(obj, 'required', check=(not cls.is_extended()) and ((eval(obj.multiplicityrange) or (0,0))[0] > 0), negate=True),
         tag_option(obj,  'size'),
         tag_option(obj,  'states', quote='"'),
-        tag_option(obj,  'context', quote='""'),
+        tag_option(obj,  'context', quote='"'),
         tag_option(obj,  'domain', quote='"'),
         tag_option(obj,  'on_change'),
         tag_option(obj,  ['groups', 'module_groups'], label='groups'),

@@ -127,7 +127,7 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
 %      if CLASS.is_stereotype('hierarchical'):
     complete_name = fields.Char(
         compute="_name_get_fnc",
-        string=_('Name'),
+        string='Name',
         store=True)
 %      endif
 %      for parent in CLASS.parents(no_stereotypes=['prototype','extend']):
@@ -171,32 +171,33 @@ class ${CLASS.name}(${'models.TransientModel' if CLASS.is_stereotype('memory') e
         'State')
 %      endif
 %      for ass in CLASS.all_associations(parents=False):
-%      if ass.multiplicity == 'One2one':
+%      if ass.multiplicity == 'one2one':
        ${fnc_name(ass)} = \
 %        if (eval(ass.multiplicityrange) or (0,0))[0]  > 0:
-fields.Many2one(
+    fields.Many2one(
         '${ass_id(ass)}',
         ${ass_options(CLASS, ass, '8.0')}),
 %        else:
-fields.One2many(
+    fields.One2many(
         '${ass_id(ass)}',
         '${ass_other_name(CLASS, ass)}',
         ${ass_options(CLASS, ass, '8.0')})
 %        endif
-%      elif ass.multiplicity == 'Many2one':
-       ${fnc_name(ass)} = fields.Many2one(
-       '${ass_id(ass)}',
-       ${ass_options(CLASS, ass, '8.0')})
-%      elif ass.multiplicity == 'One2many':
-       ${fnc_name(ass)} = fields.One2many(
-       '${ass_id(ass)}',
-       '${ass_other_name(CLASS, ass)}', ${ass_options(CLASS, ass, '8.0')})
-%      elif ass.multiplicity == 'Many2many':
-       ${fnc_name(ass)} = fields.Many2many(
-       '${ass_id(ass)}',
-       '${ass_relational_obj(MODULE_NAME, ass)}',
-       '${class_id(CLASS)}',
-       '${ass_other_id(ass)}',
+%      elif ass.multiplicity == 'many2one':
+    ${fnc_name(ass)} = fields.Many2one(
+        '${ass_id(ass)}',
+        ${ass_options(CLASS, ass, '8.0')})
+%      elif ass.multiplicity == 'one2many':
+    ${fnc_name(ass)} = fields.One2many(
+        '${ass_id(ass)}',
+        '${ass_other_name(CLASS, ass)}',
+        ${ass_options(CLASS, ass, '8.0')})
+%      elif ass.multiplicity == 'many2many':
+    ${fnc_name(ass)} = fields.Many2many(
+        '${ass_id(ass)}',
+        '${ass_relational_obj(MODULE_NAME, ass)}',
+        '${class_id(CLASS)}',
+        '${ass_other_id(ass)}',
        ${ass_options(CLASS, ass, '8.0')})
 %      endif
 %      endfor
