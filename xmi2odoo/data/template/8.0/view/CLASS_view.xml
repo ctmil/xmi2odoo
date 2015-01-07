@@ -339,7 +339,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                  if CLASS.is_stereotype('tree_toolbar'):
                     toolbar="1"
 %                  endif 
-%                  if CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
+%                  if CLASS.get_statemachines(no_stereotypes=['extend','prototype']) and form_colors(CLASS) and 'tree_colors' not in CLASS.tag:
                     colors="${form_colors(CLASS)}"
 %                  endif 
                     >
