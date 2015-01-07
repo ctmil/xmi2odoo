@@ -1,5 +1,5 @@
 <?xml version = '1.0' encoding = 'UTF-8' ?>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Tue Jan 06 23:30:00 ART 2015'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Wed Jan 07 10:27:11 ART 2015'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.34(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -1680,6 +1680,17 @@
             <UML:Multiplicity xmi.id = '127-0-1-1--2c8f0b2f:14ac1f4cc3f:-8000:0000000000001A4B'>
               <UML:Multiplicity.range>
                 <UML:MultiplicityRange xmi.id = '127-0-1-1--2c8f0b2f:14ac1f4cc3f:-8000:0000000000001A4A'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1-68debab9:14ac493492e:-8000:00000000000012BB'
+          name = 'tree_sum' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1-68debab9:14ac493492e:-8000:00000000000012BD'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1-68debab9:14ac493492e:-8000:00000000000012BC'
                   lower = '0' upper = '0'/>
               </UML:Multiplicity.range>
             </UML:Multiplicity>
