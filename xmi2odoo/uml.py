@@ -425,6 +425,12 @@ class CDataType(CEntity):
     def oerp_type(self):
         return _oerp_type[self.name]
 
+    def attribute_by_name(self, name):
+        """ Return an attribute by name. """
+        r = [ i for i in self.all_attributes() if i.name == name ] + [None]
+        assert len(r) <= 2, "Not unique attribute with name %s for class %s" % (name, self.name)
+        return r[0]
+
     def all_attributes(self, stereotypes=[], no_stereotypes=[], parents=True, ctype=None, sort=True):
         if ctype is None: ctype = CAttribute
         r = list(itertools.chain([ (m, m.order) for m in self.members
@@ -599,9 +605,9 @@ class CClass(CDataType):
 
     def association_by_name(self, name):
         """ Return an association by name. """
-        for i in self.associations:
-            if i.swap[0].name == name:
-                return i.swap[0]
+        r = [ i for i in self.all_associations() if i.name == name ] + [None]
+        assert len(r) <= 2, "Not unique association with name %s for class %s" % (name, self.name)
+        return r[0]
 
     def is_extended(self, ignore=['ir.needaction_mixin','mail.thread']):
         extensions = [ gen.is_stereotype('extend') for gen in self.child_of if gen.parent.oerp_id() not in ignore ]

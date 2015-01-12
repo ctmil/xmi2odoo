@@ -173,3 +173,17 @@ def related(obj):
     assert list(obj.relateds(uml.CClass)) > 1, "You have more than one class related to %s.\n%s" % (obj.name, names(obj.relateds(uml.CClass)))
     return obj.relateds(uml.CClass)[0]
 
+def walk_by_associations(CLASS, related_by):
+    if related_by:
+        relation = CLASS.association_by_name(related_by[0])
+        if relation:
+            return walk_by_associations(relation.participant, related_by[1:])
+        else:
+            return None
+    return CLASS
+
+def debug(*values):
+    import pdb; pdb.set_trace()
+    return values
+
+
