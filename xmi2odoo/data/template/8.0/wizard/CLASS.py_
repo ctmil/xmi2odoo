@@ -229,7 +229,7 @@ fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options
 %  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
 %      for state in sorted(set([ tra.state_to for tra in sm.middle_transitions() if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final())]), key=lambda s: s.name):
 
-    def action_wfk_set_${state.name}(self, cr, uid, ids, *args):
+    def action_cancel_${state.name}(self, cr, uid, ids, *args):
         self.write(cr, uid, ids, {'state':'${state.name}'})
         wf_service = netsvc.LocalService("workflow")
         for obj_id in ids:

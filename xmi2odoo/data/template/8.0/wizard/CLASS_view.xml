@@ -188,7 +188,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                      if not [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ]:
                         <button name="sgn_${tri.name}"
 %                      else:
-                        <button name="action_wfk_set_${state.name}" type="object"
+                        <button name="action_cancel_${state.name}" type="object"
 %                      endif
 %                          if 'class' in tri.tag:
                             class="${tri.tag['class']}"

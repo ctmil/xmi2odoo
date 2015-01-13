@@ -261,7 +261,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
 %                    for tri in [ t for t in sm.list_ordered_triggers() ]:
 %                      for state in [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ][0:1]:
-                        <button name="action_wfk_set_${state.name}"
+                        <button name="action_cancel_${state.name}"
                             type="object"
 %                      endfor
 %                      if not [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ]:
