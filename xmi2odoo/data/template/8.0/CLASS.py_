@@ -139,7 +139,11 @@ class ${CLASS.name.replace('.','_')}(${'models.TransientModel' if CLASS.is_stere
 %      if list(CLASS.get_statemachines(no_stereotypes=['extend','prototype'])):
     state = fields.Selection(
         _states_,
-        'State')
+        'State',
+%  for sm in CLASS.statemachines:
+        default='${','.join([ s.name for s in sm.list_states() if s.is_initial() ])}',
+%  endfor
+        )
 %      endif
 %      for ass in CLASS.all_associations(parents=False):
 %      if ass.multiplicity == 'one2one':
