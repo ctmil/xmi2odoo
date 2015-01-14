@@ -163,6 +163,9 @@ class ${CLASS.name.replace('.','_')}(${'models.TransientModel' if CLASS.is_stere
 %      elif ass.multiplicity == 'many2one':
     ${fnc_name(ass)} = fields.Many2one(
         '${ass_id(ass)}',
+%      if ass.aggregation == 'composite':
+        ondelete='cascade',
+%      endif
         ${ass_options(CLASS, ass, '8.0')}
         )
 %      elif ass.multiplicity == 'one2many':
