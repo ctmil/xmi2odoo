@@ -1,393 +1,391 @@
+<%!
+from xmi2odoo.tools import model, emodel, sel_literals, fnc_name, attr_options
+from xmi2odoo.tools import ass_id, ass_options, ass_other_name
+from xmi2odoo.tools import parameters, names
+from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colors
+%>\
+<%def name="search_field(col)"><field name="${col.name}" string="${col.tag['label']}"
+%                    if 'search_groups' in col.tag or 'view_groups' in col.tag:
+                            groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
+%                    endif
+                            /></%def>\
+<%def name="group_by_field(col)"><field name="${col.name}" string="${col.tag['label']}" context="{'group_by':'${col.name}'}"
+%                    if 'search_groups' in col.tag or 'view_groups' in col.tag:
+                            groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
+%                    endif
+                            /></%def>\
+<%def name="search_association(ass)"><field name="${ass.name}" string="${ass.tag['label']}"
+%                    if 'search_groups' in ass.tag or 'view_groups' in ass.tag:
+                            groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
+%                    endif
+                            /></%def>\
+<%def name="group_by_association(ass)"><field name="${ass.name}" string="${ass.tag['label']}"  context="{'group_by':'${col.name}'}"
+%                    if 'search_groups' in ass.tag or 'view_groups' in ass.tag:
+                            groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
+%                    endif
+                            /></%def>\
+<%def name="form_field(col)"><field name="${col.name}"
+%                    if 'form_select' in col.tag:
+                            select="${col.tag['form_select']}"
+%                    endif
+%                    if 'form_colspan' in col.tag:
+                            colspan="${col.tag['form_colspan']}"
+%                    endif
+%                    if 'form_readonly' in col.tag:
+                            readonly="${col.tag['form_readonly']}"
+%                    endif
+%                    if 'form_required' in col.tag:
+                            required="${col.tag['form_required']}"
+%                    endif
+%                    if 'form_nolabel' in col.tag:
+                            nolabel="${col.tag['form_nolabel']}"
+%                    endif
+%                    if col.is_stereotype('hidden'):
+                            invisible="True"
+%                    endif
+%                    if not col.is_stereotype('hidden') and 'form_invisible' in col.tag:
+                            invisible="${col.tag['form_invisible']}"
+%                    endif
+%                    if 'form_password' in col.tag:
+                            password="${col.tag['form_password']}"
+%                    endif 
+%                    if 'form_string' in col.tag:
+                            string="${col.tag['form_string']}"
+%                    endif
+%                    if 'form_domain' in col.tag:
+                            domain="${col.tag['form_domain']}"
+%                    endif
+%                    if 'form_context' in col.tag:
+                            context="${col.tag.get('form_context','')}"
+%                    endif
+%                    if 'form_widget' in col.tag:
+                            widget="${col.tag['form_widget']}"
+%                    endif
+%                    if 'form_mode' in col.tag:
+                            mode="${col.tag['form_mode']}"
+%                    endif
+%                    if 'form_on_change' in col.tag:
+                            on_change="${col.tag['form_on_change']}"
+%                    endif
+%                    if 'form_attrs' in col.tag:
+                            attrs="${col.tag['form_attrs']}"
+%                    endif
+%                    if 'form_eval' in col.tag:
+                            eval="${col.tag['form_eval']}"
+%                    endif
+%                    if 'form_default_focus' in col.tag:
+                            default_focus="${col.tag['form_default_focus']}"
+%                    endif
+%                    if 'form_groups' in col.tag or 'view_groups' in col.tag:
+                            groups="${','.join([x for x in [col.tag.get('form_groups',''),col.tag.get('view_groups','')] if x])}"
+%                    endif
+                            /></%def>\
+<%def name="form_button_box(ass)"><button type="object" name="view_${ass.name}"
+                        class="oe_stat_button"
+                        icon="${ass.tag.get('icon', 'fa-star')}">
+                        <field name="${ass.name}_count"
+                            widget="statinfo"
+                            string="${ass.tag.get('label', ass.name)}"
+                            help="${ass.tag.get('help', '')}"/>
+                    </button></%def>\
+<%def name="form_association(ass)"><field name="${ass.name}"
+%                    if 'form_select' in ass.tag:
+                            select="${ass.tag['form_select']}"
+%                    endif
+%                    if 'form_colspan' in ass.tag:
+                            colspan="${ass.tag['form_colspan']}"
+%                    endif
+%                    if 'form_readonly' in ass.tag:
+                            readonly="${ass.tag['form_readonly']}"
+%                    endif
+%                    if 'form_required' in ass.tag:
+                            required="${ass.tag['form_required']}"
+%                    endif
+%                    if 'form_nolabel' in ass.tag:
+                            nolabel="${ass.tag['form_nolabel']}"
+%                    endif
+%                    if ass.is_stereotype('hidden'):
+                            invisible="True"
+%                    endif
+%                    if not ass.is_stereotype('hidden') and 'form_invisible' in ass.tag:
+                            invisible="${ass.tag['form_invisible']}"
+%                    endif
+%                    if 'form_password' in ass.tag:
+                            password="${ass.tag['form_password']}"
+%                    endif
+%                    if 'form_string' in ass.tag:
+                            string="${ass.tag['form_string']}"
+%                    endif
+%                    if 'form_domain' in ass.tag:
+                            domain="${ass.tag['form_domain']}"
+%                    endif
+%                    if 'form_context' in ass.tag:
+                            context="${ass.tag.get('form_context','')}"
+%                    endif
+%                    if 'form_widget' in ass.tag:
+                            widget="${ass.tag['form_widget']}"
+%                    endif
+%                    if 'form_mode' in ass.tag:
+                            mode="${ass.tag['form_mode']}"
+%                    endif
+%                    if 'form_on_change' in ass.tag:
+                            on_change="${ass.tag['form_on_change']}"
+%                    endif
+%                    if 'form_attrs' in ass.tag:
+                            attrs="${ass.tag['form_attrs']}"
+%                    endif
+%                    if 'form_eval' in ass.tag:
+                            eval="${ass.tag['form_eval']}"
+%                    endif
+%                    if 'form_default_focus' in ass.tag:
+                            default_focus="${ass.tag['form_default_focus']}"
+%                    endif 
+%                    if 'form_groups' in ass.tag or 'view_groups' in ass.tag:
+                            groups="${','.join([x for x in [col.tag.get('form_groups',''),col.tag.get('view_groups','')] if x])}"
+%                    endif
+                        /></%def>\
+<%def name="tree_field(col)"><field name="${col.name}"
+%                    if 'tree_context' in col.tag:
+                            context="${col.tag.get('form_context','')}"
+%                    endif
+%                    if 'tree_widget' in col.tag:
+                            widget="${col.tag['tree_widget']}"
+%                    endif
+%                    if 'tree_sum' in col.tag:
+                            sum="${col.tag['tree_sum']}"
+%                    endif
+%                    if col.is_stereotype('hidden'):
+                            invisible="True"
+%                    endif
+%                    if (not col.is_stereotype('hidden') and 'tree_invisible' in col.tag):
+                            invisible="${col.tag['tree_invisible']}"
+%                    endif
+%                    if 'tree_groups' in col.tag or 'view_groups' in col.tag:
+                            groups="${','.join([x for x in [col.tag.get('tree_groups',''),col.tag.get('view_groups','')] if x])}"
+%                    endif
+                        /></%def>\
+<%def name="tree_association(ass)"><field name="${ass.name}"
+%                    if 'tree_context' in ass.tag:
+                            context="${ass.tag.get('tree_context','')}"
+%                    endif
+%                    if 'tree_widget' in ass.tag:
+                            widget="${ass.tag['tree_widget']}"
+%                    endif
+%                    if 'tree_sum' in ass.tag:
+                            sum="${ass.tag['tree_sum']}"
+%                    endif
+%                    if ass.is_stereotype('hidden'):
+                            invisible="True"
+%                    endif
+%                    if not ass.is_stereotype('hidden') and 'tree_invisible' in ass.tag:
+                            invisible="${ass.tag['tree_invisible']}"
+%                    endif
+%                    if 'tree_groups' in ass.tag or 'view_groups' in ass.tag:
+                            groups="${','.join([x for x in [col.tag.get('tree_groups',''),col.tag.get('view_groups','')] if x])}"
+%                    endif
+                        /></%def>\
 <?xml version="1.0" encoding="utf-8"?>
-{% def model(s='.')  %}${CLASS.oerp_id(s, False)}{% end %}\
-{% def emodel(s='.') %}${CLASS.oerp_id(s)}{% end %}\
-{% def pmodel(s='.') %}${CLASS.oerp_id(s, False, True)}{% end %}\
 <openerp>
     <data>
-{% if CLASS.parents(no_stereotypes=['disjoin_view'], ignore=['mail.thread','ir.needaction_mixin']) %}
-{%  def view_filter_id() %}view_${model('_')}_filter{% end %}\
-{%  def view_form_id()   %}view_${model('_')}_form{%   end %}\
-{%  def view_tree_id()   %}view_${model('_')}_tree{%   end %}\
+% if CLASS.parents(no_stereotypes=['disjoin_view'], ignore=['mail.thread','ir.needaction_mixin']):
         <!-- INHERITED SEARCH -->
-        <record id="${view_filter_id()}" model="ir.ui.view">
-            <field name="name">${model()}.select</field>
-            <field name="model">${emodel()}</field>
-            <field name="inherit_id" ref="${ CLASS.parent().get('view_search_id', CLASS.parent().package.name+'.'+'view_'+CLASS.oerp_id('_', False, True)+'_filter')}"/>
+        <record id="${view_filter_id(CLASS)}" model="ir.ui.view">
+            <field name="name">${model(CLASS)}.select</field>
+            <field name="model">${emodel(CLASS)}</field>
+            <field name="inherit_id" ref="${ CLASS.parent().get('view_search_id', CLASS.parent().package.name+'.'+view_filter_id(CLASS.parent())) }"/>
             <field name="arch" type="xml">
                 <search position="inside">
-{%                  for col in CLASS.all_attributes(stereotypes=['search'], parents=False) %}\
-                        <field name="${col.name}" string="${col.tag['label']}"
-{%                    if 'search_groups' in col.tag or 'groups' in col.tag %}\
-                            groups="${','.join([col.tag.get('search_groups',''),col.tag.get('groups','')])}"
-{%                    end %}\
-                            />
-{%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotypes=['search'], parents=False) %}\
-                    <field name="${ass.name}" string="${ass.tag['label']}"
-{%                    if 'search_groups' in ass.tag or 'groups' in ass.tag %}\
-                            groups="${','.join([ass.tag.get('search_groups',''),ass.tag.get('groups','')])}"
-{%                    end %}\
-                            />
-{%                  end %}\
+%                  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
+                        <field name="state" string="State"/>
+%                  endfor
+%                  for col in CLASS.all_attributes(stereotypes=['search'], parents=False):
+                        ${search_field(col)}
+%                  endfor
+%                  for ass in CLASS.all_associations(stereotypes=['search'], parents=False):
+                        ${search_association(ass)}
+%                  endfor
                 </search>
             </field>
         </record>
  
         <!-- INHERITED FORM -->
-        <record id="${view_form_id()}" model="ir.ui.view">
-            <field name="name">${model()}.form</field>
-            <field name="model">${emodel()}</field>
-            <field name="inherit_id" ref="${ CLASS.parent().get('view_form_id', CLASS.parent().package.name+'.'+'view_'+CLASS.oerp_id('_', False, True)+'_form')}"/>
+        <record id="${view_form_id(CLASS)}" model="ir.ui.view">
+            <field name="name">${model(CLASS)}.form</field>
+            <field name="model">${emodel(CLASS)}</field>
+            <field name="inherit_id" ref="${ CLASS.parent().get('view_form_id', CLASS.parent().package.name+'.'+view_form_id(CLASS.parent())) }"/>
             <field name="arch" type="xml">
                 <group position="inside">
-{%                  for col in CLASS.all_attributes(stereotypes=['form'], parents=False) %}\
-                        <field name="${col.name}"
-{%                    if 'form_context' in col.tag %}\
-                            context="${col.tag.get('form_context','')}"
-{%                    end %}\
-{%                    if 'form_groups' in col.tag or 'groups' in col.tag %}\
-                            groups="${','.join([col.tag.get('form_groups',''),col.tag.get('groups','')])}"
-{%                    end %}\
-{%                    if 'form_widget' in col.tag %}\
-                            widget="${col.tag['form_widget']}"
-{%                    end %}\
-{%                    if col.is_stereotype('hidden') %}\
-                            invisible="True"
-{%                    end %}\
-{%                    if not col.is_stereotype('hidden') and 'form_invisible' in col.tag %}\
-                            invisible="${col.tag['form_invisible']}"
-{%                    end %}\
-                            />
-{%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotypes=['form'], parents=False) %}\
-                        <field name="${ass.name}"
-{%                    if 'form_context' in ass.tag %}\
-                            context="${ass.tag.get('form_context','')}"
-{%                    end %}\
-{%                    if 'form_groups' in ass.tag or 'groups' in ass.tag %}\
-                            groups="${','.join([ass.tag.get('form_groups',''),ass.tag.get('groups','')])}"
-{%                    end %}\
-{%                    if 'form_widget' in ass.tag %}\
-                            widget="${ass.tag['form_widget']}"
-{%                    end %}\
-{%                    if ass.is_stereotype('hidden') %}\
-                            invisible="True"
-{%                    end %}\
-{%                    if not ass.is_stereotype('hidden') and 'form_invisible' in ass.tag %}\
-                            invisible="${ass.tag['form_invisible']}"
-{%                    end %}\
-                            />
-{%                  end %}\
+%                  for col in CLASS.all_attributes(stereotypes=['form'], parents=False):
+                        ${form_field(col)}
+%                  endfor
+%                  for ass in CLASS.all_associations(stereotypes=['form'], no_stereotypes=['button_box'], parents=False):
+                        ${form_association(ass)}
+%                  endfor
                 </group>
             </field>
         </record>
 
         <!-- INHERITED TREE -->
-        <record id="${view_tree_id()}" model="ir.ui.view">
-            <field name="name">${model()}.tree</field>
-            <field name="model">${emodel()}</field>
-            <field name="inherit_id" ref="${ CLASS.parent().get('view_tree_id', CLASS.parent().package.name+'.'+'view_'+CLASS.oerp_id('_', False, True)+'_tree')}"/>
+        <record id="${view_tree_id(CLASS)}" model="ir.ui.view">
+            <field name="name">${model(CLASS)}.tree</field>
+            <field name="model">${emodel(CLASS)}</field>
+            <field name="inherit_id" ref="${ CLASS.parent().get('view_tree_id', CLASS.parent().package.name+'.'+view_tree_id(CLASS.parent())) }"/>
             <field name="arch" type="xml">
                 <tree position="inside">
-{%                  for col in CLASS.all_attributes(stereotypes=['tree'], parents=False) %}\
-                    <field name="${col.name}"
-{%                    if 'form_context' in col.tag %}\
-                            context="${col.tag.get('form_context','')}"
-{%                    end %}\
-                            />
-{%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotypes=['tree'], parents=False) %}\
-                    <field name="${ass.name}"
-{%                    if 'form_context' in ass.tag %}\
-                            context="${ass.tag.get('form_context','')}"
-{%                    end %}\
-                            />
-{%                  end %}\
+%                  for col in CLASS.all_attributes(stereotypes=['tree'], parents=False):
+                        ${tree_field(col)}
+%                  endfor
+%                  for ass in CLASS.all_associations(stereotypes=['tree'], parents=False):
+                        ${tree_association(ass)}
+%                  endfor
                 </tree>
             </field>
         </record>
 
-{% end %}\
-{% if CLASS.oerp_id('-', False) == CLASS.oerp_id('-', False, True) or CLASS.child_of[0].is_stereotype('disjoin_view') %}
-{%  def view_filter_id() %}view_${model('_')}_filter{% end %}\
-{%  def view_form_id() %}view_${model('_')}_form{% end %}\
-{%  def view_tree_id() %}view_${model('_')}_tree{% end %}\
+% elif CLASS.oerp_id('-', False) == CLASS.oerp_id('-', False, True) or CLASS.child_of[0].is_stereotype('disjoin_view'):
         <!-- SEARCH VIEW -->
-        <record id="${view_filter_id()}" model="ir.ui.view">
-            <field name="name">${model()}.select</field>
-            <field name="model">${emodel()}</field>
+        <record id="${view_filter_id(CLASS)}" model="ir.ui.view">
+            <field name="name">${model(CLASS)}.select</field>
+            <field name="model">${emodel(CLASS)}</field>
             <field name="arch" type="xml">
-                <search string="${CLASS_LABEL}" version="7.0">
-                    <group string="By Attribute">
-{%                  for col in CLASS.all_attributes(stereotypes=['search']) %}\
-                    <field name="${col.name}" string="${col.tag['label']}"
-{%                    if 'form_groups' in col.tag or 'groups' in col.tag %}\
-                            groups="${','.join([col.tag.get('form_groups',''),col.tag.get('groups','')])}"
-{%                    end %}\
-                            />
-{%                  end %}\
-                    </group>
-                    <group string="By object">
-{%                  for ass in CLASS.all_associations(stereotypes=['search']) %}\
-                    <field name="${ass.name}" string="${ass.tag['label']}"
-{%                    if 'form_groups' in ass.tag or 'groups' in ass.tag %}\
-                            groups="${','.join([ass.tag.get('form_groups',''),ass.tag.get('groups','')])}"
-{%                    end %}\
-                            />
-{%                  end %}\
+                <search string="${CLASS_LABEL}">
+%                  for col in CLASS.all_attributes(stereotypes=['search']):
+                    ${search_field(col)}
+%                  endfor
+%                  for ass in CLASS.all_associations(stereotypes=['search']):
+                    ${search_association(ass)}
+%                  endfor
+                    <group expand="0" string="Group By">
+%                  for col in CLASS.all_attributes(stereotypes=['group_by']):
+                        ${group_by_field(col)}
+%                  endfor
+%                  for ass in CLASS.all_associations(stereotypes=['group_by']):
+                        ${group_by_association(ass)}
+%                  endfor
                     </group>
                 </search>
             </field>
         </record>
 
         <!-- FORMVIEW -->
-        <record id="${view_form_id()}" model="ir.ui.view">
-            <field name="name">${model()}.form</field>
-            <field name="model">${emodel()}</field>
+        <record id="${view_form_id(CLASS)}" model="ir.ui.view">
+            <field name="name">${model(CLASS)}.form</field>
+            <field name="model">${emodel(CLASS)}</field>
             <field name="arch" type="xml">
-                <form string="${CLASS_LABEL}" version="7.0">
+                <form string="${CLASS_LABEL}">
                     <header>
-{%                  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) %}\
-{%                    for tri in [ t for t in sm.list_ordered_triggers() ] %}\
-{%                      for state in [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ][0:1] %}\
-                        <button name="action_wfk_set_${state.name}"
+%                  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
+%                    for tri in [ t for t in sm.list_ordered_triggers() ]:
+%                      for state in [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ][0:1]:
+                        <button name="action_cancel_${state.name}"
                             type="object"
-{%                      end %}\
-{%                      if not [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ] %}\
+%                      endfor
+%                      if not [ tra.state_to for tra in tri.sm_transitions(sm) if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final()) ]:
                         <button name="sgn_${tri.name}"
-{%                      end %}\
-{%                          if 'class' in tri.tag %}\
+%                      endif
+%                          if 'class' in tri.tag:
                             class="${tri.tag['class']}"
-{%                          end %}\
-{%                          if 'type' in tri.tag %}\
+%                          endif
+%                          if 'type' in tri.tag:
                             type="${tri.tag['type']}"
-{%                          end %}\
+%                          endif
                             states="${','.join(sorted([ s.name for s in set(tri.list_states_from(sm)) ]))}"
                             string="${tri.tag['label']}"
-{%                          if 'groups' in tri.tag %}\
+%                          if 'groups' in tri.tag:
                             groups="${tri.tag['groups']}"
-{%                          end %}\
-{%                          if [ tra for tra in tri.sm_transitions(sm) if tra.is_stereotype('default') ] %}\
+%                          endif
+%                          if [ tra for tra in tri.sm_transitions(sm) if tra.is_stereotype('default') ]:
                             class="oe_highlight"
-{%                          end %}\
+%                          endif
                             />
-{%                    end %}\
+%                    endfor 
                         <field name="state" widget="statusbar"
                             statusbar_colors='${doublequote(repr(stereotype_dict(sm.list_states(),'name',{'exception':'red'})))}'
                             />
-{%                  end %}\
+%                  endfor
                     </header>
                     <sheet string="${CLASS_LABEL}">
+                       <div class="oe_right oe_button_box" name="buttons">
+%                  for ass in CLASS.all_associations(stereotypes=['button_box']):
+                         ${form_button_box(ass)}
+%                  endfor
+                       </div>
                      <group>
-{%                  for col in CLASS.all_attributes(stereotypes=['form']) %}\
-                        <field name="${col.name}"
-{%                    if 'form_select' in col.tag %}\
-                            select="${col.tag['form_select']}"
-{%                    end %}\
-{%                    if 'form_colspan' in col.tag %}\
-                            colspan="${col.tag['form_colspan']}"
-{%                    end %}\
-{%                    if 'form_readonly' in col.tag %}\
-                            readonly="${col.tag['form_readonly']}"
-{%                    end %}\
-{%                    if 'form_required' in col.tag %}\
-                            required="${col.tag['form_required']}"
-{%                    end %}\
-{%                    if 'form_nolabel' in col.tag %}\
-                            nolabel="${col.tag['form_nolabel']}"
-{%                    end %}\
-{%                    if col.is_stereotype('hidden') %}\
-                            invisible="True"
-{%                    end %}\
-{%                    if not col.is_stereotype('hidden') and 'form_invisible' in col.tag %}\
-                            invisible="${col.tag['form_invisible']}"
-{%                    end %}\
-{%                    if 'form_password' in col.tag %}\
-                            password="${col.tag['form_password']}"
-{%                    end %}\
-{%                    if 'form_string' in col.tag %}\
-                            string="${col.tag['form_string']}"
-{%                    end %}\
-{%                    if 'form_domain' in col.tag %}\
-                            domain="${col.tag['form_domain']}"
-{%                    end %}\
-{%                    if 'form_context' in col.tag %}\
-                            context="${col.tag['form_context']}"
-{%                    end %}\
-{%                    if 'form_widget' in col.tag %}\
-                            widget="${col.tag['form_widget']}"
-{%                    end %}\
-{%                    if 'form_mode' in col.tag %}\
-                            mode="${col.tag['form_mode']}"
-{%                    end %}\
-{%                    if 'form_on_change' in col.tag %}\
-                            on_change="${col.tag['form_on_change']}"
-{%                    end %}\
-{%                    if 'form_attrs' in col.tag %}\
-                            attrs="${col.tag['form_attrs']}"
-{%                    end %}\
-{%                    if 'form_eval' in col.tag %}\
-                            eval="${col.tag['form_eval']}"
-{%                    end %}\
-{%                    if 'form_default_focus' in col.tag %}\
-                            default_focus="${col.tag['form_default_focus']}"
-{%                    end %}\
-{%                    if 'form_groups' in col.tag or 'groups' in col.tag %}\
-                            groups="${','.join([col.tag.get('form_groups',''),col.tag.get('groups','')])}"
-{%                    end %}\
-                            />
-{%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotypes=['form']) %}\
-                    <field name="${ass.name}"
-{%                    if 'form_select' in ass.tag %}\
-                            select="${ass.tag['form_select']}"
-{%                    end %}\
-{%                    if 'form_colspan' in ass.tag %}\
-                            colspan="${ass.tag['form_colspan']}"
-{%                    end %}\
-{%                    if 'form_readonly' in ass.tag %}\
-                            readonly="${ass.tag['form_readonly']}"
-{%                    end %}\
-{%                    if 'form_required' in ass.tag %}\
-                            required="${ass.tag['form_required']}"
-{%                    end %}\
-{%                    if 'form_nolabel' in ass.tag %}\
-                            nolabel="${ass.tag['form_nolabel']}"
-{%                    end %}\
-{%                    if ass.is_stereotype('hidden') %}\
-                            invisible="True"
-{%                    end %}\
-{%                    if not ass.is_stereotype('hidden') and 'form_invisible' in ass.tag %}\
-                            invisible="${ass.tag['form_invisible']}"
-{%                    end %}\
-{%                    if 'form_password' in ass.tag %}\
-                            password="${ass.tag['form_password']}"
-{%                    end %}\
-{%                    if 'form_string' in ass.tag %}\
-                            string="${ass.tag['form_string']}"
-{%                    end %}\
-{%                    if 'form_domain' in ass.tag %}\
-                            domain="${ass.tag['form_domain']}"
-{%                    end %}\
-{%                    if 'form_context' in ass.tag %}\
-                            context="${ass.tag['form_context']}"
-{%                    end %}\
-{%                    if 'form_widget' in ass.tag %}\
-                            widget="${ass.tag['form_widget']}"
-{%                    end %}\
-{%                    if 'form_mode' in ass.tag %}\
-                            mode="${ass.tag['form_mode']}"
-{%                    end %}\
-{%                    if 'form_on_change' in ass.tag %}\
-                            on_change="${ass.tag['form_on_change']}"
-{%                    end %}\
-{%                    if 'form_attrs' in ass.tag %}\
-                            attrs="${ass.tag['form_attrs']}"
-{%                    end %}\
-{%                    if 'form_eval' in ass.tag %}\
-                            eval="${ass.tag['form_eval']}"
-{%                    end %}\
-{%                    if 'form_default_focus' in ass.tag %}\
-                            default_focus="${ass.tag['form_default_focus']}"
-{%                    end %}\
-{%                    if 'form_groups' in ass.tag or 'groups' in ass.tag %}\
-                            groups="${','.join([ass.tag.get('form_groups',''),ass.tag.get('groups','')])}"
-{%                    end %}\
-                            />
-{%                  end %}\
+%                  for col in CLASS.all_attributes(stereotypes=['form']):
+                        ${form_field(col)} 
+%                  endfor
+%                  for ass in CLASS.all_associations(stereotypes=['form'], no_stereotypes=['button_box']):
+                        ${form_association(ass)} 
+%                  endfor
                      </group>
                     </sheet>
 
-{%      if CLASS.is_child_of('mail.thread') %}\
+%      if CLASS.is_child_of('mail.thread'):
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>
                         <field name="message_ids" widget="mail_thread"/>
                     </div>
-{%      end %}\
+%      endif
                 </form>
             </field>
         </record>
 
         <!-- TREEVIEW -->
-{%  for tree_type in tree_types(CLASS) %}
-        <record id="${view_tree_id()}${tree_type}" model="ir.ui.view">
-            <field name="name">${model()}.tree${tree_type}</field>
-            <field name="model">${emodel()}</field>
-{%          for ass in [ ass for ass in CLASS.all_associations(stereotypes=['field_parent']) if tree_type=="_hier"] %}\
+%  for tree_type in tree_types(CLASS):
+        <record id="${view_tree_id(CLASS)}${tree_type}" model="ir.ui.view">
+            <field name="name">${model(CLASS)}.tree${tree_type}</field>
+            <field name="model">${emodel(CLASS)}</field>
+%          for ass in [ ass for ass in CLASS.all_associations(stereotypes=['field_parent']) if tree_type=="_hier"]:
             <field name="field_parent">${ass.swap[0].name}</field>
-{%          end %}\
+%          endfor 
             <field name="arch" type="xml">
                 <tree string="${CLASS_LABEL}"
-{%                  if CLASS.is_child_of('ir.needaction_mixin') %}\
+%                  if CLASS.is_child_of('ir.needaction_mixin'):
                     fonts="bold:message_unread==True"
-{%                  end %}\
-{%                  if tree_type == "_edit" %}\
+%                  endif
+%                  if tree_type == "_edit":
                     editable="bottom"
-{%                  end %}\
-{%                  if 'tree_colors' in CLASS.tag %}\
+%                  endif
+%                  if 'tree_editable' in CLASS.tag:
+                    editable="${CLASS.tag['tree_editable']}"
+%                  endif
+%                  if 'tree_colors' in CLASS.tag:
                     colors="${CLASS.tag['tree_colors']}"
-{%                  end %}\
-{%                  if CLASS.is_stereotype('tree_toolbar') %}\
+%                  endif 
+%                  if CLASS.is_stereotype('tree_toolbar'):
                     toolbar="1"
-{%                  end %}\
-{%                  for sm in [ sm for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype'])] %}\
-{%                       def colors() %}grey:state=='cancelled';blue:state in ${repr(tuple(names(sm.initial_states())))};black:state in ${repr(tuple(set(names(sm.middle_states()))-set(names(sm.stereotype_states('exceptional')))))}; red:state in ${repr(tuple(names(sm.stereotype_states('exceptional'))))}{% end %}\
-                    colors="${colors()}"
-{%                  end %}\
+%                  endif 
+%                  if CLASS.get_statemachines(no_stereotypes=['extend','prototype']) and form_colors(CLASS) and 'tree_colors' not in CLASS.tag:
+                    colors="${form_colors(CLASS)}"
+%                  endif 
                     >
-{%                  if CLASS.is_child_of('ir.needaction_mixin') %}\
+%                  if CLASS.is_child_of('ir.needaction_mixin'):
                     <field name="message_unread" invisible="1"/>
-{%                  end %}\
-{%  if CLASS.is_stereotype('hierarchical') %}\
+%                  endif
+%                  if CLASS.is_stereotype('hierarchical'):
                     <field name="complete_name"/>
-{%  end %}\
-{%                  for col in CLASS.all_attributes(stereotypes=['tree']) %}\
-                    <field name="${col.name}"
-{%                    if 'tree_widget' in col.tag %}\
-                            widget="${col.tag['tree_widget']}"
-{%                    end %}\
-{%                    if col.is_stereotype('hidden') %}\
-                            invisible="True"
-{%                    end %}\
-{%                    if (not col.is_stereotype('hidden') and 'tree_invisible' in col.tag) %}\
-                            invisible="${col.tag['tree_invisible']}"
-{%                    end %}\
+%                  endif
+%                  for col in CLASS.all_attributes(stereotypes=['tree']):
+                    ${tree_field(col)}
+%                  endfor
+%                  for ass in CLASS.all_associations(stereotypes=['tree'], no_stereotypes=['field_parent']):
+                    ${tree_association(ass)}
+%                  endfor
+%                  for sm in [ sm for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) ]:
+                    <field name="state"
+%                     if sm.is_stereotype('hidden'):
+                        invisible='True'
+%                     endif
+%                     if sm.is_stereotype('readonly'):
+                        readonly='True' 
+%                     endif
                         />
-{%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotypes=['tree'], no_stereotypes=['field_parent']) %}\
-                    <field name="${ass.name}"
-{%                    if 'tree_widget' in ass.tag %}\
-                            widget="${ass.tag['tree_widget']}"
-{%                    end %}\
-{%                    if ass.is_stereotype('hidden') %}\
-                            invisible="True"
-{%                    end %}\
-{%                    if not ass.is_stereotype('hidden') and 'tree_invisible' in ass.tag %}\
-                            invisible="${col.tag['tree_invisible']}"
-{%                    end %}\
-                        />
-{%                  end %}\
-{%                  for ass in CLASS.all_associations(stereotypes=['field_parent']) %}\
-                    <field name="${ass.name}"
-{%                    if 'tree_widget' in ass.tag %}\
-                            widget="${ass.tag['tree_widget']}"
-{%                    end %}\
-{%                    if ass.is_stereotype('hidden') %}\
-                            invisible="True"
-{%                    end %}\
-{%                    if not ass.is_stereotype('hidden') and 'tree_invisible' in ass.tag %}\
-                            invisible="${col.tag['tree_invisible']}"
-{%                    end %}\
-                       />
-{%                  end %}\
-{%                  for sm in [ sm for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']) ] %}\
-                    <field name="state" {% if sm.is_stereotype('hidden') %}invisible='True'{% end %}{% if sm.is_stereotype('readonly') %}readonly='True'{% end %}/>
-{%                  end %}\
+%                  endfor
                 </tree>
             </field>
         </record>
-{%  end %}\
-{% end %}\
+%  endfor
+% endif 
 
     </data>
 </openerp>

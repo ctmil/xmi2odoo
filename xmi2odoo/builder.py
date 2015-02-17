@@ -259,17 +259,6 @@ class Builder:
                 'quote': lambda s: escape(s, {'"':'&quot;', "'":'&quot;'}),
                 'doublequote': lambda s: escape(s, {"'":'"'}),
                 'uml': uml,
-                'datatype': {
-                    'Boolean': 'boolean',
-                    'Integer': 'integer',
-                    'Float':   'float',
-                    'Char':    'char',
-                    'Text':    'text',
-                    'Date':    'date',
-                    'Datetime':'datetime',
-                    'Binary':  'binary',
-                    'HTML':    'html',
-                },
                 'PACKAGE': package,
                 'YEAR': str(date.today().year),
                 'MODULE_NAME': package.name,
@@ -302,6 +291,38 @@ class Builder:
                 'REPORT_IMPORT': '\n'.join([ "import %s" % n
                                             for n in self.sort_classes(report_classes_obj) ]),
             }
+            if version=='8.0':
+                tags.update({
+                    'datatype': {
+                        'Selection': 'Selection',
+                        'Many2many': 'Many2many',
+                        'One2many': 'One2many',
+                        'Many2one': 'Many2one',
+                        'Boolean': 'Boolean',
+                        'Integer': 'Integer',
+                        'Float':   'Float',
+                        'Char':    'Char',
+                        'Text':    'Text',
+                        'Date':    'Date',
+                        'Datetime':'Datetime',
+                        'Binary':  'Binary',
+                        'HTML':    'Html',
+                    },
+                })
+            else:
+                tags.update({
+                    'datatype': {
+                        'Boolean': 'boolean',
+                        'Integer': 'integer',
+                        'Float':   'float',
+                        'Char':    'char',
+                        'Text':    'text',
+                        'Date':    'date',
+                        'Datetime':'datetime',
+                        'Binary':  'binary',
+                        'HTML':    'html',
+                    },
+                })                
             tags.update({
                 'uml': uml,
                 'LICENSE_HEADER': str(Template(

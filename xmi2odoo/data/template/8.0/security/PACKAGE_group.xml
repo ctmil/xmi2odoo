@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-${LICENSE_HEADER}
--->
 <openerp>
     <data>
 	<record model="ir.module.category" id="module_category_${MODULE_NAME}">
@@ -10,16 +7,16 @@ ${LICENSE_HEADER}
         <field name="sequence">1</field>
         <field name="parent_id" ref="${MODULE_CATEGORY}"/>
     </record>
-{%  for actor in GROUPS %}\
+%  for actor in GROUPS:
 	<record id="group_${actor.name}" model="res.groups">
         <field name="name">${escape(actor.tag.get('label', actor.name))}</field>
         <field name="users" eval="[(4, ref('base.user_root'))]"/>
         <field name="category_id" ref="module_category_${MODULE_NAME}"/>
-{%      if len(actor.child_of) > 0 %}\
+%      if len(actor.child_of) > 0:
         <field name="implied_ids" eval="[(4,ref('group_${actor.child_of[0].parent.name}'))]"/>
-{%      end %}\
+%      endif
 	</record>
-{%  end %}
+%  endfor
     </data>
 </openerp>
 <!-- vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4

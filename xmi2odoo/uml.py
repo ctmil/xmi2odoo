@@ -614,6 +614,9 @@ class CClass(CDataType):
         return any(extensions)
 
     def oerp_id(self, sep='.', check_extend=True, return_parent=False, ignore=['ir.needaction_mixin','mail.thread']):
+        model_name = self.tag.get('model_name', '')
+        if model_name:
+            return model_name
         child_of = [ gen for gen in self.child_of if gen.parent.oerp_id() not in ignore ]
         if len(child_of) > 0:
             generalization = child_of[0]
