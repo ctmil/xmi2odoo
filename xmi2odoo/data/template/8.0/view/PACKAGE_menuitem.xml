@@ -1,48 +1,47 @@
+<%!
+from xmi2odoo.tools import emodel, model, tree_sufix, related, is_related
+%>\
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-<%!
-    def model(menu, s='.'):
-        return menu.relateds(uml.CClass)[0].oerp_id(s, False)
-
-    def emodel(menu, s='.'):
-        return menu.relateds(uml.CClass)[0].oerp_id(s)
-
-    def tree_sufix(menu):
-        return (menu.is_stereotype('hierarchical') and '_hier' or '') + (menu.is_stereotype('editable') and '_edit' or '')
-%>
 %  for menu in MENUES:
-%    if 'action' not in menu.tag and len(list(menu.relateds(uml.CClass))) == 1:
-        <record id="action_${model(menu,'_')}_${menu.name}${tree_sufix()}" model="ir.actions.act_window">
+%    if 'action' not in menu.tag and is_related(menu):
+        <record id="action_${model(related(menu),'_')}_${menu.name}${tree_sufix(menu)}" model="ir.actions.act_window">
             <field name="name">${escape(menu.tag.get('label', menu.name))}</field>
-            <field name="res_model">${emodel(menu)}</field>
-%      if menu.relateds(uml.CClass)[0].is_stereotype('wizard'):
+            <field name="res_model">${emodel(related(menu))}</field>
+%      if related(menu).is_stereotype('wizard'):
             <field name="view_type">${menu.tag.get('view_type', 'form')}</field>
             <field name="view_mode">${menu.tag.get('view_mode', 'tree,form')}</field>
-            <field name="view_id" ref="view_${model(menu,'_')}_form"/>
+            <field name="view_id" ref="view_${model(related(menu),'_')}_form"/>
             <field name="target">new</field>
 %      else:
             <field name="view_type">${menu.is_stereotype('hierarchical') and 'tree' or menu.tag.get('view_type', 'form')}</field>
             <field name="view_mode">${menu.tag.get('view_mode', 'tree,form')}</field>
-%           if not menu.relateds(uml.CClass)[0].package.is_stereotype('external'):
-            <field name="view_id" ref="view_${model(model,'_')}_tree${tree_sufix()}"/>
-            <field name="search_view_id" ref="view_${model(model,'_')}_filter"/>
+%           if not related(menu).package.is_stereotype('external'):
+            <field name="view_id" ref="view_${model(related(menu),'_')}_tree${tree_sufix(menu)}"/>
+            <field name="search_view_id" ref="view_${model(related(menu),'_')}_filter"/>
 %          endif
 %      endif
 %      if 'help' in menu.tag:
             <field name="help" type="html">${menu.tag['help']}</field>
+%      else:
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create"> Click to create a ${escape(menu.tag.get('label', menu.name))}.</p>
+            </field>
 %      endif
 %      if 'context' in menu.tag:
             <field name="context">${menu.tag['context']}</field>
 %      endif
+%      if 'domain' in menu.tag:
             <field name="domain">
                 [
                  ${menu.tag['domain'][1:-1]},
-                % for ass in [ ass for ass in menu.relateds(uml.CClass)[0].all_associations(stereotypes=['field_parent']) if menu.is_stereotype('hierarchical') ]:
+                % for ass in [ ass for ass in related(menu).all_associations(stereotypes=['field_parent']) if menu.is_stereotype('hierarchical') ]:
                  ('${ass.name}','=',False),
                 % endfor
                 ]
             </field>
+%      endif
         </record>
 %    endif
 
@@ -53,11 +52,11 @@
             name="${escape(menu.tag.get('label', '<No label>'))}"
 %      endif
             id="menu_${menu.name}"
-            sequence="${menu.tag.get('menu_sequence',100)}"
+            sequence="${menu.tag.get('menu_sequence',10)}"
 %      if 'action' in menu.tag:
             action="${menu.tag['action']}"
-%      elif len(list(menu.relateds(uml.CClass))) == 1:
-            action="action_${model('_')}_${menu.name}${tree_sufix()}"
+%      elif is_related(menu):
+            action="action_${model(related(menu),'_')}_${menu.name}${tree_sufix(menu)}"
 %      endif
 %      if len(list(menu.prevs(uml.CUseCase))) > 0:
 %        if menu.prevs(uml.CUseCase)[0].package.xmi_id != menu.package.xmi_id:

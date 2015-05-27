@@ -449,7 +449,10 @@ class Model:
             obj = getattr(obj, 'xmi_id', obj)
             self._postprocessing_append.append((owner, member, obj))
         else:
-            getattr(owner, member).append(obj)
+            if owner is None:
+                raise RuntimeError('You must assign %s to any package' % obj)
+            if hasattr(owner, member):
+                getattr(owner, member).append(obj)
 
     def _do_postprocessing_append(self):
         postprocessing_append = self._postprocessing_append
@@ -732,11 +735,10 @@ class Model:
 
             elif (kind, event, elem.tag) == ('plain', 'end', '{org.omg.xmi.namespace.UML}TaggedValue.dataValue'):
                 if stop: import pdb; pdb.set_trace()
-                tagvalue = max(tagvalue, elem.text)
+                tagvalue = max('tagvalue' in locals() and tagvalue, elem.text or '')
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}TagDefinition'):
                 if stop: import pdb; pdb.set_trace()
-                tagvalue = None
                 ctagdefinition = self._create(uml.CTagDefinition, elem)
 
             elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}TagDefinition'):
@@ -749,9 +751,7 @@ class Model:
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}TaggedValue'):
                 if stop: import pdb; pdb.set_trace()
-                if not 'tagvalue' in locals():
-                    raise RuntimeError('Tag "%s" (%s) owned by %s without value' % (tagdefinition.name, ';'.join("%r" % self[o] for o in owner), elem.attrib['xmi.id'],))
-                tagvalue = max(tagvalue, elem.text or '')
+                tagvalue = max('tagvalue' in locals() and tagvalue, elem.text or '')
                 if len(owner) > 1:
                     ctaggedvalue = self._create(uml.CTaggedValue, elem,
                                                 mask=(False, True, False, True), attribs=['xmi.id'],

@@ -1,7 +1,7 @@
 <%!
 from xmi2odoo.tools import emodel, sel_literals, fnc_name, attr_options, class_id
 from xmi2odoo.tools import ass_id, ass_options, ass_other_name, ass_relational_obj, ass_other_id
-from xmi2odoo.tools import parameters
+from xmi2odoo.tools import parameters, debug, walk_by_associations
 %>\
 # -*- coding: utf-8 -*-
 from openerp import netsvc
@@ -173,8 +173,18 @@ fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options
        '${fnc_name(ass)}': fields.related(
                    ${"'%s'" % "','".join(ass.tag['related_by'].split(','))},
                    ${"'%s'" % ass.tag['related_to']},
-                   type='${getattr(getattr(ass.participant.member_by_name(ass.tag["related_to"]), "datatype", None),"oerp_type",getattr(ass.participant.association_by_name(ass.tag["related_to"]), "multiplicity","<Not defined>"))}',
-                   relation='${ass.participant.oerp_id()}',
+<%
+          as_attribute =  walk_by_associations(CLASS, ass.tag['related_by'].split(',')).attribute_by_name(ass.tag['related_to'])
+          as_association =  walk_by_associations(CLASS, ass.tag['related_by'].split(',')).association_by_name(ass.tag['related_to'])
+          %>\
+%         if as_attribute:
+                   type='${as_attribute.datatype}',
+%         elif as_association:
+                   type='${as_association.multiplicity}',
+                   relation='${emodel(as_association.participant)}',
+%         else:
+                   type='<No type>',
+%         endif
                    ${ass_options(CLASS, ass)}
                    ),
 %      endif
