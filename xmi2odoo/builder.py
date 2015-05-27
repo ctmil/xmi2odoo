@@ -255,6 +255,7 @@ class Builder:
             tags = {
                 'stereotype_dict': stereotype_dict,
                 'names': names,
+                'unicode': unicode,
                 'escape': escape,
                 'quote': lambda s: escape(s, {'"':'&quot;', "'":'&quot;'}),
                 'doublequote': lambda s: escape(s, {"'":'"'}),

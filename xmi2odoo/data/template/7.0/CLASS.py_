@@ -174,8 +174,8 @@ fields.one2many('${ass_id(ass)}', '${ass_other_name(CLASS, ass)}', ${ass_options
                    ${"'%s'" % "','".join(ass.tag['related_by'].split(','))},
                    ${"'%s'" % ass.tag['related_to']},
                    type='${getattr(getattr(ass.participant.member_by_name(ass.tag["related_to"]), "datatype", None),"oerp_type",getattr(ass.participant.association_by_name(ass.tag["related_to"]), "multiplicity","<Not defined>"))}',
-                   relation='${oerp_id()}',
-                   ${ass_options(ass)}
+                   relation='${ass.participant.oerp_id()}',
+                   ${ass_options(CLASS, ass)}
                    ),
 %      endif
 %      endfor

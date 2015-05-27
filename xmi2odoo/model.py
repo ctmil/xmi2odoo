@@ -736,6 +736,7 @@ class Model:
 
             elif (kind, event, elem.tag) == ('description', 'start', '{org.omg.xmi.namespace.UML}TagDefinition'):
                 if stop: import pdb; pdb.set_trace()
+                tagvalue = None
                 ctagdefinition = self._create(uml.CTagDefinition, elem)
 
             elif (kind, event, elem.tag) == ('reference', 'start', '{org.omg.xmi.namespace.UML}TagDefinition'):
@@ -748,6 +749,8 @@ class Model:
 
             elif (kind, event, elem.tag) == ('description', 'end', '{org.omg.xmi.namespace.UML}TaggedValue'):
                 if stop: import pdb; pdb.set_trace()
+                if not 'tagvalue' in locals():
+                    raise RuntimeError('Tag "%s" (%s) owned by %s without value' % (tagdefinition.name, ';'.join("%r" % self[o] for o in owner), elem.attrib['xmi.id'],))
                 tagvalue = max(tagvalue, elem.text or '')
                 if len(owner) > 1:
                     ctaggedvalue = self._create(uml.CTaggedValue, elem,
