@@ -188,6 +188,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 <openerp>
     <data>
 % if CLASS.parents(no_stereotypes=['disjoin_view'], ignore=['mail.thread','ir.needaction_mixin']):
+%   if CLASS.parent().get('view_search_id'):        
         <!-- INHERITED SEARCH -->
         <record id="${view_filter_id(CLASS)}" model="ir.ui.view">
             <field name="name">${model(CLASS)}.select</field>
@@ -207,7 +208,9 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
                 </search>
             </field>
         </record>
- 
+%      endif
+
+%   if CLASS.parent().get('view_form_id'):         
         <!-- INHERITED FORM -->
         <record id="${view_form_id(CLASS)}" model="ir.ui.view">
             <field name="name">${model(CLASS)}.form</field>
@@ -224,7 +227,9 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
                 </group>
             </field>
         </record>
+%      endif
 
+%   if CLASS.parent().get('view_tree_id'):         
         <!-- INHERITED TREE -->
         <record id="${view_tree_id(CLASS)}" model="ir.ui.view">
             <field name="name">${model(CLASS)}.tree</field>
@@ -241,6 +246,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
                 </tree>
             </field>
         </record>
+%      endif
 
 % elif CLASS.oerp_id('-', False) == CLASS.oerp_id('-', False, True) or CLASS.child_of[0].is_stereotype('disjoin_view'):
         <!-- SEARCH VIEW -->
