@@ -208,6 +208,8 @@ class Builder:
             shutil.copytree(source, target, ignore=ignore)
 
     def build(self, version, logfile=sys.stderr):
+#         import sys;sys.path.append(r'/home/nacho/liclipse/plugins/org.python.pydev_5.3.1.201610311347/pysrc')
+#         import pydevd;pydevd.settrace()        
         logging.info("Starting Building")
         # Store dependencies to check circular ones.
         dependencies_map = {}

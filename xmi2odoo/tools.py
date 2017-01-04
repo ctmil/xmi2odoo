@@ -232,8 +232,8 @@ def form_colors(cls):
     for sm in [ sm for sm in cls.get_statemachines(no_stereotypes=['extend','prototype'])]:
         r = "grey:state=='cancelled';blue:state in %s;black:state in %s;red:state in %s" % (
             repr(tuple(names(sm.initial_states()))),
-            repr(tuple(set(names(sm.middle_states()))-set(names(sm.stereotype_states('exceptional'))))),
-            repr(tuple(names(sm.stereotype_states('exceptional'))))
+            repr(tuple(set(names(sm.middle_states()))-set(names(sm.stereotype_states('exception'))))),
+            repr(tuple(names(sm.stereotype_states('exception'))))
         )
     return r
 
