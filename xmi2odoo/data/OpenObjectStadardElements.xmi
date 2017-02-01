@@ -1,5 +1,5 @@
 <?xml version = '1.0' encoding = 'UTF-8' ?>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Wed Jan 04 12:43:31 CET 2017'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Tue Jan 17 20:29:20 CET 2017'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.34(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -613,6 +613,9 @@
           <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>FinalState</UML:Stereotype.baseClass>
           <UML:Stereotype.baseClass>State</UML:Stereotype.baseClass>
+          <UML:ModelElement.stereotype>
+            <UML:Stereotype xmi.idref = '127-0-1-1--669da02f:159addac8dd:-8000:00000000000011DC'/>
+          </UML:ModelElement.stereotype>
         </UML:Stereotype>
         <UML:Stereotype xmi.id = '127-0-1-1-29a13c2b:13cb7762c9e:-8000:0000000000000EE3'
           name = 'editable' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
@@ -1743,6 +1746,22 @@
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>SimpleState</UML:Stereotype.baseClass>
         </UML:Stereotype>
+        <UML:Stereotype xmi.id = '127-0-1-1--669da02f:159addac8dd:-8000:00000000000011DC'
+          name = 'server_action' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+          isAbstract = 'false'>
+          <UML:Stereotype.baseClass>UseCase</UML:Stereotype.baseClass>
+        </UML:Stereotype>
+        <UML:TagDefinition xmi.id = '127-0-1-1--41a95447:159ade204c9:-8000:00000000000011DF'
+          name = 'code' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1--41a95447:159ade204c9:-8000:00000000000011E1'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1--41a95447:159ade204c9:-8000:00000000000011E0'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
       </UML:Namespace.ownedElement>
     </UML:Model>
   </XMI.content>

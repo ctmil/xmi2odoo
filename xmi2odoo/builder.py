@@ -279,10 +279,10 @@ class Builder:
                                             if cu.is_stereotype('menu') and
                                                cu.package and
                                                cu.package.xmi_id == k]),
-                'SERVER_ACTIONS': self.sort_menues([ cu for cu in self.model.session.query(uml.CUseCase)
+                'SERVER_ACTIONS': [ cu for cu in self.model.session.query(uml.CUseCase)
                                             if cu.is_stereotype('server_action') and
                                                cu.package and
-                                               cu.package.xmi_id == k]),
+                                               cu.package.xmi_id == k],
                 'GROUPS': self.sort_by_gen([ ac for ac in self.model.session.query(uml.CActor)
                                             if ac.is_stereotype('group') and
                                                ac.package and
