@@ -73,6 +73,9 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                    if 'form_eval' in col.tag:
                             eval="${col.tag['form_eval']}"
 %                    endif
+%                    if 'form_filename' in col.tag:
+                            filename="${col.tag['form_filename']}"
+%                    endif
 %                    if 'form_default_focus' in col.tag:
                             default_focus="${col.tag['form_default_focus']}"
 %                    endif
