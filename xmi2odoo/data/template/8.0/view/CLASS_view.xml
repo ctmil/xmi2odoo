@@ -160,6 +160,9 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                    if 'tree_widget' in col.tag:
                             widget="${col.tag['tree_widget']}"
 %                    endif
+%                    if 'tree_attrs' in col.tag:
+                            attrs="${col.tag['tree_attrs']}"
+%                    endif
 %                    if 'tree_sum' in col.tag:
                             sum="${col.tag['tree_sum']}"
 %                    endif
