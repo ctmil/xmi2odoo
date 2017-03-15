@@ -9,7 +9,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
                             groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
 %                    endif
                             /></%def>\
-<%def name="group_by_field(col)"><field name="${col.name}" string="${col.tag['label']}" context="{'group_by':'${col.name}'}"
+<%def name="group_by_field(col)"><filter string="${col.tag['label']}" context="{'group_by':'${col.name}'}"
 %                    if 'search_groups' in col.tag or 'view_groups' in col.tag:
                             groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
 %                    endif
@@ -19,7 +19,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
                             groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
 %                    endif
                             /></%def>\
-<%def name="group_by_association(ass)"><field name="${ass.name}" string="${ass.tag['label']}"  context="{'group_by':'${col.name}'}"
+<%def name="group_by_association(ass)"><filter string="${ass.tag['label']}"  context="{'group_by':'${col.name}'}"
 %                    if 'search_groups' in ass.tag or 'view_groups' in ass.tag:
                             groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
 %                    endif
@@ -78,6 +78,9 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                    endif
 %                    if 'form_states' in col.tag:
                             states="${col.tag['form_states']}"
+%                    endif
+%                    if 'form_options' in col.tag:
+                            options="${col.tag['form_options']}"
 %                    endif
 %                    if 'form_default_focus' in col.tag:
                             default_focus="${col.tag['form_default_focus']}"
@@ -145,6 +148,9 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                    endif
 %                    if 'form_states' in ass.tag:
                             states="${ass.tag['form_states']}"
+%                    endif
+%                    if 'form_options' in ass.tag:
+                            options="${col.tag['form_options']}"
 %                    endif
 %                    if 'form_default_focus' in ass.tag:
                             default_focus="${ass.tag['form_default_focus']}"
@@ -279,6 +285,10 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                  endfor
 %                  for ass in CLASS.all_associations(stereotypes=['group_by']):
                         ${group_by_association(ass)}
+%                  endfor
+%                  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
+                        <!--  field name="state" string="State" context="{'group_by':'state'}"/ -->
+                        ${group_by_field(sm)}
 %                  endfor
                     </group>
                 </search>
