@@ -11,6 +11,26 @@ from openerp.exceptions import Warning
 class ${CLASS.name.replace('.','_')}(${'models.TransientModel' if CLASS.is_stereotype('memory') else 'models.Model'}):
     """${CLASS.get('documentation', '')}"""
 
+%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation ]:
+
+    @api.one
+    def ${op.name}(self${parameters(op, prefix=' ,')}):
+        """${op.tag.get('documentation','')}"""
+%    if op.member_of.name == CLASS.name:
+%      if len(CLASS.child_of)>0:
+        parent = super(${CLASS.name},self)
+        result = parent.${op.name}(${parameters(op)}) if hasattr(parent, '${op.name}') else False
+        return result
+%      endif
+%      if len(CLASS.child_of)==0:
+        raise NotImplementedError
+%      endif
+%    endif
+%    if op.member_of.name != CLASS.name:
+        member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
+        return member(cr, uid, ids${parameters(op, prefix=', ')})
+%    endif
+%  endfor
 % if CLASS.is_stereotype('hierarchical'):
     def name_get(self, cr, uid, ids, context=None):
         if isinstance(ids, (list, tuple)) and not len(ids):
@@ -203,26 +223,6 @@ class ${CLASS.name.replace('.','_')}(${'models.TransientModel' if CLASS.is_stere
 
     _sql_constraints = [ ${CLASS.tag['sql_constraints']} ]
 %  endif
-%  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation ]:
-
-    @api.one
-    def ${op.name}(self${parameters(op, prefix=' ,')}):
-        """${op.tag.get('documentation','')}"""
-%    if op.member_of.name == CLASS.name:
-%      if len(CLASS.child_of)>0:
-        parent = super(${CLASS.name},self)
-        result = parent.${op.name}(${parameters(op)}) if hasattr(parent, '${op.name}') else False
-        return result
-%      endif
-%      if len(CLASS.child_of)==0:
-        raise NotImplementedError
-%      endif
-%    endif
-%    if op.member_of.name != CLASS.name:
-        member = getattr(self.pool.get('${op.member_of.oerp_id()}'), '${op.name}')
-        return member(cr, uid, ids${parameters(op, prefix=', ')})
-%    endif
-%  endfor
 %  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
 %      for state in sorted(set([ tra.state_to for tra in sm.middle_transitions() if (not tra.state_from.is_initial() and tra.state_to.is_initial()) or (tra.state_from.is_final() and not tra.state_to.is_final())]), key=lambda s: s.name):
 
