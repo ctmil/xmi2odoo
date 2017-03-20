@@ -7,13 +7,22 @@ from xmi2odoo.tools import parameters
 from openerp import models, fields, api, _
 from openerp.exceptions import Warning
 
+%  if CLASS.tag.get('depends'):
+%     for i in CLASS.tag['depends'].split(','):
+import ${i}
+%     endfor
+%  endif
 
 class ${CLASS.name.replace('.','_')}(${'models.TransientModel' if CLASS.is_stereotype('memory') else 'models.Model'}):
     """${CLASS.get('documentation', '')}"""
 
 %  for op in [ op for op in CLASS.iter_over_inhereted_attrs('members') if type(op) is uml.COperation ]:
 
+%    if 'version' in op.tag:
+    @${op.tag.get('version')}
+%    else:
     @api.one
+%    endif
     def ${op.name}(self${parameters(op, prefix=' ,')}):
         """${op.tag.get('documentation','')}"""
 %    if op.member_of.name == CLASS.name:
