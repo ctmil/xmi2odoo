@@ -203,7 +203,7 @@ class ${CLASS.name.replace('.','_')}(${'models.TransientModel' if CLASS.is_stere
         '${ass_other_name(CLASS, ass)}',
         ${ass_options(CLASS, ass, '8.0')}
         )
-%      elif ass.multiplicity == 'many2many':
+%      elif ass.multiplicity == 'many2many' and fnc_name(ass)!='':
     ${fnc_name(ass)} = fields.Many2many(
         '${ass_id(ass)}',
         '${ass_relational_obj(MODULE_NAME, ass)}',
