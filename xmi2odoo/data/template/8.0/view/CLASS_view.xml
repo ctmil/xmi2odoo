@@ -374,6 +374,9 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                  if tree_type == "_edit":
                     editable="bottom"
 %                  endif
+%                  if 'tree_order' in CLASS.tag:
+                    default_order="${CLASS.tag['tree_order']}"
+%                  endif
 %                  if 'tree_editable' in CLASS.tag:
                     editable="${CLASS.tag['tree_editable']}"
 %                  endif
