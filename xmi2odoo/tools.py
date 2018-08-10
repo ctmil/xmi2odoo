@@ -13,10 +13,13 @@ def tag_option(obj, name, label=None, default=None, check=True, quote='\'', nega
         value = valid and obj.tag[name]
     pretrans = "_(" if translate else ""
     posttrans = ")" if translate else ""
-    if check and (not valid if negate else valid):
-        r = "%s=%s%s%s%s%s" % (label, pretrans, quote, obj.tag[name], quote, posttrans)
+    if not(label=='string' and obj.tag[name]==obj.name):        
+        if check and (not valid if negate else valid):
+            r = "%s=%s%s%s%s%s" % (label, pretrans, quote, obj.tag[name], quote, posttrans)
+        else:
+            r = default
     else:
-        r = default
+        r = default    
     return r 
 
 def stereotype_option(obj, name, label=None, default=None, value='True', check=True, negate=False):

@@ -1741,6 +1741,17 @@
             </UML:Multiplicity>
           </UML:TagDefinition.multiplicity>
         </UML:TagDefinition>
+        <UML:TagDefinition xmi.id = '127-0-1-1--7077bcbc:163964d5225:-8000:00000000000011AF'
+          name = 'inverse' isSpecification = 'false'>
+          <UML:TagDefinition.multiplicity>
+            <UML:Multiplicity xmi.id = '127-0-1-1-53e803e1:157fc0fdbcb:-8000:00000000000F14A5'>
+              <UML:Multiplicity.range>
+                <UML:MultiplicityRange xmi.id = '127-0-1-1-53e803e1:157fc0fdbcb:-8000:00000000000F14A4'
+                  lower = '0' upper = '0'/>
+              </UML:Multiplicity.range>
+            </UML:Multiplicity>
+          </UML:TagDefinition.multiplicity>
+        </UML:TagDefinition>
         <UML:Stereotype xmi.id = '127-0-1-1-195fe836:15969482925:-8000:0000000000000D45'
           name = 'exception' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
           isAbstract = 'false'>
