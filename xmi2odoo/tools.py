@@ -6,7 +6,7 @@ def tag_option(obj, name, label=None, default=None, check=True, quote='\'', nega
     if isinstance(name, list):
         valid = any(n in obj.tag for n in name)
         label = label or name[0]
-        value = valid and ("%s,%s" % quote).join(obj.tag[n] for n in name if name in obj.tag)
+        value = valid and ("%s,%s" % quote).join(obj.tag[n] for n in name if n in obj.tag)
     else:
         valid = name in obj.tag
         label = label or name
