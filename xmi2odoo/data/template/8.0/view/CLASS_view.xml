@@ -156,7 +156,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
                             default_focus="${ass.tag['form_default_focus']}"
 %                    endif 
 %                    if 'form_groups' in ass.tag or 'view_groups' in ass.tag:
-                            groups="${','.join([x for x in [col.tag.get('form_groups',''),col.tag.get('view_groups','')] if x])}"
+                            groups="${','.join([x for x in [ass.tag.get('form_groups',''),ass.tag.get('view_groups','')] if x])}"
 %                    endif
                         /></%def>\
 <%def name="tree_field(col)"><field name="${col.name}"
