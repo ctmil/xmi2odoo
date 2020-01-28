@@ -29,3 +29,5 @@ pip-log.txt
 #Vim
 .*.swp
 *~
+/.pydevproject
+/.project

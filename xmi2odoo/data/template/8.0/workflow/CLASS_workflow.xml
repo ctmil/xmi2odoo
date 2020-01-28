@@ -4,7 +4,7 @@ from xmi2odoo.tools import model, emodel, sel_literals, fnc_name, attr_options
 from xmi2odoo.tools import parameters, names, groups, wkf_name, wkf_guard
 %>
 <openerp>
-    <data>
+    <data noupdate="1">
 % for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
         <!-- Workflow -->
 

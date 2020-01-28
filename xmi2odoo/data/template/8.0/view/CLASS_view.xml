@@ -9,7 +9,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
                             groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
 %                    endif
                             /></%def>\
-<%def name="group_by_field(col)"><field name="${col.name}" string="${col.tag['label']}" context="{'group_by':'${col.name}'}"
+<%def name="group_by_field(col)"><filter string="${col.tag['label']}" context="{'group_by':'${col.name}'}"
 %                    if 'search_groups' in col.tag or 'view_groups' in col.tag:
                             groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
 %                    endif
@@ -19,7 +19,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
                             groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
 %                    endif
                             /></%def>\
-<%def name="group_by_association(ass)"><field name="${ass.name}" string="${ass.tag['label']}"  context="{'group_by':'${col.name}'}"
+<%def name="group_by_association(ass)"><filter string="${ass.tag['label']}"  context="{'group_by':'${col.name}'}"
 %                    if 'search_groups' in ass.tag or 'view_groups' in ass.tag:
                             groups="${','.join([x for x in [col.tag.get('search_groups',''),col.tag.get('view_groups','')] if x])}"
 %                    endif
@@ -72,6 +72,15 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                    endif
 %                    if 'form_eval' in col.tag:
                             eval="${col.tag['form_eval']}"
+%                    endif
+%                    if 'form_filename' in col.tag:
+                            filename="${col.tag['form_filename']}"
+%                    endif
+%                    if 'form_states' in col.tag:
+                            states="${col.tag['form_states']}"
+%                    endif
+%                    if 'form_options' in col.tag:
+                            options="${col.tag['form_options']}"
 %                    endif
 %                    if 'form_default_focus' in col.tag:
                             default_focus="${col.tag['form_default_focus']}"
@@ -137,11 +146,17 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                    if 'form_eval' in ass.tag:
                             eval="${ass.tag['form_eval']}"
 %                    endif
+%                    if 'form_states' in ass.tag:
+                            states="${ass.tag['form_states']}"
+%                    endif
+%                    if 'form_options' in ass.tag:
+                            options="${col.tag['form_options']}"
+%                    endif
 %                    if 'form_default_focus' in ass.tag:
                             default_focus="${ass.tag['form_default_focus']}"
 %                    endif 
 %                    if 'form_groups' in ass.tag or 'view_groups' in ass.tag:
-                            groups="${','.join([x for x in [col.tag.get('form_groups',''),col.tag.get('view_groups','')] if x])}"
+                            groups="${','.join([x for x in [ass.tag.get('form_groups',''),ass.tag.get('view_groups','')] if x])}"
 %                    endif
                         /></%def>\
 <%def name="tree_field(col)"><field name="${col.name}"
@@ -150,6 +165,9 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                    endif
 %                    if 'tree_widget' in col.tag:
                             widget="${col.tag['tree_widget']}"
+%                    endif
+%                    if 'tree_attrs' in col.tag:
+                            attrs="${col.tag['tree_attrs']}"
 %                    endif
 %                    if 'tree_sum' in col.tag:
                             sum="${col.tag['tree_sum']}"
@@ -188,6 +206,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 <openerp>
     <data>
 % if CLASS.parents(no_stereotypes=['disjoin_view'], ignore=['mail.thread','ir.needaction_mixin']):
+%   if CLASS.parent().get('view_search_id'):        
         <!-- INHERITED SEARCH -->
         <record id="${view_filter_id(CLASS)}" model="ir.ui.view">
             <field name="name">${model(CLASS)}.select</field>
@@ -207,7 +226,9 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
                 </search>
             </field>
         </record>
- 
+%      endif
+
+%   if CLASS.parent().get('view_form_id'):         
         <!-- INHERITED FORM -->
         <record id="${view_form_id(CLASS)}" model="ir.ui.view">
             <field name="name">${model(CLASS)}.form</field>
@@ -224,7 +245,9 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
                 </group>
             </field>
         </record>
+%      endif
 
+%   if CLASS.parent().get('view_tree_id'):         
         <!-- INHERITED TREE -->
         <record id="${view_tree_id(CLASS)}" model="ir.ui.view">
             <field name="name">${model(CLASS)}.tree</field>
@@ -241,6 +264,7 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
                 </tree>
             </field>
         </record>
+%      endif
 
 % elif CLASS.oerp_id('-', False) == CLASS.oerp_id('-', False, True) or CLASS.child_of[0].is_stereotype('disjoin_view'):
         <!-- SEARCH VIEW -->
@@ -261,6 +285,10 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                  endfor
 %                  for ass in CLASS.all_associations(stereotypes=['group_by']):
                         ${group_by_association(ass)}
+%                  endfor
+%                  for sm in CLASS.get_statemachines(no_stereotypes=['extend','prototype']):
+                        <!--  field name="state" string="State" context="{'group_by':'state'}"/ -->
+                        ${group_by_field(sm)}
 %                  endfor
                     </group>
                 </search>
@@ -345,6 +373,9 @@ from xmi2odoo.tools import view_filter_id, view_form_id, view_tree_id, form_colo
 %                  endif
 %                  if tree_type == "_edit":
                     editable="bottom"
+%                  endif
+%                  if 'tree_order' in CLASS.tag:
+                    default_order="${CLASS.tag['tree_order']}"
 %                  endif
 %                  if 'tree_editable' in CLASS.tag:
                     editable="${CLASS.tag['tree_editable']}"

@@ -208,6 +208,8 @@ class Builder:
             shutil.copytree(source, target, ignore=ignore)
 
     def build(self, version, logfile=sys.stderr):
+#         import sys;sys.path.append(r'/home/nacho/liclipse/plugins/org.python.pydev_5.3.1.201610311347/pysrc')
+#         import pydevd;pydevd.settrace()        
         logging.info("Starting Building")
         # Store dependencies to check circular ones.
         dependencies_map = {}
@@ -277,10 +279,10 @@ class Builder:
                                             if cu.is_stereotype('menu') and
                                                cu.package and
                                                cu.package.xmi_id == k]),
-                'SERVER_ACTIONS': self.sort_menues([ cu for cu in self.model.session.query(uml.CUseCase)
+                'SERVER_ACTIONS': [ cu for cu in self.model.session.query(uml.CUseCase)
                                             if cu.is_stereotype('server_action') and
                                                cu.package and
-                                               cu.package.xmi_id == k]),
+                                               cu.package.xmi_id == k],
                 'GROUPS': self.sort_by_gen([ ac for ac in self.model.session.query(uml.CActor)
                                             if ac.is_stereotype('group') and
                                                ac.package and

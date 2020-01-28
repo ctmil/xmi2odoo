@@ -6,17 +6,20 @@ def tag_option(obj, name, label=None, default=None, check=True, quote='\'', nega
     if isinstance(name, list):
         valid = any(n in obj.tag for n in name)
         label = label or name[0]
-        value = valid and ("%s,%s" % quote).join(obj.tag[n] for n in name if name in obj.tag)
+        value = valid and ("%s,%s" % quote).join(obj.tag[n] for n in name if n in obj.tag)
     else:
         valid = name in obj.tag
         label = label or name
         value = valid and obj.tag[name]
     pretrans = "_(" if translate else ""
     posttrans = ")" if translate else ""
-    if check and (not valid if negate else valid):
-        r = "%s=%s%s%s%s%s" % (label, pretrans, quote, obj.tag[name], quote, posttrans)
+    if not(label=='string' and obj.tag[name]==obj.name):        
+        if check and (not valid if negate else valid):
+            r = "%s=%s%s%s%s%s" % (label, pretrans, quote, obj.tag[name], quote, posttrans)
+        else:
+            r = default
     else:
-        r = default
+        r = default    
     return r 
 
 def stereotype_option(obj, name, label=None, default=None, value='True', check=True, negate=False):
@@ -60,7 +63,7 @@ def attr_options(cls, obj, version=False):
          tag_option(obj,  'documentation', label='help', quote='"""'),
          tag_option(obj,  'ondelete', quote=''),
          tag_option(obj,  'track_visibility'),
-         tag_option(obj,  'digits'),
+         tag_option(obj,  'digits',quote=''),
          stereotype_option(obj, 'readonly'),
          stereotype_option(obj, 'required', check=not cls.is_extended()),
          tag_option(obj,  'size'),
@@ -93,7 +96,7 @@ def attr_options(cls, obj, version=False):
        tag_option(obj,  'label', label='string'),
        tag_option(obj,  'documentation', label='help', quote='"""'),
        tag_option(obj,  'ondelete', quote=''),
-       tag_option(obj,  'digits'),
+       tag_option(obj,  'digits', quote=''),
        stereotype_option(obj, 'readonly'),
        stereotype_option(obj, 'required', check=not cls.is_extended()),
        tag_option(obj,  'size'),
@@ -232,8 +235,8 @@ def form_colors(cls):
     for sm in [ sm for sm in cls.get_statemachines(no_stereotypes=['extend','prototype'])]:
         r = "grey:state=='cancelled';blue:state in %s;black:state in %s;red:state in %s" % (
             repr(tuple(names(sm.initial_states()))),
-            repr(tuple(set(names(sm.middle_states()))-set(names(sm.stereotype_states('exceptional'))))),
-            repr(tuple(names(sm.stereotype_states('exceptional'))))
+            repr(tuple(set(names(sm.middle_states()))-set(names(sm.stereotype_states('exception'))))),
+            repr(tuple(names(sm.stereotype_states('exception'))))
         )
     return r
 
